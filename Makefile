@@ -16,7 +16,7 @@ all: build
 build: build_show_distpkg_deps build_enumerate_github build_show_depsdev_deps \
 	build_checkvalid build_invoke_llm build_gitmetricsync build_githubmetrics \
 	build_gen_scores build_package_calculator build_pkgdep2git update_git_metrics \
-	build_cli apiserver
+	build_manual_fix_git_metrics apiserver
 
 build_invoke_llm:
 	cd $(CURDIR) && $(GOBUILD) -o $(BIN_DIR)/invoke_llm github.com/HUSTSecLab/criticality_score/cmd/invoke_llm
@@ -42,11 +42,11 @@ build_gen_scores:
 build_package_calculator:
 	cd $(CURDIR) && $(GOBUILD) -o $(BIN_DIR)/package_calculator github.com/HUSTSecLab/criticality_score/cmd/package_calculator
 
-build_cli:
-	cd $(CURDIR) && $(GOBUILD) -o $(BIN_DIR)/cli github.com/HUSTSecLab/criticality_score/cmd/cli
+build_manual_fix_git_metrics:
+	cd $(CURDIR) && $(GOBUILD) -o $(BIN_DIR)/manual_fix_git_metrics github.com/HUSTSecLab/criticality_score/cmd/collect_git_metrics/manual_fix
 
 update_git_metrics:
-	cd $(CURDIR) && $(GOBUILD) -o $(BIN_DIR)/update_git_metrics github.com/HUSTSecLab/criticality_score/pkg/collector_git/cmd/integrate
+	cd $(CURDIR) && $(GOBUILD) -o $(BIN_DIR)/update_git_metrics github.com/HUSTSecLab/criticality_score/cmd/collect_git_metrics/integrate
 
 build_pkgdep2git:
 	cd $(CURDIR) && $(GOBUILD) -o $(BIN_DIR)/pkgdep2git github.com/HUSTSecLab/criticality_score/cmd/pkgdep2git
@@ -74,4 +74,4 @@ test:
 	build_show_depsdev_deps build_invoke_llm build_gitmetricsync \
 	build_githubmetrics build_gen_scores build_package_calculator \
 	build_checkvalid update_git_metrics build_pkgdep2git apiserver \
-	build_cli fmt clean test #run
+	build_manual_fix_git_metrics fmt clean test #run
