@@ -29,7 +29,7 @@ func (i *DatabaseRepositoryIterator[T]) Next() (*T, error) {
 		return nil, nil
 	}
 
-	val := NewDataWithMakeEmpty[T]()
+	val := newDataWithMakeEmpty[T]()
 
 	reflectType := reflect.TypeOf(val).Elem()
 
@@ -50,7 +50,7 @@ func (i *DatabaseRepositoryIterator[T]) Next() (*T, error) {
 	return val, nil
 }
 
-func NewDataWithMakeEmpty[T any]() *T {
+func newDataWithMakeEmpty[T any]() *T {
 	data := new(T)
 	// make all fields a address to avoid nil pointer using reflection
 	reflectType := reflect.TypeOf(*data)
@@ -64,12 +64,9 @@ func NewDataWithMakeEmpty[T any]() *T {
 	return data
 }
 
-func NewValue[T any](val T) *T {
-	return &val
-}
-
 func getDataFromTable[T any](appDb *storage.AppDatabase, tableName string, whereAndOrderBySentence string, args ...interface{}) (*DatabaseRepositoryIterator[T], error) {
-	data := NewDataWithMakeEmpty[T]()
+	// data is only use for get the type of T
+	data := new(T)
 
 	reflectType := reflect.TypeOf(*data)
 	selectFields := make([]string, 0)
@@ -92,7 +89,7 @@ func getDataFromTable[T any](appDb *storage.AppDatabase, tableName string, where
 	return newDatabaseRepositoryIterator[T](rows), nil
 }
 
-func insertDataIntoTable[T any](appDb *storage.AppDatabase, tableName string, data *T) error {
+func getInsertQueryAndArgs[T any](tableName string, data *T) (string, []interface{}) {
 	reflectType := reflect.TypeOf(*data)
 	dataReflectVal := reflect.ValueOf(data).Elem()
 
@@ -127,7 +124,28 @@ func insertDataIntoTable[T any](appDb *storage.AppDatabase, tableName string, da
 
 	insertSentence := fmt.Sprintf(insertSentenceTemplate, tableName, columnsStr, valuesStr)
 
-	_, err := appDb.Exec(insertSentence, values...)
+	return insertSentence, values
 
+}
+
+func insertDataIntoTable[T any](appDb *storage.AppDatabase, tableName string, data *T) error {
+	insertSentence, values := getInsertQueryAndArgs[T](tableName, data)
+	_, err := appDb.Exec(insertSentence, values...)
 	return err
+}
+
+func batchInsertDataIntoTable[T any](appDb *storage.AppDatabase, tableName string, data []*T) error {
+
+	batchCtx := appDb.NewBatchExecContext(&storage.BatchExecContextConfig{
+		AutoCommit:     true,
+		AutoCommitSize: 1000,
+	})
+
+	for _, d := range data {
+		insertSentence, args := getInsertQueryAndArgs[T](tableName, d)
+		batchCtx.AppendExec(insertSentence, args...)
+	}
+
+	batchCtx.Commit()
+	return nil
 }

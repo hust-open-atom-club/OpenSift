@@ -7,6 +7,7 @@ import (
 
 	"github.com/HUSTSecLab/criticality_score/pkg/storage"
 	"github.com/lib/pq"
+	"github.com/samber/lo"
 )
 
 type GitMetricsFrom int
@@ -127,4 +128,35 @@ func (r *GitMetricsRepository) DeleteGitMetricsByLink(gitLink string) error {
 	*link.IsDeleted = true
 	link.SeqId = nil
 	return insertDataIntoTable(r.AppDb, "git_metrics_history", link)
+}
+
+func (r *GitMetricsRepository) BatchInsertGitMetrics(data []*GitMetrics) error {
+	for _, d := range data {
+		d.SeqId = nil
+	}
+	return batchInsertDataIntoTable(r.AppDb, "git_metrics_history", data)
+}
+
+// NOTE: this function will not examine whether the data exists
+func (r *GitMetricsRepository) BatchDeleteGitMetricsByLink(data []string) error {
+	toDelete := make([]*GitMetrics, 0)
+	for _, d := range data {
+		toDelete = append(toDelete, &GitMetrics{GitLink: &d, IsDeleted: lo.ToPtr(true)})
+	}
+	return r.BatchInsertGitMetrics(toDelete)
+}
+
+type GitLinkUpdateType int
+
+const (
+	GitMetricsNeedUpdate GitLinkUpdateType = iota
+)
+
+func (r *GitMetricsRepository) GetEmptyGitLinks() ([]string, error) {
+	return nil, fmt.Errorf("not implemented")
+}
+
+func (r *GitMetricsRepository) GetNeedUpdateGitLinks(olderThan time.Time, updateType GitLinkUpdateType) ([]string, error) {
+	return nil, fmt.Errorf("not implemented")
+
 }
