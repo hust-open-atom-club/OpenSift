@@ -1,104 +1,77 @@
 package storage
 
 import (
-	"context"
 	"database/sql"
-	"encoding/json"
-	"flag"
 	"fmt"
-	"os"
 
-	"github.com/go-redis/redis/v8"
 	_ "github.com/lib/pq"
+	"github.com/sirupsen/logrus"
 )
 
-var globalConfig Config
+const enableSQLLog = true
 
-type Config struct {
-	Database    string `json:"database"`
-	User        string `json:"user"`
-	Password    string `json:"password"`
-	Host        string `json:"host"`
-	Port        string `json:"port"`
-	GitHubToken string `json:"GitHubToken"`
-	GitLabToken string `json:"GitLabToken"`
-	Redispass   string `json:"redispass"`
+type AppDatabase struct {
+	Config Config
 }
 
-func loadConfig(configPath string) (Config, error) {
-	var config Config
-	file, err := os.ReadFile(configPath)
-	if err != nil {
-		return config, err
-	}
-	err = json.Unmarshal(file, &config)
-	return config, err
-}
+var DefaultAppDatabase *AppDatabase
 
-func InitializeDatabase(configPath string) error {
-	flag.Parse()
-	var err error
-	globalConfig, err = loadConfig(configPath)
+func NewAppDatabase(configPath string) (*AppDatabase, error) {
+	config, err := loadConfig(configPath)
 	if err != nil {
 		fmt.Errorf("Failed to load config:", err)
-		return err
+		return nil, err
 	}
-	return nil
+	return &AppDatabase{Config: config}, nil
 }
 
-func InitRedis() (*redis.Client, error) {
-	rdb := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "",
-		DB:       0,
-	})
-	return rdb, nil
-}
-
-func GetDatabaseConnection() (*sql.DB, error) {
+func (app *AppDatabase) GetDatabaseConnection() (*sql.DB, error) {
 	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		globalConfig.Host, globalConfig.Port, globalConfig.User, globalConfig.Password, globalConfig.Database)
+		app.Config.Host, app.Config.Port, app.Config.User, app.Config.Password, app.Config.Database)
 	db, err := sql.Open("postgres", connStr)
 	return db, err
 }
 
-func SetKeyValue(rdb *redis.Client, key, value string) error {
-	err := rdb.Set(context.Background(), key, value, 0).Err()
-	if err != nil {
-		return fmt.Errorf("could not set key '%s': %v", key, err)
+func (app *AppDatabase) Exec(query string, args ...interface{}) (sql.Result, error) {
+	if enableSQLLog {
+		logrus.Info("Exec SQL: ", query)
 	}
-	return nil
-}
 
-func GetKeyValue(rdb *redis.Client, key string) (string, error) {
-	val, err := rdb.Get(context.Background(), key).Result()
+	conn, err := app.GetDatabaseConnection()
 	if err != nil {
-		if err == redis.Nil {
-			return "", fmt.Errorf("key '%s' does not exist", key)
-		}
-		return "", fmt.Errorf("could not get key '%s': %v", key, err)
+		return nil, err
 	}
-	return val, nil
+	defer conn.Close()
+	return conn.Exec(query, args...)
 }
 
-func PersistData(rdb *redis.Client) error {
-	err := rdb.BgSave(context.Background()).Err()
+func (app *AppDatabase) Query(query string, args ...interface{}) (*sql.Rows, error) {
+	if enableSQLLog {
+		logrus.Info("Query SQL: ", query)
+	}
+
+	conn, err := app.GetDatabaseConnection()
 	if err != nil {
-		return fmt.Errorf("could not trigger RDB save: %v", err)
+		return nil, err
 	}
-	return nil
+	defer conn.Close()
+	return conn.Query(query, args...)
 }
 
-func GetGlobalConfig() Config {
-	return globalConfig
-}
-
-func InitDatabase(configPath string) error {
+// Deprecated: Do not use global app database
+func InitializeDefaultAppDatabase(configPath string) (*AppDatabase, error) {
 	var err error
-	globalConfig, err = loadConfig(configPath)
+	DefaultAppDatabase, err = NewAppDatabase(configPath)
 	if err != nil {
-		fmt.Errorf("Failed to load config:", err)
-		return err
+		return nil, err
 	}
-	return nil
+	return DefaultAppDatabase, nil
+}
+
+// Deprecated: Do not use global app database
+func GetDefaultDatabaseConnection() (*sql.DB, error) {
+	if DefaultAppDatabase == nil {
+		return nil, fmt.Errorf("default app database is not initialized")
+	}
+	return DefaultAppDatabase.GetDatabaseConnection()
 }
