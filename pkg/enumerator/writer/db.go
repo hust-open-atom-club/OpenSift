@@ -22,11 +22,11 @@ func NewDatabaseWriter(configPath string, tableToWrite string) *DatabaseWriter {
 }
 
 func (w *DatabaseWriter) Open() error {
-	err := storage.InitDatabase(w.configPath)
+	_, err := storage.InitializeDefaultAppDatabase(w.configPath)
 	if err != nil {
 		return err
 	}
-	conn, err := storage.GetDatabaseConnection()
+	conn, err := storage.GetDefaultDatabaseConnection()
 
 	if err != nil {
 		return err

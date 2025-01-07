@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/storage"
 	"github.com/HUSTSecLab/criticality_score/pkg/package_calculator"
+	"github.com/HUSTSecLab/criticality_score/pkg/storage"
 )
 
 var flagConfigPath = flag.String("config", "config.json", "path to the config file")
@@ -24,8 +24,8 @@ func main() {
 		log.Fatal("Method must be either 'bfs' or 'dfs'")
 	}
 
-	storage.InitializeDatabase(*flagConfigPath)
-	db, err := storage.GetDatabaseConnection()
+	storage.InitializeDefaultAppDatabase(*flagConfigPath)
+	db, err := storage.GetDefaultDatabaseConnection()
 	if err != nil {
 		log.Fatalf("Error connecting to database: %v", err)
 	}

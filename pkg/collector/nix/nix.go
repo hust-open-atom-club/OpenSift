@@ -2,6 +2,7 @@ package nix
 
 import (
 	"bytes"
+	"database/sql"
 	"encoding/gob"
 	"encoding/json"
 	"fmt"
@@ -10,9 +11,8 @@ import (
 	"os/exec"
 	"regexp"
 	"strings"
-	"unicode"
 	"sync"
-	"database/sql"
+	"unicode"
 
 	"github.com/HUSTSecLab/criticality_score/pkg/storage"
 	"github.com/lib/pq"
@@ -26,11 +26,11 @@ type DepInfo struct {
 	Description string
 	GitLink     string
 	DepCount    int
-	PageRank    float64	
+	PageRank    float64
 }
 
 func storeDependenciesInDatabase(pkgName string, dependencies []DepInfo) error {
-	db, err := storage.GetDatabaseConnection()
+	db, err := storage.GetDefaultDatabaseConnection()
 	if err != nil {
 		return err
 	}
@@ -98,8 +98,8 @@ func GetAllNixPackages(poolsize int) (map[DepInfo][]DepInfo, error) {
 		linechunks = append(linechunks, lines[i:end])
 	}
 
-	wg := WorkerPool(poolsize, func(worker int){
-		if worker > len(linechunks){
+	wg := WorkerPool(poolsize, func(worker int) {
+		if worker > len(linechunks) {
 			return
 		}
 		chunk := linechunks[worker]
@@ -107,7 +107,7 @@ func GetAllNixPackages(poolsize int) (map[DepInfo][]DepInfo, error) {
 			if strings.TrimSpace(line) == "" || strings.Contains(line, "evaluation warning") {
 				continue
 			}
-	
+
 			matches := re.FindStringSubmatch(line)
 			if len(matches) == 3 {
 				attributePath := matches[1]
@@ -135,7 +135,7 @@ func GetAllNixPackages(poolsize int) (map[DepInfo][]DepInfo, error) {
 					fmt.Printf("Error getting info for %s: %v\n", attributePath, err)
 					continue
 				}
-	
+
 				pkgDepInfo := DepInfo{
 					Name:        packageName,
 					Version:     packageVersion,
@@ -155,7 +155,6 @@ func GetAllNixPackages(poolsize int) (map[DepInfo][]DepInfo, error) {
 			}
 		}
 	})
-
 
 	wg()
 	return packages, nil
@@ -220,7 +219,7 @@ in
 }
 
 func GetNixPackageDependencies(attributePath string) ([]DepInfo, error) {
-    nixPkgExpression := attributePathToNixExpression(attributePath)
+	nixPkgExpression := attributePathToNixExpression(attributePath)
 
 	exprTemplate := `
 	let
@@ -229,55 +228,53 @@ func GetNixPackageDependencies(attributePath string) ([]DepInfo, error) {
 	in {
 		buildInputs = map (x: if x ? pname then x.pname else if x ? name then x.name else "") (pkg.buildInputs or []);
 	}
-	`	
-    evalExpr := fmt.Sprintf(exprTemplate, nixPkgExpression)
-    results, err := nixEval(evalExpr)
-    if err != nil {
-        return nil, fmt.Errorf("Error getting dependencies for %s: %v", attributePath, err)
-    }
+	`
+	evalExpr := fmt.Sprintf(exprTemplate, nixPkgExpression)
+	results, err := nixEval(evalExpr)
+	if err != nil {
+		return nil, fmt.Errorf("Error getting dependencies for %s: %v", attributePath, err)
+	}
 
-    buildInputNames := results["buildInputs"]
-    finalInputs := []DepInfo{}
-    for _, name := range buildInputNames {
-        finalInputs = append(finalInputs, DepInfo{Name: name.Name})
-    }
+	buildInputNames := results["buildInputs"]
+	finalInputs := []DepInfo{}
+	for _, name := range buildInputNames {
+		finalInputs = append(finalInputs, DepInfo{Name: name.Name})
+	}
 
-    return finalInputs, nil
+	return finalInputs, nil
 }
 
 // nixEval executes a Nix expression and parses the JSON output into []DepInfo
 func nixEval(expr string) (map[string][]DepInfo, error) {
-    cmd := exec.Command("nix", "eval", "--impure", "--expr", expr, "--extra-experimental-features", "nix-command", "--json")
-    var out bytes.Buffer
-    cmd.Stdout = &out
-    err := cmd.Run()
-    if err != nil {
-        return nil, fmt.Errorf("Error running nix eval: %v", err)
-    }
+	cmd := exec.Command("nix", "eval", "--impure", "--expr", expr, "--extra-experimental-features", "nix-command", "--json")
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	err := cmd.Run()
+	if err != nil {
+		return nil, fmt.Errorf("Error running nix eval: %v", err)
+	}
 
-    // 修改为 map[string][]string 以匹配 JSON 结构
-    var result map[string][]string
-    // fmt.Println(string(out.Bytes())) // 打印输出以便调试
-    if err := json.Unmarshal(out.Bytes(), &result); err != nil {
-        return nil, fmt.Errorf("Error parsing JSON: %v", err)
-    }
+	// 修改为 map[string][]string 以匹配 JSON 结构
+	var result map[string][]string
+	// fmt.Println(string(out.Bytes())) // 打印输出以便调试
+	if err := json.Unmarshal(out.Bytes(), &result); err != nil {
+		return nil, fmt.Errorf("Error parsing JSON: %v", err)
+	}
 
-    depsMap := make(map[string][]DepInfo)
-    
-    // 构建依赖映射
-    for key, depList := range result {
-        for _, depName := range depList {
-            depInfo := DepInfo{
-                Name: depName, // 只存储名称
-            }
-            depsMap[key] = append(depsMap[key], depInfo)
-        }
-    }
+	depsMap := make(map[string][]DepInfo)
 
-    return depsMap, nil
+	// 构建依赖映射
+	for key, depList := range result {
+		for _, depName := range depList {
+			depInfo := DepInfo{
+				Name: depName, // 只存储名称
+			}
+			depsMap[key] = append(depsMap[key], depInfo)
+		}
+	}
+
+	return depsMap, nil
 }
-
-
 
 // processGitLink processes the gitLink to ensure it points to a git repository
 func processGitLink(gitLink string) string {
@@ -418,121 +415,121 @@ func getKeys(set map[string]struct{}) []string {
 }
 
 func SavePackage(packages map[DepInfo][]DepInfo) error {
-    file, err := os.Create("packages.gob")
-    if err != nil {
-        return err
-    }
-    defer file.Close()
+	file, err := os.Create("packages.gob")
+	if err != nil {
+		return err
+	}
+	defer file.Close()
 
-    encoder := gob.NewEncoder(file)
-    return encoder.Encode(packages)
+	encoder := gob.NewEncoder(file)
+	return encoder.Encode(packages)
 }
 
 func LoadPackage() (map[DepInfo][]DepInfo, error) {
-    file, err := os.Open("packages.gob")
-    if err != nil {
-        if os.IsNotExist(err) {
-            return nil, nil
-        }
-        return nil, err
-    }
-    defer file.Close()
+	file, err := os.Open("packages.gob")
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	defer file.Close()
 
-    var packages map[DepInfo][]DepInfo
-    decoder := gob.NewDecoder(file)
-    err = decoder.Decode(&packages)
-    if err != nil {
-        return nil, err
-    }
+	var packages map[DepInfo][]DepInfo
+	decoder := gob.NewDecoder(file)
+	err = decoder.Decode(&packages)
+	if err != nil {
+		return nil, err
+	}
 
-    return packages, nil
+	return packages, nil
 }
 
 func GetNixPackageList() ([]DepInfo, error) {
-    cmd := exec.Command("nix-env", "-qaP")
-    out, err := cmd.Output()
-    if err != nil {
-        return nil, fmt.Errorf("Error running nix-env command: %v", err)
-    }
+	cmd := exec.Command("nix-env", "-qaP")
+	out, err := cmd.Output()
+	if err != nil {
+		return nil, fmt.Errorf("Error running nix-env command: %v", err)
+	}
 
-    var packages []DepInfo
-    lines := strings.Split(string(out), "\n")
+	var packages []DepInfo
+	lines := strings.Split(string(out), "\n")
 
-    re := regexp.MustCompile(`^nixpkgs\.(.+?)\s+([^\s]+)$`)
-    for _, line := range lines {
-        if strings.TrimSpace(line) == "" || strings.Contains(line, "evaluation warning") {
-            continue
-        }
+	re := regexp.MustCompile(`^nixpkgs\.(.+?)\s+([^\s]+)$`)
+	for _, line := range lines {
+		if strings.TrimSpace(line) == "" || strings.Contains(line, "evaluation warning") {
+			continue
+		}
 
-        matches := re.FindStringSubmatch(line)
-        if len(matches) == 3 {
-            packages = append(packages, DepInfo{Name: matches[1], Version: matches[2]})
-        }
-    }
-    return packages, nil
+		matches := re.FindStringSubmatch(line)
+		if len(matches) == 3 {
+			packages = append(packages, DepInfo{Name: matches[1], Version: matches[2]})
+		}
+	}
+	return packages, nil
 }
 
 func reverseDependencies(deps map[DepInfo][]DepInfo) map[DepInfo][]DepInfo {
-    reversed := make(map[DepInfo][]DepInfo)
-    for key, values := range deps {
-        for _, dep := range values {
-            simplifiedDep := DepInfo{Name: dep.Name}
-            reversed[simplifiedDep] = append(reversed[simplifiedDep], key)
-        }
-    }
-    return reversed
+	reversed := make(map[DepInfo][]DepInfo)
+	for key, values := range deps {
+		for _, dep := range values {
+			simplifiedDep := DepInfo{Name: dep.Name}
+			reversed[simplifiedDep] = append(reversed[simplifiedDep], key)
+		}
+	}
+	return reversed
 }
 
 func Nix(workerCount int, batchSize int) {
-    // packages, err := LoadPackage()
-    // if err != nil {
-    //     fmt.Printf("Error loading package list: %v\n", err)
-    //     return
-    // }
+	// packages, err := LoadPackage()
+	// if err != nil {
+	//     fmt.Printf("Error loading package list: %v\n", err)
+	//     return
+	// }
 
-    // if packages == nil {
-        packages, err := GetAllNixPackages(workerCount)
-        if err != nil {
-            fmt.Printf("Error retrieving Nix packages: %v\n", err)
-            return
-        }
+	// if packages == nil {
+	packages, err := GetAllNixPackages(workerCount)
+	if err != nil {
+		fmt.Printf("Error retrieving Nix packages: %v\n", err)
+		return
+	}
 
-    //     if err := SavePackage(packages); err != nil {
-    //         fmt.Printf("Error saving package list: %v\n", err)
-    //         return
-    //     }
-    // }
+	//     if err := SavePackage(packages); err != nil {
+	//         fmt.Printf("Error saving package list: %v\n", err)
+	//         return
+	//     }
+	// }
 	fmt.Println("Nix package information retrieved successfully")
-    countDependencies(packages)
+	countDependencies(packages)
 
 	pageRanks := calculatePageRank(packages, 20, 0.85)
-	
-	for pkgInfo := range packages{
+
+	for pkgInfo := range packages {
 		pkgInfo.PageRank = pageRanks[pkgInfo.Name]
 		packages[pkgInfo] = packages[pkgInfo]
 	}
-	
+
 	fmt.Println("Nix package information updated successfully")
 
-    if err := batchupdateOrInsertNixPackages(packages, batchSize); err != nil {
-        fmt.Printf("Error updating or inserting Nix packages into database: %v\n", err)
-        return
-    }
+	if err := batchupdateOrInsertNixPackages(packages, batchSize); err != nil {
+		fmt.Printf("Error updating or inserting Nix packages into database: %v\n", err)
+		return
+	}
 
-    for pkg, pkgInfo := range packages {
-        if err := storeDependenciesInDatabase(pkg.Name, pkgInfo); err != nil {
+	for pkg, pkgInfo := range packages {
+		if err := storeDependenciesInDatabase(pkg.Name, pkgInfo); err != nil {
 			if isUniqueViolation(err) {
 				continue
 			}
 			fmt.Printf("Error storing dependencies for package %s: %v\n", pkg.Name, err)
-        }
-    }
+		}
+	}
 
-    fmt.Println("Successfully updated package information in the database")
+	fmt.Println("Successfully updated package information in the database")
 }
 
 func batchupdateOrInsertNixPackages(packages map[DepInfo][]DepInfo, batchSize int) error {
-	db, err := storage.GetDatabaseConnection()
+	db, err := storage.GetDefaultDatabaseConnection()
 	if err != nil {
 		return fmt.Errorf("error connecting to database: %w", err)
 	}
@@ -592,12 +589,12 @@ func updateOrInsertBatch(db *sql.DB, batch []DepInfo) error {
 }
 
 func findDepInfoByName(packages map[DepInfo][]DepInfo, name string) (DepInfo, bool) {
-    for dep := range packages {
-        if dep.Name == name {
-            return dep, true
-        }
-    }
-    return DepInfo{}, false
+	for dep := range packages {
+		if dep.Name == name {
+			return dep, true
+		}
+	}
+	return DepInfo{}, false
 }
 
 func normalizeGitLink(link string) string {
@@ -707,6 +704,7 @@ func isUniqueViolation(err error) bool {
 }
 
 type WorkerFunc func(worker int)
+
 func WorkerPool(n int, w WorkerFunc) (waitFunc func()) {
 	wg := &sync.WaitGroup{}
 	wg.Add(n)

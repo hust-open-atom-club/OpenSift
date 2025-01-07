@@ -1,15 +1,17 @@
 package aur
+
 import (
+	"bufio"
+	"bytes"
+	"compress/gzip"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"net/http"
-	"encoding/json"
-	"compress/gzip"
-	"bytes"
-	"os"
-	"github.com/lib/pq"
-	"bufio"
 	"log"
+	"net/http"
+	"os"
+
+	"github.com/lib/pq"
 
 	"github.com/HUSTSecLab/criticality_score/pkg/storage"
 )
@@ -17,18 +19,18 @@ import (
 var URL = "https://aur.archlinux.org/packages-meta-ext-v1.json.gz"
 
 type PackageInfo struct {
-    Depends      []string
-    DependsCount int
-    Description  string
-    GitRepo      string
-    Homepage     string
-    Name         string
-    PageRank	 float64
-    URL          string
-    Version      string
+	Depends      []string
+	DependsCount int
+	Description  string
+	GitRepo      string
+	Homepage     string
+	Name         string
+	PageRank     float64
+	URL          string
+	Version      string
 }
 
-func Aur(outputPath string){
+func Aur(outputPath string) {
 	pkgInfoMap, err := getDependencies()
 	if err != nil {
 		log.Fatal(err)
@@ -36,7 +38,7 @@ func Aur(outputPath string){
 
 	depMap := make(map[string][]string)
 	for pkgName := range pkgInfoMap {
-		visited := make(map[string]bool)	
+		visited := make(map[string]bool)
 		deps := getAllDep(pkgInfoMap, pkgName, visited, []string{})
 		depMap[pkgName] = deps
 	}
@@ -51,7 +53,7 @@ func Aur(outputPath string){
 	pagerank := calculatePageRank(pkgInfoMap, 20, 0.85)
 	for pkgName, pkgInfo := range pkgInfoMap {
 		pagerankVal := pagerank[pkgName]
-		depCount := countMap[pkgName] 
+		depCount := countMap[pkgName]
 		pkgInfo.PageRank = pagerankVal
 		pkgInfo.DependsCount = depCount
 		pkgInfoMap[pkgName] = pkgInfo
@@ -81,7 +83,7 @@ func Aur(outputPath string){
 	}
 }
 
-func getAllDep(packages map[string]PackageInfo, pkgName string, visited map[string]bool, deps []string)[]string{
+func getAllDep(packages map[string]PackageInfo, pkgName string, visited map[string]bool, deps []string) []string {
 	if visited[pkgName] {
 		return deps
 	}
@@ -137,36 +139,36 @@ func getDependencies() (map[string]PackageInfo, error) {
 }
 
 func calculatePageRank(pkgInfoMap map[string]PackageInfo, iterations int, dampingFactor float64) map[string]float64 {
-    pageRank := make(map[string]float64)
-    numPackages := len(pkgInfoMap)
+	pageRank := make(map[string]float64)
+	numPackages := len(pkgInfoMap)
 
-    for pkgName := range pkgInfoMap {
-        pageRank[pkgName] = 1.0 / float64(numPackages)
-    }
+	for pkgName := range pkgInfoMap {
+		pageRank[pkgName] = 1.0 / float64(numPackages)
+	}
 
-    for i := 0; i < iterations; i++ {
-        newPageRank := make(map[string]float64)
+	for i := 0; i < iterations; i++ {
+		newPageRank := make(map[string]float64)
 
-        for pkgName := range pkgInfoMap {
-            newPageRank[pkgName] = (1 - dampingFactor) / float64(numPackages)
-        }
+		for pkgName := range pkgInfoMap {
+			newPageRank[pkgName] = (1 - dampingFactor) / float64(numPackages)
+		}
 
-        for pkgName, pkgInfo := range pkgInfoMap {
+		for pkgName, pkgInfo := range pkgInfoMap {
 			var depNum int
 			for _, depName := range pkgInfo.Depends {
 				if _, exists := pkgInfoMap[depName]; exists {
 					depNum++
 				}
 			}
-            for _, depName := range pkgInfo.Depends {
-                if _, exists := pkgInfoMap[depName]; exists {
-                    newPageRank[depName] += dampingFactor * (pageRank[pkgName] / float64(depNum))
-                }
-            }
-        }
-        pageRank = newPageRank
-    }
-    return pageRank
+			for _, depName := range pkgInfo.Depends {
+				if _, exists := pkgInfoMap[depName]; exists {
+					newPageRank[depName] += dampingFactor * (pageRank[pkgName] / float64(depNum))
+				}
+			}
+		}
+		pageRank = newPageRank
+	}
+	return pageRank
 }
 
 func isUniqueViolation(err error) bool {
@@ -177,7 +179,7 @@ func isUniqueViolation(err error) bool {
 }
 
 func updateOrInsertDatabase(pkgInfoMap map[string]PackageInfo) error {
-	db, err := storage.GetDatabaseConnection()
+	db, err := storage.GetDefaultDatabaseConnection()
 	if err != nil {
 		return err
 	}
@@ -207,7 +209,7 @@ func updateOrInsertDatabase(pkgInfoMap map[string]PackageInfo) error {
 }
 
 func storeDependenciesInDatabase(pkgName string, dependencies []string) error {
-	db, err := storage.GetDatabaseConnection()
+	db, err := storage.GetDefaultDatabaseConnection()
 	if err != nil {
 		return err
 	}

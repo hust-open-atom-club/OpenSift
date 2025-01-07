@@ -13,8 +13,8 @@ type DatabaseWriter struct {
 // Text creates a new Writer instance that is used to write a simple text file
 // of repositories, where each line has a single repository url.
 func Database(config string) (*DatabaseWriter, error) {
-	storage.InitializeDatabase(config)
-	db, err := storage.GetDatabaseConnection()
+	storage.InitializeDefaultAppDatabase(config)
+	db, err := storage.GetDefaultDatabaseConnection()
 	if err != nil {
 		return nil, err
 	}

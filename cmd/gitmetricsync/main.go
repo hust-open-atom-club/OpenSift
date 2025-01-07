@@ -13,7 +13,7 @@ var batchSize = flag.Int("batch", 1000, "batch size")
 
 func main() {
 	flag.Parse()
-	storage.InitializeDatabase(*flagConfigPath)
+	storage.InitializeDefaultAppDatabase(*flagConfigPath)
 
 	log.Println("Starting synchronization...")
 	gitmetricsync.Run()

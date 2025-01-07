@@ -22,11 +22,11 @@ type PackageInfo struct {
 	DependsCount int
 	URL          string
 	GitRepo      string
-	PageRank	 float64
+	PageRank     float64
 }
 
 func storeDependenciesInDatabase(pkgName string, dependencies []string) error {
-	db, err := storage.GetDatabaseConnection()
+	db, err := storage.GetDefaultDatabaseConnection()
 	if err != nil {
 		return err
 	}
@@ -180,7 +180,7 @@ func FetchAndParseEbuildFiles(directory string) (map[string]PackageInfo, error) 
 }
 
 func UpdateOrInsertDatabase(pkgInfoMap map[string]PackageInfo) error {
-	db, err := storage.GetDatabaseConnection()
+	db, err := storage.GetDefaultDatabaseConnection()
 	if err != nil {
 		return err
 	}

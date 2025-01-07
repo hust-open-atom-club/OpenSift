@@ -21,7 +21,7 @@ var flagJobsCount = flag.Int("jobs", 256, "jobs count")
 var flagForceUpdateAll = flag.Bool("force-update-all", false, "force update all repositories")
 
 func getUrls() ([]string, error) {
-	conn, err := storage.GetDatabaseConnection()
+	conn, err := storage.GetDefaultDatabaseConnection()
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +49,7 @@ func getUrls() ([]string, error) {
 
 func main() {
 	flag.Parse()
-	storage.InitializeDatabase(*flagConfigPath)
+	storage.InitializeDefaultAppDatabase(*flagConfigPath)
 	config.SetStoragetPath(*flagStoragePath)
 
 	urls, err := getUrls()
@@ -61,7 +61,7 @@ func main() {
 	logger.Infof("%d urls in total", len(urls))
 	wg.Add(len(urls))
 
-	db, err := storage.GetDatabaseConnection()
+	db, err := storage.GetDefaultDatabaseConnection()
 	if err != nil {
 		logger.Fatal("Connecting Database Failed")
 	}

@@ -212,8 +212,8 @@ func queryDepsName(gitlink string, rdb *redis.Client) map[string][]string {
 }
 
 func Depsdev(configPath string, batchSize int, workerPoolSize int) {
-	storage.InitializeDatabase(configPath)
-	db, err := storage.GetDatabaseConnection()
+	storage.InitializeDefaultAppDatabase(configPath)
+	db, err := storage.GetDefaultDatabaseConnection()
 	rdb, _ := storage.InitRedis()
 	if err != nil {
 		fmt.Errorf("Error initializing database: %v\n", err)

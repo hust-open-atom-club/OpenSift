@@ -23,11 +23,11 @@ type DepInfo struct {
 	Version     string
 	Description string
 	Homepage    string
-	PageRank   float64
+	PageRank    float64
 }
 
 func updateOrInsertDatabase(pkgInfoMap map[string]PackageInfo) error {
-	db, err := storage.GetDatabaseConnection()
+	db, err := storage.GetDefaultDatabaseConnection()
 	if err != nil {
 		return err
 	}
@@ -57,7 +57,7 @@ func updateOrInsertDatabase(pkgInfoMap map[string]PackageInfo) error {
 }
 
 func storeDependenciesInDatabase(pkgName string, dependencies []DepInfo) error {
-	db, err := storage.GetDatabaseConnection()
+	db, err := storage.GetDefaultDatabaseConnection()
 	if err != nil {
 		return err
 	}
@@ -371,7 +371,7 @@ type PackageInfo struct {
 	DependsCount int
 	Description  string
 	Homepage     string
-	Version		 string
+	Version      string
 	PageRank     float64
 }
 

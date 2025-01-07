@@ -22,7 +22,7 @@ var unionTables = [][]string{
 }
 
 func Run() {
-	db, err := storage.GetDatabaseConnection()
+	db, err := storage.GetDefaultDatabaseConnection()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -49,7 +49,7 @@ func fetchGitLinks(db *sql.DB, from int) map[string]string {
 			if err := rows.Scan(&gitLink); err != nil {
 				log.Fatal(err)
 			}
-			if gitLink.Valid{
+			if gitLink.Valid {
 				link := strings.TrimSpace(gitLink.String)
 				if link == "" || link == "NA" || link == "NaN" {
 					continue
@@ -70,8 +70,8 @@ func fetchGitLinks(db *sql.DB, from int) map[string]string {
 func syncGitMetrics(db *sql.DB, gitLinks map[string]string, from int) {
 	normalizedLinks := make(map[string]string)
 	for link := range gitLinks {
-			lowercaseLink := strings.ToLower(gitLinks[link])
-			normalizedLinks[lowercaseLink] = gitLinks[link]
+		lowercaseLink := strings.ToLower(gitLinks[link])
+		normalizedLinks[lowercaseLink] = gitLinks[link]
 	}
 	dbLinks := make(map[string]string)
 	query := `SELECT git_link FROM git_metrics WHERE "from" = $1`
@@ -113,7 +113,6 @@ func syncGitMetrics(db *sql.DB, gitLinks map[string]string, from int) {
 			}
 		}
 	}
-	
 
 	for normLinkLower, normLinkOriginal := range dbLinks {
 		if _, exists := normalizedLinks[normLinkLower]; !exists {
@@ -136,7 +135,7 @@ func getKeys(m map[string]bool) []string {
 }
 
 func fetchMetricsLinks() (map[string]string, error) {
-	db, err := storage.GetDatabaseConnection()
+	db, err := storage.GetDefaultDatabaseConnection()
 	if err != nil {
 		return nil, err
 	}
@@ -160,7 +159,7 @@ func fetchMetricsLinks() (map[string]string, error) {
 }
 
 func fetchUnionRepoLinks() (map[string]string, error) {
-	db, err := storage.GetDatabaseConnection()
+	db, err := storage.GetDefaultDatabaseConnection()
 	if err != nil {
 		return nil, err
 	}
@@ -183,7 +182,7 @@ func fetchUnionRepoLinks() (map[string]string, error) {
 	return links, nil
 }
 func batchInsertLinks(links []string, batchSize int) error {
-	db, err := storage.GetDatabaseConnection()
+	db, err := storage.GetDefaultDatabaseConnection()
 	if err != nil {
 		return err
 	}

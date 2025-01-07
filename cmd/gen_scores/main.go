@@ -14,8 +14,8 @@ var batchSize = flag.Int("batch", 1000, "batch size")
 
 func main() {
 	flag.Parse()
-	storage.InitializeDatabase(*flagConfigPath)
-	db, err := storage.GetDatabaseConnection()
+	storage.InitializeDefaultAppDatabase(*flagConfigPath)
+	db, err := storage.GetDefaultDatabaseConnection()
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
@@ -29,10 +29,10 @@ func main() {
 	scores.CalculaterepoCount(db)
 	packageScore := make(map[string]scores.LinkScore)
 	linkCount := make(map[string]map[string]int)
-	for repo := range scores.PackageList{
+	for repo := range scores.PackageList {
 		linkCount[repo] = scores.FetchdLinkCount(repo, db)
 	}
-	for _, link := range links{
+	for _, link := range links {
 		distro_scores := scores.CalculateDepsdistro(link, linkCount)
 		data, err := scores.FetchProjectData(db, link)
 		if err != nil {
@@ -48,4 +48,3 @@ func main() {
 	log.Println("Updating database...")
 	scores.UpdateScore(db, packageScore, *batchSize)
 }
-

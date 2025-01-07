@@ -19,13 +19,14 @@ type PackageInfo struct {
 	Description  string
 	Homepage     string
 	Depends      []string
-	DependsCount int 
+	DependsCount int
 	URL          string
 	GitRepo      string
 	PageRank     float64
 }
+
 func storeDependenciesInDatabase(pkgName string, dependencies []string) error {
-	db, err := storage.GetDatabaseConnection()
+	db, err := storage.GetDefaultDatabaseConnection()
 	if err != nil {
 		return err
 	}
@@ -174,36 +175,36 @@ func getAllDep(packages map[string]PackageInfo, pkgName string, visited map[stri
 }
 
 func calculatePageRank(pkgInfoMap map[string]PackageInfo, iterations int, dampingFactor float64) map[string]float64 {
-    pageRank := make(map[string]float64)
-    numPackages := len(pkgInfoMap)
+	pageRank := make(map[string]float64)
+	numPackages := len(pkgInfoMap)
 
-    for pkgName := range pkgInfoMap {
-        pageRank[pkgName] = 1.0 / float64(numPackages)
-    }
+	for pkgName := range pkgInfoMap {
+		pageRank[pkgName] = 1.0 / float64(numPackages)
+	}
 
-    for i := 0; i < iterations; i++ {
-        newPageRank := make(map[string]float64)
+	for i := 0; i < iterations; i++ {
+		newPageRank := make(map[string]float64)
 
-        for pkgName := range pkgInfoMap {
-            newPageRank[pkgName] = (1 - dampingFactor) / float64(numPackages)
-        }
+		for pkgName := range pkgInfoMap {
+			newPageRank[pkgName] = (1 - dampingFactor) / float64(numPackages)
+		}
 
-        for pkgName, pkgInfo := range pkgInfoMap {
+		for pkgName, pkgInfo := range pkgInfoMap {
 			var depNum int
 			for _, depName := range pkgInfo.Depends {
 				if _, exists := pkgInfoMap[depName]; exists {
 					depNum++
 				}
 			}
-            for _, depName := range pkgInfo.Depends {
-                if _, exists := pkgInfoMap[depName]; exists {
-                    newPageRank[depName] += dampingFactor * (pageRank[pkgName] / float64(depNum))
-                }
-            }
-        }
-        pageRank = newPageRank
-    }
-    return pageRank
+			for _, depName := range pkgInfo.Depends {
+				if _, exists := pkgInfoMap[depName]; exists {
+					newPageRank[depName] += dampingFactor * (pageRank[pkgName] / float64(depNum))
+				}
+			}
+		}
+		pageRank = newPageRank
+	}
+	return pageRank
 }
 
 func generateDependencyGraph(pkgInfoMap map[string]PackageInfo, outputPath string) error {
@@ -249,7 +250,7 @@ func Homebrew(outputPath string) {
 
 	depMap := make(map[string][]string)
 	for pkgName := range pkgInfoMap {
-		visited := make(map[string]bool)	
+		visited := make(map[string]bool)
 		deps := getAllDep(pkgInfoMap, pkgName, visited, []string{})
 		depMap[pkgName] = deps
 	}
@@ -265,7 +266,7 @@ func Homebrew(outputPath string) {
 
 	for pkgName, pkgInfo := range pkgInfoMap {
 		pagerankVal := pagerank[pkgName]
-		depCount := countMap[pkgName] 
+		depCount := countMap[pkgName]
 		pkgInfo.PageRank = pagerankVal
 		pkgInfo.DependsCount = depCount
 		pkgInfoMap[pkgName] = pkgInfo
@@ -296,7 +297,7 @@ func Homebrew(outputPath string) {
 }
 
 func updateOrInsertDatabase(pkgInfoMap map[string]PackageInfo) error {
-	db, err := storage.GetDatabaseConnection()
+	db, err := storage.GetDefaultDatabaseConnection()
 	if err != nil {
 		return err
 	}

@@ -2,9 +2,9 @@ package scores
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"testing"
-	"fmt"
 
 	"github.com/HUSTSecLab/criticality_score/pkg/storage"
 	_ "github.com/lib/pq"
@@ -15,8 +15,8 @@ var flagConfigPath = flag.String("config", "config.json", "path to the config fi
 func TestCalculateScore(t *testing.T) {
 	fmt.Println("Testing CalculateScore")
 	flag.Parse()
-	storage.InitializeDatabase(*flagConfigPath)
-	db, err := storage.GetDatabaseConnection()
+	storage.InitializeDefaultAppDatabase(*flagConfigPath)
+	db, err := storage.GetDefaultDatabaseConnection()
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
@@ -27,9 +27,9 @@ func TestCalculateScore(t *testing.T) {
 	links := []string{
 		"https://github.com/gcc-mirror/gcc.git",
 	}
-	for _, link := range links{
+	for _, link := range links {
 		linkCount := make(map[string]map[string]int)
-		for repo := range PackageList{
+		for repo := range PackageList {
 			linkCount[repo] = FetchdLinkCount(repo, db)
 		}
 		fmt.Println(linkCount["debian_packages"]["https://github.com/gcc-mirror/gcc.git"])

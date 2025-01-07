@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 	"math"
-	"time"
 	"strings"
+	"time"
 
 	"github.com/HUSTSecLab/criticality_score/pkg/storage"
 )
@@ -21,12 +21,12 @@ type ProjectData struct {
 	DepsdevCount     *int
 	deps_distro      *float64
 	Pkg_Manager      *string
-	Org_Count		 *int
+	Org_Count        *int
 }
 
-type LinkScore struct{
-	Distro_scores 	float64
-	Score 			float64
+type LinkScore struct {
+	Distro_scores float64
+	Score         float64
 }
 
 type UpdateData struct {
@@ -45,7 +45,7 @@ var weights = map[string]float64{
 	"commit_frequency":  1,
 	"depsdev_ratios":    5,
 	"deps_distro":       10,
-	"org_count":		 1,
+	"org_count":         1,
 }
 
 var thresholds = map[string]float64{
@@ -57,7 +57,7 @@ var thresholds = map[string]float64{
 	"commit_frequency":  1000,
 	"depsdev_ratios":    30,
 	"deps_distro":       1,
-	"org_count":		 8400,
+	"org_count":         8400,
 }
 
 var PackageManagerData = map[string]int{
@@ -78,13 +78,13 @@ var PackageList = map[string]int{
 }
 
 func CalculateDependencyRatio(link, packageType string, linkCount map[string]map[string]int) (float64, error) {
-	if _,exist := linkCount[packageType][strings.ToLower(link)]; !exist {
+	if _, exist := linkCount[packageType][strings.ToLower(link)]; !exist {
 		return 0, nil
 	}
 	return float64(linkCount[packageType][strings.ToLower(link)]) / float64(PackageList[packageType]), nil
 }
 
-func CalculaterepoCount(db *sql.DB){
+func CalculaterepoCount(db *sql.DB) {
 	for repo := range PackageList {
 		var count int
 		err := db.QueryRow(fmt.Sprintf("SELECT COUNT(*) FROM %s", repo)).Scan(&count)
@@ -98,7 +98,7 @@ func CalculaterepoCount(db *sql.DB){
 
 func GetProjectTypeFromDB(link string) string {
 	var projectType string
-	db, err := storage.GetDatabaseConnection()
+	db, err := storage.GetDefaultDatabaseConnection()
 	if err != nil {
 		fmt.Println("Error initializing database:", err)
 		return ""
@@ -118,49 +118,49 @@ func CalculateScore(data ProjectData, distro_scores float64) float64 {
 	var createdSinceScore, updatedSinceScore, contributorCountScore, commitFrequencyScore, Org_CountScore float64
 	if data.CreatedSince != nil {
 		monthsSinceCreation := time.Since(*data.CreatedSince).Hours() / (24 * 30)
-		normalized := math.Log(monthsSinceCreation + 1) / math.Log(math.Max(monthsSinceCreation, thresholds["created_since"]) + 1)
+		normalized := math.Log(monthsSinceCreation+1) / math.Log(math.Max(monthsSinceCreation, thresholds["created_since"])+1)
 		createdSinceScore = weights["created_since"] * normalized
 		score += createdSinceScore
 	}
 
 	if data.UpdatedSince != nil {
 		monthsSinceUpdate := time.Since(*data.UpdatedSince).Hours() / (24 * 30)
-		normalized := math.Log(monthsSinceUpdate + 1) / math.Log(math.Max(monthsSinceUpdate, thresholds["updated_since"]) + 1)
+		normalized := math.Log(monthsSinceUpdate+1) / math.Log(math.Max(monthsSinceUpdate, thresholds["updated_since"])+1)
 		updatedSinceScore = weights["updated_since"] * normalized
 		score += updatedSinceScore
 	}
 
 	if data.ContributorCount != nil {
-		normalized := math.Log(float64(*data.ContributorCount) + 1) / math.Log(math.Max(float64(*data.ContributorCount), thresholds["contributor_count"]) + 1)
+		normalized := math.Log(float64(*data.ContributorCount)+1) / math.Log(math.Max(float64(*data.ContributorCount), thresholds["contributor_count"])+1)
 		contributorCountScore = weights["contributor_count"] * normalized
 		score += contributorCountScore
 	}
 
 	if data.CommitFrequency != nil {
-		normalized := math.Log(float64(*data.CommitFrequency) + 1) / math.Log(math.Max(float64(*data.CommitFrequency), thresholds["commit_frequency"]) + 1)
+		normalized := math.Log(float64(*data.CommitFrequency)+1) / math.Log(math.Max(float64(*data.CommitFrequency), thresholds["commit_frequency"])+1)
 		commitFrequencyScore = weights["commit_frequency"] * normalized
 		score += commitFrequencyScore
 	}
 	if data.Org_Count != nil {
-		normalized := math.Log(float64(*data.Org_Count) + 1) / math.Log(math.Max(float64(*data.Org_Count), thresholds["org_count"]) + 1)
+		normalized := math.Log(float64(*data.Org_Count)+1) / math.Log(math.Max(float64(*data.Org_Count), thresholds["org_count"])+1)
 		Org_CountScore = weights["org_count"] * normalized
 		score += Org_CountScore
 	}
 	if data.Pkg_Manager != nil {
 		pkgManager, ok := PackageManagerData[*data.Pkg_Manager]
 		if ok && data.DepsdevCount != nil {
-			ratios := float64(*data.DepsdevCount)/float64(pkgManager) * 100
-			normalized := math.Log(ratios + 1) / math.Log(math.Max(ratios, thresholds["depsdev_ratios"]) + 1)
+			ratios := float64(*data.DepsdevCount) / float64(pkgManager) * 100
+			normalized := math.Log(ratios+1) / math.Log(math.Max(ratios, thresholds["depsdev_ratios"])+1)
 			score += weights["depsdev_ratios"] * normalized
 		}
 	}
-	normalized := math.Log(distro_scores + 1) / math.Log(math.Max(distro_scores, thresholds["deps_distro"]) + 1)
+	normalized := math.Log(distro_scores+1) / math.Log(math.Max(distro_scores, thresholds["deps_distro"])+1)
 	score += weights["deps_distro"] * normalized
 
 	var totalnum float64
-	for _, weight := range weights{
+	for _, weight := range weights {
 		totalnum += weight
-	} 
+	}
 	return score / totalnum
 }
 
@@ -205,7 +205,7 @@ func UpdateScore(db *sql.DB, packageScore map[string]LinkScore, batchSize int) e
 			log.Printf("Error executing query: %v", err)
 			return fmt.Errorf("failed to update batch: %w", err)
 		}
-		
+
 		rowsAffected, err := result.RowsAffected()
 		if err != nil {
 			log.Printf("Error retrieving rows affected: %v", err)
@@ -228,7 +228,7 @@ func FetchProjectData(db *sql.DB, gitLink string) (*ProjectData, error) {
 	return &data, nil
 }
 
-func CalculateDepsdistro(link string, linkCount map[string]map[string]int) float64{
+func CalculateDepsdistro(link string, linkCount map[string]map[string]int) float64 {
 	totalRatio := 0.0
 	for repo := range PackageList {
 		depRatio, err := CalculateDependencyRatio(link, repo, linkCount)

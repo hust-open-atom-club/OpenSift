@@ -1,29 +1,28 @@
 package invoke_llm
 
 import (
-	"fmt"
-	"net/http"
-	"time"
-	"io"
-	"strings"
 	"database/sql"
 	"encoding/csv"
+	"fmt"
+	"io"
+	"net/http"
 	"os"
+	"strings"
+	"time"
 
 	"github.com/HUSTSecLab/criticality_score/pkg/storage"
 )
 
 var visitedLinks = make(map[string]bool)
 
-
-func Home2git(flagConfigPath string, repolist []string, url string, batchSize int, outputCsv string){
-	err := storage.InitializeDatabase(flagConfigPath)
-	db, err := storage.GetDatabaseConnection()
+func Home2git(flagConfigPath string, repolist []string, url string, batchSize int, outputCsv string) {
+	_, err := storage.InitializeDefaultAppDatabase(flagConfigPath)
+	db, err := storage.GetDefaultDatabaseConnection()
 	if err != nil {
 		fmt.Printf("Error initializing database: %v\n", err)
 		return
 	}
-	if url == ""{
+	if url == "" {
 		fmt.Println("Please provide a LLM URL.")
 		return
 	}
@@ -49,7 +48,7 @@ func Home2git(flagConfigPath string, repolist []string, url string, batchSize in
 			if err != nil {
 				continue
 			}
-	
+
 			links, _ := FindLinksInHTML(homepageURL, htmlContent, 1)
 			githubURL := ProcessHomepage(packageName, links, homepageURL, url)
 			res := Check(githubURL)
@@ -66,7 +65,7 @@ func Home2git(flagConfigPath string, repolist []string, url string, batchSize in
 	}
 	UpdateBatch(db, batchSize, resultMap)
 }
-func Check(githubURL string)string{
+func Check(githubURL string) string {
 	client := &http.Client{
 		Timeout: 30 * time.Second,
 	}
@@ -228,54 +227,54 @@ func FindGitRepository(homepageURL string, links []string, packageName string, a
 	return "does not exist"
 }
 
-func ProcessHomepage(packageName string, links []string, homepageURL string,url string) string {
+func ProcessHomepage(packageName string, links []string, homepageURL string, url string) string {
 	githubURL := FindGitRepository(homepageURL, links, packageName, 3, url)
 	return githubURL
 }
 
 func UpdateBatch(db *sql.DB, batchSize int, resultMap map[string]map[string]string) error {
-    for repo, packages := range resultMap {
-        var updateList []struct {
-            PackageName string
-            GitLink     string
-        }
+	for repo, packages := range resultMap {
+		var updateList []struct {
+			PackageName string
+			GitLink     string
+		}
 
-        for packageName, gitLink := range packages {
-            updateList = append(updateList, struct {
-                PackageName string
-                GitLink     string
-            }{PackageName: packageName, GitLink: gitLink})
-        }
+		for packageName, gitLink := range packages {
+			updateList = append(updateList, struct {
+				PackageName string
+				GitLink     string
+			}{PackageName: packageName, GitLink: gitLink})
+		}
 
-        for i := 0; i < len(updateList); i += batchSize {
-            end := i + batchSize
-            if end > len(updateList) {
-                end = len(updateList)
-            }
+		for i := 0; i < len(updateList); i += batchSize {
+			end := i + batchSize
+			if end > len(updateList) {
+				end = len(updateList)
+			}
 
-            query := "UPDATE " + repo + " SET git_link = CASE "
-            valueArgs := make([]interface{}, 0, 2*(end-i))
+			query := "UPDATE " + repo + " SET git_link = CASE "
+			valueArgs := make([]interface{}, 0, 2*(end-i))
 
-            for idx, item := range updateList[i:end] {
-                query += fmt.Sprintf("WHEN package = $%d THEN $%d ", 2*idx+1, 2*idx+2)
-                valueArgs = append(valueArgs, item.PackageName, item.GitLink)
-            }
+			for idx, item := range updateList[i:end] {
+				query += fmt.Sprintf("WHEN package = $%d THEN $%d ", 2*idx+1, 2*idx+2)
+				valueArgs = append(valueArgs, item.PackageName, item.GitLink)
+			}
 
-            query += "END WHERE package IN ("
-            valueStrings := make([]string, 0, end-i)
-            for idx := range updateList[i:end] {
-                valueStrings = append(valueStrings, fmt.Sprintf("$%d", 2*idx+1))
-            }
-            query += strings.Join(valueStrings, ",") + ")"
+			query += "END WHERE package IN ("
+			valueStrings := make([]string, 0, end-i)
+			for idx := range updateList[i:end] {
+				valueStrings = append(valueStrings, fmt.Sprintf("$%d", 2*idx+1))
+			}
+			query += strings.Join(valueStrings, ",") + ")"
 
-            valueArgs = append([]interface{}{repo}, valueArgs...)
+			valueArgs = append([]interface{}{repo}, valueArgs...)
 
-            _, err := db.Exec(query, valueArgs...)
-            if err != nil {
-                return fmt.Errorf("failed to execute batch update for repo %s: %v", repo, err)
-            }
-        }
-    }
+			_, err := db.Exec(query, valueArgs...)
+			if err != nil {
+				return fmt.Errorf("failed to execute batch update for repo %s: %v", repo, err)
+			}
+		}
+	}
 
-    return nil
+	return nil
 }

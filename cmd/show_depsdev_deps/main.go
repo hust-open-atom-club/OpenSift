@@ -13,7 +13,7 @@ var workerCount = flag.Int("workers", 10, "number of workers")
 
 func main() {
 	flag.Parse()
-	storage.InitializeDatabase(*flagConfigPath)
+	storage.InitializeDefaultAppDatabase(*flagConfigPath)
 
 	collector_depsdev.Depsdev(*flagConfigPath, *flagBatchSize, *workerCount)
 }

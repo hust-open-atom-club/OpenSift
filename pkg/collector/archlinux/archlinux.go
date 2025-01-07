@@ -4,9 +4,9 @@ import (
 	"archive/tar"
 	"bufio"
 	"compress/gzip"
-	"log"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -18,7 +18,7 @@ import (
 )
 
 func updateOrInsertDatabase(pkgInfoMap map[string]DepInfo) error {
-	db, err := storage.GetDatabaseConnection()
+	db, err := storage.GetDefaultDatabaseConnection()
 	if err != nil {
 		return err
 	}
@@ -49,7 +49,7 @@ func updateOrInsertDatabase(pkgInfoMap map[string]DepInfo) error {
 }
 
 func storeDependenciesInDatabase(pkgName string, dependencies []DepInfo) error {
-	db, err := storage.GetDatabaseConnection()
+	db, err := storage.GetDefaultDatabaseConnection()
 	if err != nil {
 		return err
 	}
@@ -328,7 +328,7 @@ func Archlinux(outputPath string) {
 
 	// if _, err := os.Stat(downloadDir); os.IsNotExist(err) {
 	// 	log.Println("Download directory not found, starting download...")
-		DownloadFiles()
+	DownloadFiles()
 	// }
 
 	log.Println("Getting package list...")
