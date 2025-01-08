@@ -14,10 +14,10 @@ import (
 	"github.com/HUSTSecLab/criticality_score/pkg/collector_git/config"
 	"github.com/HUSTSecLab/criticality_score/pkg/collector_git/database"
 	psql "github.com/HUSTSecLab/criticality_score/pkg/collector_git/database/psql"
-	"github.com/HUSTSecLab/criticality_score/pkg/collector_git/logger"
 	git "github.com/HUSTSecLab/criticality_score/pkg/collector_git/parser/git"
 	url "github.com/HUSTSecLab/criticality_score/pkg/collector_git/parser/url"
 	"github.com/HUSTSecLab/criticality_score/pkg/collector_git/utils"
+	"github.com/HUSTSecLab/criticality_score/pkg/logger"
 	"github.com/bytedance/gopkg/util/gopool"
 
 	//"fmt"

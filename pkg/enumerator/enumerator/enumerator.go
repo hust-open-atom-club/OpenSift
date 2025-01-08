@@ -3,9 +3,9 @@ package enumerator
 import (
 	"time"
 
+	"github.com/HUSTSecLab/criticality_score/internal/logger"
 	"github.com/HUSTSecLab/criticality_score/pkg/enumerator/writer"
 	"github.com/imroc/req/v3"
-	"github.com/sirupsen/logrus"
 )
 
 type Enumerator interface {
@@ -39,7 +39,7 @@ func (c *enumeratorBase) fetch(url string) (*req.Response, error) {
 	res, err := c.client.R().Get(url)
 
 	if err != nil || res.GetStatusCode() != 200 {
-		logrus.Errorf(
+		logger.Errorf(
 			"[Enumerator] fetch failed: code=%d, msg=%s, err=%v",
 			res.GetStatusCode(),
 			res.String(),

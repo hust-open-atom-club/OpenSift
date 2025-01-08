@@ -12,9 +12,9 @@ import (
 	"time"
 
 	collector "github.com/HUSTSecLab/criticality_score/pkg/collector_git/collector"
-	"github.com/HUSTSecLab/criticality_score/pkg/collector_git/logger"
 	url "github.com/HUSTSecLab/criticality_score/pkg/collector_git/parser/url"
 	"github.com/HUSTSecLab/criticality_score/pkg/collector_git/utils"
+	"github.com/HUSTSecLab/criticality_score/pkg/logger"
 	"github.com/bytedance/gopkg/util/gopool"
 )
 

@@ -5,9 +5,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/HUSTSecLab/criticality_score/internal/logger"
 	"github.com/HUSTSecLab/criticality_score/pkg/enumerator/internal/api"
 	"github.com/bytedance/gopkg/util/gopool"
-	"github.com/sirupsen/logrus"
 )
 
 type GitlabEnumerator struct {
@@ -54,14 +54,14 @@ func (c *GitlabEnumerator) Enumerate() error {
 			)
 			res, err := c.fetch(u)
 			if err != nil {
-				logrus.Errorf("Gitlab fetch failed: %v", err)
+				logger.Errorf("Gitlab fetch failed: %v", err)
 				return
 			}
 
 			resp, err := api.FromGitlab(res)
 
 			if err != nil {
-				logrus.Errorf("Gitlab unmarshal failed: %v", err)
+				logger.Errorf("Gitlab unmarshal failed: %v", err)
 				return
 			}
 
@@ -73,7 +73,7 @@ func (c *GitlabEnumerator) Enumerate() error {
 				muCollected.Lock()
 				defer muCollected.Unlock()
 				collected += len(*resp)
-				logrus.Infof("Enumerator has collected and written %d repositories", collected)
+				logger.Infof("Enumerator has collected and written %d repositories", collected)
 			}()
 
 		})

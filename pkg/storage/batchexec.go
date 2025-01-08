@@ -12,39 +12,37 @@ type BatchExecContextConfig struct {
 	AutoCommitSize int
 }
 
-type BatchExecContext struct {
-	appDb          *AppDatabase
+type BatchExecContext interface {
+	GetSentences() string
+	GetArgs() []interface{}
+	Clear()
+	Commit() (sql.Result, error)
+	AppendExec(sentence string, args ...interface{}) error
+}
+
+type batchExecContext struct {
+	appDb          *appDatabaseContext
 	config         *BatchExecContextConfig
 	sentences      string
 	args           []interface{}
 	sentencesCount int
 }
 
-func (appDb *AppDatabase) NewBatchExecContext(config *BatchExecContextConfig) *BatchExecContext {
-	return &BatchExecContext{
-		appDb:          appDb,
-		config:         config,
-		sentences:      "",
-		sentencesCount: 0,
-		args:           make([]interface{}, 0),
-	}
-}
-
-func (ctx *BatchExecContext) GetSentences() string {
+func (ctx *batchExecContext) GetSentences() string {
 	return ctx.sentences
 }
 
-func (ctx *BatchExecContext) GetArgs() []interface{} {
+func (ctx *batchExecContext) GetArgs() []interface{} {
 	return ctx.args
 }
 
-func (ctx *BatchExecContext) Clear() {
+func (ctx *batchExecContext) Clear() {
 	ctx.sentences = ""
 	ctx.args = make([]interface{}, 0)
 	ctx.sentencesCount = 0
 }
 
-func (ctx *BatchExecContext) Commit() (sql.Result, error) {
+func (ctx *batchExecContext) Commit() (sql.Result, error) {
 	conn, err := ctx.appDb.GetDatabaseConnection()
 	if err != nil {
 		return nil, err
@@ -59,7 +57,7 @@ func (ctx *BatchExecContext) Commit() (sql.Result, error) {
 
 // AppendExec appends a sentence to the batch execution context.
 // Use like db.Exec()
-func (ctx *BatchExecContext) AppendExec(sentence string, args ...interface{}) error {
+func (ctx *batchExecContext) AppendExec(sentence string, args ...interface{}) error {
 	s := sentence
 	start := len(ctx.args)
 

@@ -11,9 +11,9 @@ import (
 	"sync"
 
 	collector "github.com/HUSTSecLab/criticality_score/pkg/collector_git/collector"
-	"github.com/HUSTSecLab/criticality_score/pkg/collector_git/logger"
 	git "github.com/HUSTSecLab/criticality_score/pkg/collector_git/parser/git"
 	url "github.com/HUSTSecLab/criticality_score/pkg/collector_git/parser/url"
+	"github.com/HUSTSecLab/criticality_score/pkg/logger"
 	"github.com/bytedance/gopkg/util/gopool"
 	gogit "github.com/go-git/go-git/v5"
 	"github.com/urfave/cli/v2"

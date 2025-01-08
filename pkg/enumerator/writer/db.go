@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 
+	"github.com/HUSTSecLab/criticality_score/internal/logger"
 	"github.com/HUSTSecLab/criticality_score/pkg/storage"
-	"github.com/sirupsen/logrus"
 )
 
 type DatabaseWriter struct {
@@ -46,7 +46,7 @@ func (w *DatabaseWriter) Close() error {
 func (w *DatabaseWriter) Write(url string) error {
 	_, err := w.db.Exec(fmt.Sprintf("INSERT INTO %s (git_link) VALUES ($1)", w.tableToWrite), url)
 	if err != nil {
-		logrus.Warnf("failed to insert repository %s: %v", url, err)
+		logger.Warnf("failed to insert repository %s: %v", url, err)
 	}
 	return err
 }

@@ -4,7 +4,7 @@ import (
 	"os"
 	"sync"
 
-	"github.com/sirupsen/logrus"
+	"github.com/HUSTSecLab/criticality_score/internal/logger"
 )
 
 type TextWriter struct {
@@ -24,7 +24,7 @@ func (w *TextWriter) Open() error {
 	var err error
 	// if exists, print warning
 	if _, err = os.Stat(w.fileName); err == nil {
-		logrus.Warnf("file %s already exists, will be overwritten", w.fileName)
+		logger.Warnf("file %s already exists, will be overwritten", w.fileName)
 	}
 
 	// open file

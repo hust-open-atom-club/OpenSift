@@ -17,12 +17,13 @@ type Config struct {
 	Redispass   string `json:"redispass"`
 }
 
+// Deprecated: do not use global app database context
 func GetDefaultConfig() (*Config, error) {
 	if DefaultAppDatabase == nil {
 		return nil, fmt.Errorf("default app database is not initialized")
 	}
 
-	return &DefaultAppDatabase.Config, nil
+	return &DefaultAppDatabase.(*appDatabaseContext).Config, nil
 }
 
 func loadConfig(configPath string) (Config, error) {

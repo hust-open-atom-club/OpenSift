@@ -6,10 +6,10 @@ import (
 	"sync"
 	"time"
 
+	"github.com/HUSTSecLab/criticality_score/internal/logger"
 	"github.com/HUSTSecLab/criticality_score/pkg/enumerator/config"
 	"github.com/HUSTSecLab/criticality_score/pkg/enumerator/internal/api"
 	"github.com/bytedance/gopkg/util/gopool"
-	"github.com/sirupsen/logrus"
 )
 
 // Todo Use channel to receive and write data
@@ -30,12 +30,12 @@ func (c *enumeratorBase) EnumerateCargo() {
 			)
 			res, err := c.fetch(u)
 			if err != nil {
-				logrus.Panic("Cargo", err)
+				logger.Panic("Cargo", err)
 			}
 			data := res.Bytes()
 			err = os.WriteFile(config.OUTPUT_DIR+config.CRATES_IO_OUTPUT_FILEPATH, data, 0644)
 			if err != nil {
-				logrus.Panic("Cargo", err)
+				logger.Panic("Cargo", err)
 			}
 		})
 	}

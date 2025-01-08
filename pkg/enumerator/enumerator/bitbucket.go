@@ -1,9 +1,9 @@
 package enumerator
 
 import (
+	"github.com/HUSTSecLab/criticality_score/internal/logger"
 	"github.com/HUSTSecLab/criticality_score/pkg/enumerator/internal/api"
 	"github.com/HUSTSecLab/criticality_score/pkg/enumerator/internal/api/bitbucket"
-	"github.com/sirupsen/logrus"
 )
 
 type BitBucketEnumerator struct {
@@ -34,7 +34,7 @@ func (c *BitBucketEnumerator) Enumerate() error {
 	err := c.writer.Open()
 	defer c.writer.Close()
 	if err != nil {
-		logrus.Panic("Open writer", err)
+		logger.Panic("Open writer", err)
 	}
 
 	u := api.BITBUCKET_ENUMERATE_API_URL
@@ -42,11 +42,11 @@ func (c *BitBucketEnumerator) Enumerate() error {
 	for {
 		res, err := c.fetch(u)
 		if err != nil {
-			logrus.Panic("Bitbucket", err)
+			logger.Panic("Bitbucket", err)
 		}
 		resp, err := api.FromBitbucket(res)
 		if err != nil {
-			logrus.Panic("Bitbucket", err)
+			logger.Panic("Bitbucket", err)
 		}
 
 		for _, v := range resp.Values {
@@ -56,7 +56,7 @@ func (c *BitBucketEnumerator) Enumerate() error {
 
 		collected += len(resp.Values)
 
-		logrus.Infof("Enumerator has collected and written %d repositories", collected)
+		logger.Infof("Enumerator has collected and written %d repositories", collected)
 
 		if collected >= c.take || resp.Next == "" || len(resp.Values) == 0 {
 			break

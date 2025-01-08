@@ -64,7 +64,7 @@ func newDataWithMakeEmpty[T any]() *T {
 	return data
 }
 
-func getDataFromTable[T any](appDb *storage.AppDatabase, tableName string, whereAndOrderBySentence string, args ...interface{}) (*DatabaseRepositoryIterator[T], error) {
+func getDataFromTable[T any](appDb storage.AppDatabaseContext, tableName string, whereAndOrderBySentence string, args ...interface{}) (*DatabaseRepositoryIterator[T], error) {
 	// data is only use for get the type of T
 	data := new(T)
 
@@ -128,13 +128,13 @@ func getInsertQueryAndArgs[T any](tableName string, data *T) (string, []interfac
 
 }
 
-func insertDataIntoTable[T any](appDb *storage.AppDatabase, tableName string, data *T) error {
+func insertDataIntoTable[T any](appDb storage.AppDatabaseContext, tableName string, data *T) error {
 	insertSentence, values := getInsertQueryAndArgs[T](tableName, data)
 	_, err := appDb.Exec(insertSentence, values...)
 	return err
 }
 
-func batchInsertDataIntoTable[T any](appDb *storage.AppDatabase, tableName string, data []*T) error {
+func batchInsertDataIntoTable[T any](appDb storage.AppDatabaseContext, tableName string, data []*T) error {
 
 	batchCtx := appDb.NewBatchExecContext(&storage.BatchExecContextConfig{
 		AutoCommit:     true,

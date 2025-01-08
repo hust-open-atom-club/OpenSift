@@ -6,11 +6,11 @@ import (
 
 	"github.com/HUSTSecLab/criticality_score/pkg/enumerator/enumerator"
 	"github.com/HUSTSecLab/criticality_score/pkg/enumerator/writer"
-	log "github.com/sirupsen/logrus"
+	"github.com/HUSTSecLab/criticality_score/pkg/logger"
 )
 
 func printGithubUsage() {
-	log.Warnln("NOTE: This util is not support for github, please use `enumerate_github` instead.")
+	logger.Warn("NOTE: This util is not support for github, please use `enumerate_github` instead.")
 }
 
 func main() {
@@ -63,7 +63,7 @@ func main() {
 		err := en.Enumerate()
 
 		if err != nil {
-			log.WithError(err).Errorf("failed to enumerate %s", platform)
+			logger.Errorf("failed to enumerate %s: %v", platform, err)
 		}
 
 	}
