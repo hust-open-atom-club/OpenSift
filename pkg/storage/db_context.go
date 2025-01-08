@@ -14,6 +14,7 @@ type AppDatabaseContext interface {
 	GetDatabaseConnection() (*sql.DB, error)
 	Exec(query string, args ...interface{}) (sql.Result, error)
 	Query(query string, args ...interface{}) (*sql.Rows, error)
+	QueryRow(query string, args ...interface{}) *sql.Row
 }
 
 type appDatabaseContext struct {
@@ -77,6 +78,19 @@ func (app *appDatabaseContext) Query(query string, args ...interface{}) (*sql.Ro
 	}
 	defer conn.Close()
 	return conn.Query(query, args...)
+}
+
+func (app *appDatabaseContext) QueryRow(query string, args ...interface{}) *sql.Row {
+	if app.EnableSQLLog {
+		logger.Info("QueryRow SQL: ", query)
+	}
+
+	conn, err := app.GetDatabaseConnection()
+	if err != nil {
+		return nil
+	}
+	defer conn.Close()
+	return conn.QueryRow(query, args...)
 }
 
 // Deprecated: Do not use global app database

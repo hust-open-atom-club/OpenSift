@@ -1,52 +1,54 @@
 package writer
 
 import (
-	"database/sql"
-	"fmt"
-
 	"github.com/HUSTSecLab/criticality_score/pkg/logger"
 	"github.com/HUSTSecLab/criticality_score/pkg/storage"
+	"github.com/HUSTSecLab/criticality_score/pkg/storage/repositories"
 )
 
 type DatabaseWriter struct {
-	configPath   string
-	tableToWrite string
-	db           *sql.DB
+	configPath  string
+	dbCtx       storage.AppDatabaseContext
+	repo        repositories.PlatformLinkRepository
+	tablePrefix string
+
+	buffer     []string
+	bufferSize int
 }
 
-func NewDatabaseWriter(configPath string, tableToWrite string) *DatabaseWriter {
+func NewDatabaseWriter(configPath string, tablePrefix string) *DatabaseWriter {
 	return &DatabaseWriter{
-		configPath:   configPath,
-		tableToWrite: tableToWrite,
+		configPath:  configPath,
+		tablePrefix: tablePrefix,
+		buffer:      make([]string, 0),
+		bufferSize:  1000,
 	}
 }
 
 func (w *DatabaseWriter) Open() error {
-	_, err := storage.InitializeDefaultAppDatabase(w.configPath)
-	if err != nil {
-		return err
-	}
-	conn, err := storage.GetDefaultDatabaseConnection()
+	repo := repositories.NewPlatformLinkRepository(w.dbCtx, repositories.PlatformLinkTablePrefix(w.tablePrefix))
 
-	if err != nil {
-		return err
-	}
-	w.db = conn
-
-	conn.Exec(fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s (git_link VARCHAR(255) NOT NULL PRIMARY KEY)", w.tableToWrite))
-	conn.Exec(fmt.Sprintf("DELETE FROM %s", w.tableToWrite))
-
-	return nil
+	return repo.ClearLinks()
 }
 
 func (w *DatabaseWriter) Close() error {
-	return w.db.Close()
+	return nil
+}
+
+func (w *DatabaseWriter) flush() error {
+	return w.repo.BatchInsertLinks(w.buffer)
 }
 
 func (w *DatabaseWriter) Write(url string) error {
-	_, err := w.db.Exec(fmt.Sprintf("INSERT INTO %s (git_link) VALUES ($1)", w.tableToWrite), url)
-	if err != nil {
-		logger.Warnf("failed to insert repository %s: %v", url, err)
+	w.buffer = append(w.buffer, url)
+
+	if len(w.buffer) >= w.bufferSize {
+		err := w.flush()
+		if err != nil {
+			logger.Error("Failed to flush buffer: %v", err)
+			return err
+		}
 	}
-	return err
+
+	return nil
 }
