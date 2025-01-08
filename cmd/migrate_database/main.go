@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"sort"
 	"time"
 
 	"github.com/HUSTSecLab/criticality_score/pkg/storage"
@@ -66,6 +67,10 @@ func main() {
 			FileName: filePath,
 		})
 	}
+
+	sort.Slice(migrations, func(i, j int) bool {
+		return migrations[i].Version < migrations[j].Version
+	})
 
 	fmt.Println("Found migrations:")
 	for _, migration := range migrations {
