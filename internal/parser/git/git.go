@@ -14,9 +14,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/HUSTSecLab/criticality_score/internal/logger"
 	parser "github.com/HUSTSecLab/criticality_score/internal/parser"
 	url "github.com/HUSTSecLab/criticality_score/internal/parser/url"
+	"github.com/HUSTSecLab/criticality_score/pkg/logger"
 	"github.com/go-git/go-git/v5"
 	gitconfig "github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing"

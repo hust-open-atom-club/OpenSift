@@ -6,9 +6,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/HUSTSecLab/criticality_score/internal/logger"
 	"github.com/HUSTSecLab/criticality_score/pkg/enumerator/config"
 	"github.com/HUSTSecLab/criticality_score/pkg/enumerator/internal/api"
+	"github.com/HUSTSecLab/criticality_score/pkg/logger"
 	"github.com/bytedance/gopkg/util/gopool"
 )
 

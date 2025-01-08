@@ -3,8 +3,8 @@ package enumerator
 import (
 	"time"
 
-	"github.com/HUSTSecLab/criticality_score/internal/logger"
 	"github.com/HUSTSecLab/criticality_score/pkg/enumerator/writer"
+	"github.com/HUSTSecLab/criticality_score/pkg/logger"
 	"github.com/imroc/req/v3"
 )
 

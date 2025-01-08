@@ -10,10 +10,10 @@ package collector
 import (
 	"fmt"
 
-	"github.com/HUSTSecLab/criticality_score/internal/logger"
 	parser "github.com/HUSTSecLab/criticality_score/internal/parser"
 	url "github.com/HUSTSecLab/criticality_score/internal/parser/url"
 	config "github.com/HUSTSecLab/criticality_score/pkg/collector_git/config"
+	"github.com/HUSTSecLab/criticality_score/pkg/logger"
 
 	gogit "github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/storage/memory"

@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/HUSTSecLab/criticality_score/internal/logger"
+	"github.com/HUSTSecLab/criticality_score/pkg/logger"
 	_ "github.com/lib/pq"
 )
 

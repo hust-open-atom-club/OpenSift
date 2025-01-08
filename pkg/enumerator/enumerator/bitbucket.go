@@ -1,9 +1,9 @@
 package enumerator
 
 import (
-	"github.com/HUSTSecLab/criticality_score/internal/logger"
 	"github.com/HUSTSecLab/criticality_score/pkg/enumerator/internal/api"
 	"github.com/HUSTSecLab/criticality_score/pkg/enumerator/internal/api/bitbucket"
+	"github.com/HUSTSecLab/criticality_score/pkg/logger"
 )
 
 type BitBucketEnumerator struct {

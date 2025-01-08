@@ -14,10 +14,10 @@ import (
 	"sync"
 
 	collector "github.com/HUSTSecLab/criticality_score/internal/collector"
-	"github.com/HUSTSecLab/criticality_score/internal/logger"
 	git "github.com/HUSTSecLab/criticality_score/internal/parser/git"
 	url "github.com/HUSTSecLab/criticality_score/internal/parser/url"
 	scores "github.com/HUSTSecLab/criticality_score/pkg/gen_scores"
+	"github.com/HUSTSecLab/criticality_score/pkg/logger"
 	"github.com/HUSTSecLab/criticality_score/pkg/storage"
 	"github.com/bytedance/gopkg/util/gopool"
 	gogit "github.com/go-git/go-git/v5"

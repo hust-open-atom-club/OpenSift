@@ -4,7 +4,7 @@ import (
 	"os"
 	"sync"
 
-	"github.com/HUSTSecLab/criticality_score/internal/logger"
+	"github.com/HUSTSecLab/criticality_score/pkg/logger"
 )
 
 type TextWriter struct {
