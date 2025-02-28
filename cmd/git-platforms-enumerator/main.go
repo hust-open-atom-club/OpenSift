@@ -8,6 +8,7 @@ import (
 	"github.com/HUSTSecLab/criticality_score/pkg/linkenumerator/enumerator"
 	"github.com/HUSTSecLab/criticality_score/pkg/linkenumerator/writer"
 	"github.com/HUSTSecLab/criticality_score/pkg/storage"
+	"github.com/HUSTSecLab/criticality_score/pkg/storage/repository"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
 )
@@ -88,7 +89,7 @@ func main() {
 			tablePrefix = "gitlab"
 			en = enumerator.NewGitlabEnumerator(*flagTake, *flagJobs)
 		case "bitbucket":
-			tablePrefix = "bitbucket"
+			tablePrefix = repository.PlatformLinkTablePrefixBitbucket
 			en = enumerator.NewBitBucketEnumerator(*flagTake)
 		default:
 			panic("unknown platform")
