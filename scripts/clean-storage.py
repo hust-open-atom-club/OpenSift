@@ -3,38 +3,13 @@ import os
 from argparse import ArgumentParser
 from pathlib import Path
 
-domain_endings = [
-    ".com",
-    ".org",
-    ".net",
-    ".int",
-    ".edu",
-    ".gov",
-    ".mil",
-    ".arpa",
-    ".biz",
-    ".info",
-    ".name",
-    ".pro",
-    ".aero",
-    ".coop",
-    ".museum",
-    ".io",
-    ".ai",
-    ".co",
-    ".us",
-    ".uk",
-    ".cn",
-]
-
-
 def clean_github(basedir: os.PathLike):
     github_path = basedir / "github.com"
     dirs = os.listdir(github_path)
     for d in dirs:
         path = github_path / d
         if os.path.isfile(path):
-            print("# meet a abnormal file: {}".format(path))
+            print("# meet an abnormal file: {}".format(path))
             print("rm {}".format(path))
 
         for f in os.listdir(path):
@@ -50,13 +25,15 @@ def clean_storage(basedir: os.PathLike):
     dirs = os.listdir(basedir)
     after_clean = []
     for d in dirs:
-        if d.endswith(tuple(domain_endings)):
+        if '.' in d:
+            after_clean.append(d)
             continue
         path = os.path.join(basedir, d)
         if os.path.isdir(path):
             print("rm -rf {}".format(path))
         else:
-            after_clean.append(d)
+            print("# meet an abnormal file: {}".format(path))
+            print("rm {}".format(path))
     print("# after clean: ")
     for d in after_clean:
         print("#    {}".format(d))
