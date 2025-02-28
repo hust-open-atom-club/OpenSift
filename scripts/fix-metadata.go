@@ -92,6 +92,7 @@ func main() {
 	}
 
 	config.RegistCommonFlags(pflag.CommandLine)
+	config.RegistGitStorageFlags(pflag.CommandLine)
 	config.ParseFlags(pflag.CommandLine)
 
 	logger.SetContext("git-metadata-fixer")
