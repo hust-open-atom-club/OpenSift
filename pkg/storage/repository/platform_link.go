@@ -86,7 +86,7 @@ func (r *platformLinkRepository) CommitTemp() error {
 	tn := getPlatformTableName(r.Platform)
 	query := fmt.Sprintf(`
 		DELETE FROM %s;
-		INSERT INTO %s (SELECT * FROM %s_tmp);
+		INSERT INTO %s (SELECT DISTINCT * FROM %s_tmp);
 		DROP TABLE %s_tmp;
 	`, tn, tn, tn, tn)
 	_, err := r.AppDb.Exec(query)
