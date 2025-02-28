@@ -17,6 +17,7 @@ import (
 	"github.com/HUSTSecLab/criticality_score/pkg/storage/repository"
 	"github.com/HUSTSecLab/criticality_score/pkg/storage/sqlutil"
 	"github.com/bytedance/gopkg/util/gopool"
+	"github.com/lib/pq"
 	"github.com/spf13/pflag"
 )
 
@@ -66,7 +67,10 @@ func fix(ctx storage.AppDatabaseContext, link string) {
 		_, err := ctx.Exec(`UPDATE git_metrics SET
 				language = $1,
 				license = $2
-				WHERE id = $3`, result.Languages, result.Licenses, gmid)
+				WHERE id = $3`,
+			pq.StringArray(result.Languages),
+			pq.StringArray(result.Licenses),
+			gmid)
 
 		if err != nil {
 			logger.Errorf("Update database for %s failed: %v", link, err)
