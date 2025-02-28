@@ -81,7 +81,7 @@ func fix(ctx storage.AppDatabaseContext, link string) {
 			"link":           link,
 			"id":             id,
 			"git_metrics_id": gmid,
-		}).Info("Success to fix %s", link)
+		}).Infof("Success to fix %s", link)
 	}
 
 }
