@@ -65,7 +65,7 @@ def clean_storage(basedir: os.PathLike):
 parser = ArgumentParser(
     description="Clean storage dir, only generate shell commands but not execute"
 )
-parser.add_argument("d")
+parser.add_argument("-d")
 args = parser.parse_args()
 basedir = args.d
 
