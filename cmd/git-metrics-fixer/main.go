@@ -23,7 +23,7 @@ import (
 var (
 	flagUpdateDB   = pflag.Bool("update-db", false, "Whether to update the database")
 	flagUpdateLink = pflag.String("update-link", "", "Which link to update")
-	flagUpdateList = pflag.String("file", "", "Which file to update")
+	flagUpdateList = pflag.String("list", "", "Which file to update")
 	workpoolSize   = pflag.Int("workpool", 50, "workpool size")
 	filePath       = pflag.String("file", "", "file path")
 )
