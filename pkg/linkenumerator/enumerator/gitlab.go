@@ -2,6 +2,7 @@ package enumerator
 
 import (
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 
@@ -66,6 +67,10 @@ func (c *gitlabEnumerator) Enumerate() error {
 			}
 
 			for _, v := range *resp {
+				// if ends with .git, remove it
+				if strings.HasSuffix(v.HTTPURLToRepo, ".git") {
+					v.HTTPURLToRepo = v.HTTPURLToRepo[:len(v.HTTPURLToRepo)-4]
+				}
 				c.writer.Write(v.HTTPURLToRepo)
 			}
 

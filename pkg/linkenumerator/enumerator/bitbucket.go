@@ -1,6 +1,8 @@
 package enumerator
 
 import (
+	"strings"
+
 	"github.com/HUSTSecLab/criticality_score/pkg/linkenumerator/api"
 	"github.com/HUSTSecLab/criticality_score/pkg/linkenumerator/api/bitbucket"
 	"github.com/sirupsen/logrus"
@@ -51,6 +53,9 @@ func (c *BitBucketEnumerator) Enumerate() error {
 
 		for _, v := range resp.Values {
 			url := getBestBitBucketGitURL(&v)
+			if strings.HasSuffix(url, ".git") {
+				url = url[:len(url)-4]
+			}
 			c.writer.Write(url)
 		}
 
