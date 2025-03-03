@@ -12,7 +12,7 @@ func TestCalculateDistScore(t *testing.T) {
 	}
 
 	expectedScore := (weights["distScore"]["dist_impact"] * distScore.DistImpact) + (weights["distScore"]["dist_pagerank"] * distScore.DistPageRank)
-	distScore.CalculateDistScore()
+	distScore.CalculateDistScore("log")
 
 	if distScore.DistScore != expectedScore {
 		t.Errorf("Expected score %v, but got %v", expectedScore, distScore.DistScore)

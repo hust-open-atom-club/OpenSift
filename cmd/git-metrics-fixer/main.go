@@ -2,8 +2,10 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"os"
+	"sync"
 
 	"github.com/HUSTSecLab/criticality_score/pkg/config"
 	collector "github.com/HUSTSecLab/criticality_score/pkg/gitfile/collector"
@@ -21,6 +23,9 @@ import (
 var (
 	flagUpdateDB   = pflag.Bool("update-db", false, "Whether to update the database")
 	flagUpdateLink = pflag.String("update-link", "", "Which link to update")
+	flagUpdateList = pflag.String("file", "", "Which file to update")
+	workpoolSize   = pflag.Int("workpool", 50, "workpool size")
+	filePath       = pflag.String("file", "", "file path")
 )
 
 func main() {
@@ -35,48 +40,66 @@ func main() {
 	config.ParseFlags(pflag.CommandLine)
 	ac := storage.GetDefaultAppDatabaseContext()
 
-	updateDB := *flagUpdateDB
+	// updateDB := *flagUpdateDB
 	link := *flagUpdateLink
+	file := *flagUpdateList
 
-	logger.Infof("Collecting %s", link)
-	r := &gogit.Repository{}
+	var links []string
 	var err error
-	u := url.ParseURL(link)
-	r, err = collector.EzCollect(&u)
-	if err != nil {
-		logger.Panicf("Collecting %s Failed", u.URL)
+
+	if file != "" {
+		links, err = ReadFileLines(file)
+		if err != nil {
+			logger.Panicf("Reading file %s Failed", file)
+		}
+	} else if link != "" {
+		links = append(links, link)
+	} else {
+		logger.Panicf("No link or file provided")
 	}
+	scores.UpdatePackageList(ac)
 
-	repo, err := git.ParseRepo(r)
-	if err != nil {
-		logger.Panicf("Parsing %s Failed", link)
+	var wg sync.WaitGroup
+	var mu sync.Mutex
+	workpool := make(chan struct{}, *workpoolSize)
+
+	for _, link := range links {
+		wg.Add(1)
+		workpool <- struct{}{}
+		go func(link string) {
+			defer wg.Done()
+			defer func() { <-workpool }()
+			logger.Infof("Collecting %s", link)
+			r := &gogit.Repository{}
+			u := url.ParseURL(link)
+			r, err := collector.Collect(&u, *filePath)
+			if err != nil {
+				logger.Println("Collecting Failed:", link)
+				return
+			}
+
+			repo, err := git.ParseRepo(r)
+			if err != nil {
+				logger.Infof("Parsing %s Failed", link)
+			}
+			logger.Infof("%s Collected", repo.Name)
+
+			// repo.Show()
+			gitMetric := &repository.GitMetric{
+				GitLink:          &link,
+				CommitFrequency:  sqlutil.ToNullable(repo.CommitFrequency),
+				ContributorCount: sqlutil.ToNullable(repo.ContributorCount),
+				CreatedSince:     sqlutil.ToNullable(repo.CreatedSince),
+				UpdatedSince:     sqlutil.ToNullable(repo.UpdatedSince),
+				OrgCount:         sqlutil.ToNullable(repo.OrgCount),
+			}
+
+			mu.Lock()
+			InsertGitMeticAndFetch(ac, gitMetric)
+			mu.Unlock()
+		}(link)
 	}
-	logger.Infof("%s Collected", repo.Name)
-
-	repo.Show()
-	gitMetric := &repository.GitMetric{
-		GitLink:          &link,
-		CommitFrequency:  sqlutil.ToNullable(repo.CommitFrequency),
-		ContributorCount: sqlutil.ToNullable(repo.ContributorCount),
-		CreatedSince:     sqlutil.ToNullable(repo.CreatedSince),
-		UpdatedSince:     sqlutil.ToNullable(repo.UpdatedSince),
-		OrgCount:         sqlutil.ToNullable(repo.OrgCount),
-	}
-	gitMetadata := InsertGitMeticAndFetch(ac, gitMetric)
-
-	gitMetadataScore := scores.NewGitMetadataScore()
-	gitMetadataScore.CalculateGitMetadataScore(gitMetadata[link])
-
-	distScore := scores.FetchDistMetadataSingle(ac, link)
-	distScore[link].CalculateDistScore()
-	langEcoScore := scores.FetchLangEcoMetadataSingle(ac, link)
-	langEcoScore[link].CalculateLangEcoScore()
-
-	if updateDB {
-		scores.UpdateScore(ac, map[string]*scores.LinkScore{
-			link: scores.NewLinkScore(gitMetadataScore, distScore[link], langEcoScore[link], 1),
-		})
-	}
+	wg.Wait()
 }
 
 func InsertGitMeticAndFetch(ac storage.AppDatabaseContext, gitMetadata *repository.GitMetric) map[string]*scores.GitMetadata {
@@ -84,4 +107,24 @@ func InsertGitMeticAndFetch(ac storage.AppDatabaseContext, gitMetadata *reposito
 	repo.InsertOrUpdate(gitMetadata)
 	gitMetric := scores.FetchGitMetricsSingle(ac, *gitMetadata.GitLink)
 	return gitMetric
+}
+
+func ReadFileLines(filePath string) ([]string, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	var lines []string
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+	}
+
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+
+	return lines, nil
 }
