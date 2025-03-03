@@ -1,7 +1,7 @@
 /*
  * @Author: 7erry
  * @Date: 2024-09-29 14:41:35
- * @LastEditTime: 2025-01-07 19:05:13
+ * @LastEditTime: 2025-03-03 17:50:44
  * @Description: Collect Git Repositories - Download and Read by go-git
  */
 
@@ -162,4 +162,16 @@ func Update(u *url.RepoURL, storagePath string) (*gogit.Repository, error) {
 	}
 
 	return r, err
+}
+
+// Check if the url provided is available
+func Check(u *url.RepoURL) error {
+	_, err := gogit.Clone(memory.NewStorage(), nil, &gogit.CloneOptions{
+		URL: u.URL,
+		// Progress:     os.Stdout,
+		SingleBranch: true,
+		Depth:        0,
+	})
+	return err
+
 }
