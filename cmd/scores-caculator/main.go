@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/HUSTSecLab/criticality_score/pkg/config"
 	"github.com/HUSTSecLab/criticality_score/pkg/logger"
@@ -45,7 +45,7 @@ func main() {
 
 		gitMetadataScore[link] = scores.NewGitMetadataScore()
 		if _, ok := gitMeticMap[link]; !ok {
-			fmt.Println("No git metadata for ", link)
+			log.Println("No git metadata for ", link)
 		} else {
 			gitMetadataScore[link].CalculateGitMetadataScore(gitMeticMap[link], *normalization)
 		}

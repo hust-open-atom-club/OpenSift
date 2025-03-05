@@ -50,11 +50,12 @@ const (
 )
 
 type DistPackage struct {
-	Package     *string `pk:"true"`
-	HomePage    *string `column:"homepage"`
-	Description *string
-	Version     *string
-	GitLink     *string
+	Downloads_3m *int
+	Package      *string `pk:"true"`
+	HomePage     *string `column:"homepage"`
+	Description  *string
+	Version      *string
+	GitLink      *string
 }
 
 type distPackageRepository struct {

@@ -44,16 +44,18 @@ const (
 	Fedora
 	Gentoo
 	Ubuntu
+	Other
 )
 
 type DistDependency struct {
-	ID         *int64 `generated:"true"`
-	GitLink    *string
-	Type       *DistType
-	DepImpact  *float64
-	DepCount   *int
-	PageRank   *float64
-	UpdateTime *time.Time
+	ID           *int64 `generated:"true"`
+	GitLink      *string
+	Type         *DistType
+	DepImpact    *float64
+	DepCount     *int
+	PageRank     *float64
+	UpdateTime   *time.Time
+	Downloads_3m *int
 }
 
 func NewDistDependencyRepository(appDb storage.AppDatabaseContext) DistDependencyRepository {
