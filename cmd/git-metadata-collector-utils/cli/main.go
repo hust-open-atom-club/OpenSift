@@ -3,36 +3,38 @@
 package main
 
 import (
-	"flag"
 	"os"
 	"strings"
 	"sync"
 
+	"github.com/HUSTSecLab/criticality_score/pkg/config"
 	collector "github.com/HUSTSecLab/criticality_score/pkg/gitfile/collector"
 	git "github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/git"
 	url "github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/url"
 	"github.com/HUSTSecLab/criticality_score/pkg/logger"
 	"github.com/bytedance/gopkg/util/gopool"
 	gogit "github.com/go-git/go-git/v5"
+	"github.com/spf13/pflag"
 )
 
 func main() {
 	logger.ConfigAsCommandLineTool()
-	flag.Usage = func() {
+	config.RegistGitStorageFlags(pflag.CommandLine)
+	pflag.Usage = func() {
 		logger.Printf("This tool is used to collect git metadata in storage path, but not clone the repository.\n")
 		logger.Printf("Usage: %s [url1] [url2] ...\n", os.Args[0])
-		flag.PrintDefaults()
+		pflag.PrintDefaults()
 	}
-	flag.Parse()
+	pflag.Parse()
 
-	if flag.NArg() == 0 {
-		flag.Usage()
+	if pflag.NArg() == 0 {
+		pflag.Usage()
 		os.Exit(1)
 	}
 
 	inputs := []string{}
-	for i := 0; i < flag.NArg(); i++ {
-		inputs = append(inputs, flag.Arg(i))
+	for i := 0; i < pflag.NArg(); i++ {
+		inputs = append(inputs, pflag.Arg(i))
 	}
 
 	var wg sync.WaitGroup
