@@ -20,6 +20,8 @@ import (
 func main() {
 	logger.ConfigAsCommandLineTool()
 	config.RegistGitStorageFlags(pflag.CommandLine)
+	inMemoryFlag := pflag.BoolP("memory", "m", false, "Whether to clone the repository in memory")
+
 	pflag.Usage = func() {
 		logger.Printf("This tool is used to collect git metadata in storage path, but not clone the repository.\n")
 		logger.Printf("Usage: %s [url1] [url2] ...\n", os.Args[0])
@@ -42,36 +44,49 @@ func main() {
 
 	repos := make([]*git.Repo, 0)
 
-	for index, input := range inputs {
+	for _, input := range inputs {
 		gopool.Go(func() {
 			defer wg.Done()
-			logger.Infof("[%d] Collecting %s", index, input)
+			logger.Infof("%s: Start collecting", input)
 
 			r := &gogit.Repository{}
 			var err error
 
-			//* if the input is url, parse and clone the repo
-			//* if not, open the repo
-			if strings.Contains(input, "://") {
-				u := url.ParseURL(input)
-				r, err = collector.EzCollect(&u)
-				if err != nil {
-					logger.Panicf("[%d] Collecting %s Failed", index, input)
+			if !strings.Contains(input, "://") {
+				if *inMemoryFlag {
+					logger.Warnf("%s: In memory flag is set, but the input is not a URL", input)
 				}
-			} else {
 				r, err = collector.Open(input)
 				if err != nil {
-					logger.Panicf("[%d] Opening %s Failed", index, input)
+					logger.Errorf("%s: Opening failed: %s", input, err)
+					return
 				}
+				err = collector.Pull(r, "")
+			} else if *inMemoryFlag {
+				u := url.ParseURL(input)
+				r, err = collector.EzCollect(&u)
+			} else {
+				if config.GetGitStoragePath() == "" {
+					logger.Errorf("Storage path is not set")
+					return
+				}
+				u := url.ParseURL(input)
+				r, err = collector.Collect(&u, config.GetGitStoragePath())
+			}
+
+			if err != nil {
+				logger.Errorf("%s: Collect failed: %s", input, err)
+				return
 			}
 
 			repo, err := git.ParseRepo(r)
 			if err != nil {
-				logger.Panicf("[%d] Parsing %s Failed", index, input)
+				logger.Errorf("%s: Parsing failed: %s", input, err)
+				return
 			}
 
 			repos = append(repos, repo)
-			logger.Infof("[%d] %s Collected", index, repo.Name)
+			logger.Infof("%s Collected", repo.Name)
 		})
 	}
 
