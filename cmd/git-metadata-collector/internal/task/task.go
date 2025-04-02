@@ -47,8 +47,8 @@ func Collect(gitLink string) {
 			ContributorCount: sqlutil.ToNullable(repo.ContributorCount),
 			CommitFrequency:  sqlutil.ToNullable(repo.CommitFrequency),
 			OrgCount:         sqlutil.ToNullable(repo.OrgCount),
-			License:          sqlutil.ToNullable(pq.StringArray(repo.Licenses)),
-			Language:         sqlutil.ToNullable(pq.StringArray(repo.Languages)),
+			//* License:          sqlutil.ToNullable(pq.StringArray(repo.Licenses)),
+			Language: sqlutil.ToNullable(pq.StringArray(repo.Languages)),
 		})
 
 		if err != nil {

@@ -22,7 +22,6 @@ import (
 	gitconfig "github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
-	"github.com/google/licensecheck"
 )
 
 var (
@@ -33,12 +32,12 @@ var (
 )
 
 type Repo struct {
-	Name     string
-	Owner    string
-	Source   string
-	URL      string
-	Licenses []string
-	// is_maintained bool
+	Name   string
+	Owner  string
+	Source string
+	URL    string
+	//*	Licenses []string
+	//* is_maintained bool
 	Languages        []string
 	Ecosystems       []string
 	CreatedSince     time.Time
@@ -50,11 +49,11 @@ type Repo struct {
 
 func NewRepo() Repo {
 	return Repo{
-		Name:             parser.UNKNOWN_NAME,
-		Owner:            parser.UNKNOWN_OWNER,
-		Source:           parser.UNKNOWN_SOURCE,
-		URL:              parser.UNKNOWN_URL,
-		Licenses:         nil,
+		Name:   parser.UNKNOWN_NAME,
+		Owner:  parser.UNKNOWN_OWNER,
+		Source: parser.UNKNOWN_SOURCE,
+		URL:    parser.UNKNOWN_URL,
+		//*	Licenses:         nil,
 		Languages:        nil,
 		Ecosystems:       nil,
 		CreatedSince:     parser.UNKNOWN_TIME,
@@ -313,6 +312,8 @@ func GetEcosystem(filename string, filesize int64, e *map[string]int64) {
 	}
 }
 
+/*
+* License Info is now disabled but preserved
 func GetLicense(f *object.File) (string, error) {
 	text, err := f.Contents()
 	if err != nil {
@@ -327,6 +328,7 @@ func GetLicense(f *object.File) (string, error) {
 
 	return license, nil
 }
+*/
 
 func getTopNKeys(m map[string]int64) []string {
 	keys := make([]string, 0, len(m))
@@ -437,16 +439,19 @@ func (repo *Repo) WalkRepo(r *git.Repository) error {
 		filesize := f.Size
 		GetLanguages(filename, filesize, &languages)
 		GetEcosystem(filename, filesize, &ecosystems)
-		if repo.Licenses == nil {
-			if _, ok := parser.LICENSE_FILENAMES[filename]; ok {
-				license, err := GetLicense(f)
-				if err != nil {
-					logger.Error(err)
-				} else if license != "" {
-					repo.Licenses = []string{license}
+		/*
+			* License Info is now disabled but preserved
+			if repo.Licenses == nil {
+				if _, ok := parser.LICENSE_FILENAMES[filename]; ok {
+					license, err := GetLicense(f)
+					if err != nil {
+						logger.Error(err)
+					} else if license != "" {
+						repo.Licenses = []string{license}
+					}
 				}
 			}
-		}
+		*/
 		return nil
 	})
 	if err != nil {
@@ -465,7 +470,7 @@ func (repo *Repo) Show() {
 			"[%v]: %v    [%v]: %v    [%v]: %v\n"+
 			"[%v]: %v\n"+
 			"[%v]: %v\n"+
-			"[%v]: %v\n"+
+			//* "[%v]: %v\n"+
 			"[%v]: %v\n"+
 			"[%v]: %v\n"+
 			"[%v]: %v    [%v]: %v\n"+
@@ -473,7 +478,7 @@ func (repo *Repo) Show() {
 		"Repository Name", repo.Name,
 		"Source", repo.Source,
 		"Owner", repo.Owner,
-		"License", repo.Licenses,
+		//* "License", repo.Licenses,
 		"URL", repo.URL,
 		"Languages", repo.Languages,
 		"Ecosystems", repo.Ecosystems,

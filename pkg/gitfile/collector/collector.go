@@ -53,6 +53,8 @@ func Clone(u *url.RepoURL, storagePath string) (*gogit.Repository, error) {
 		URL: u.URL,
 		// Progress:     os.Stdout,
 		SingleBranch: false,
+		Mirror:       true,
+		//* NoCheckout: true,
 	})
 
 	return r, err
@@ -108,10 +110,10 @@ func Pull(r *gogit.Repository, url string) error {
 	}
 
 	err = wt.Pull(&gogit.PullOptions{
-		RemoteName:   remote,
-		RemoteURL:    u,
-		SingleBranch: true,
-		Force:        true,
+		RemoteName: remote,
+		RemoteURL:  u,
+		//* SingleBranch: true,
+		Force: true,
 	})
 
 	return err

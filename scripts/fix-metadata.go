@@ -69,7 +69,8 @@ func fix(ctx storage.AppDatabaseContext, link string) {
 				license = $2
 				WHERE id = $3`,
 			pq.StringArray(result.Languages),
-			pq.StringArray(result.Licenses),
+			"",
+			//* pq.StringArray(result.Licenses),
 			gmid)
 
 		if err != nil {
