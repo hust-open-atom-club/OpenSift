@@ -9,6 +9,7 @@ package collector
 
 import (
 	"fmt"
+	"os"
 
 	parser "github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser"
 	url "github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/url"
@@ -48,8 +49,13 @@ func EzCollect(u *url.RepoURL) (*gogit.Repository, error) {
 // only clone the repository, if it exists, return error
 func Clone(u *url.RepoURL, storagePath string) (*gogit.Repository, error) {
 	path := fmt.Sprintf("%s/%s%s", storagePath, u.Resource, u.Pathname)
+	tmpDir, _ := os.MkdirTemp(
+		fmt.Sprintf("%s/tmp/%s%s", storagePath, u.Resource, u.Pathname),
+		"clone-tmp-",
+	)
+	defer os.RemoveAll(tmpDir)
 
-	r, err := gogit.PlainClone(path, false, &gogit.CloneOptions{
+	r, err := gogit.PlainClone(tmpDir, false, &gogit.CloneOptions{
 		URL: u.URL,
 		// Progress:     os.Stdout,
 		SingleBranch: false,
@@ -57,7 +63,15 @@ func Clone(u *url.RepoURL, storagePath string) (*gogit.Repository, error) {
 		//* NoCheckout: true,
 	})
 
-	return r, err
+	if err != nil {
+		return nil, err
+	}
+
+	if err = os.Rename(tmpDir, path); err != nil {
+		return nil, err
+	}
+
+	return r, nil
 }
 
 // only clone the repository into memory

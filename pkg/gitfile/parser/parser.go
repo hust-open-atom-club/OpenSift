@@ -1494,5 +1494,5 @@ var ECOSYSTEM_MAP = map[string]string{
 	"go.work.sum":     "go",
 	"go.mod":          "go",
 	"go.work":         "go",
-	//TODO: nuget
+	//TODO: nuget, maven, cargo, conda, go, hackage, npm, packagist, pypi, rubygems
 }

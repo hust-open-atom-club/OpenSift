@@ -5,6 +5,7 @@ go 1.23
 toolchain go1.23.0
 
 require (
+	github.com/BurntSushi/toml v1.3.2
 	github.com/DATA-DOG/go-sqlmock v1.5.2
 	github.com/PuerkitoBio/goquery v1.10.1
 	github.com/bytedance/gopkg v0.1.1
@@ -14,9 +15,10 @@ require (
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-github/v47 v47.1.0
-	github.com/google/licensecheck v0.3.1
+	github.com/h2non/filetype v1.1.3
 	github.com/hasura/go-graphql-client v0.13.1
 	github.com/imroc/req/v3 v3.49.1
+	github.com/liamg/jfather v0.0.7
 	github.com/lib/pq v1.10.9
 	github.com/ossf/scorecard/v4 v4.13.1
 	github.com/samber/lo v1.47.0
@@ -29,7 +31,11 @@ require (
 	github.com/swaggo/gin-swagger v1.6.0
 	github.com/swaggo/swag v1.16.4
 	go.elastic.co/ecslogrus v1.0.0
+	golang.org/x/exp v0.0.0-20250106191152-7588d65b2ba8
+	golang.org/x/mod v0.22.0
 	golang.org/x/oauth2 v0.25.0
+	golang.org/x/text v0.21.0
+	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2
 	gopkg.in/go-extras/elogrus.v8 v8.0.1
 )
 
@@ -76,7 +82,6 @@ require (
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/pprof v0.0.0-20241210010833-40e02aabc2ad // indirect
 	github.com/google/uuid v1.6.0 // indirect
-	github.com/h2non/filetype v1.1.3 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
@@ -123,12 +128,9 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/arch v0.8.0 // indirect
 	golang.org/x/crypto v0.32.0 // indirect
-	golang.org/x/exp v0.0.0-20250106191152-7588d65b2ba8 // indirect
-	golang.org/x/mod v0.22.0 // indirect
 	golang.org/x/net v0.34.0 // indirect
 	golang.org/x/sync v0.10.0 // indirect
 	golang.org/x/sys v0.29.0 // indirect
-	golang.org/x/text v0.21.0 // indirect
 	golang.org/x/tools v0.29.0 // indirect
 	google.golang.org/protobuf v1.36.1 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
