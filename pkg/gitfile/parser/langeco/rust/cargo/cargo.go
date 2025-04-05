@@ -66,4 +66,4 @@ func Parse(contents string) (*langeco.Package, *langeco.Dependencies, error) {
 	return &pkg, &deps, nil
 }
 
-//ToDo Parsing Indirect dependencies is available but not necessary now
+// ToDo Parsing Indirect dependencies is available but not necessary now

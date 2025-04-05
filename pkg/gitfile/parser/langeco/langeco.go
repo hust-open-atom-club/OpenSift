@@ -6,3 +6,7 @@ type Package struct {
 }
 
 type Dependencies []Package
+
+func Parse() {
+
+}
