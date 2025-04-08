@@ -9,6 +9,7 @@ import (
 )
 
 var (
+	ErrDecodingFailed  = errors.New("decoding cargo lock file failed")
 	ErrMultiRootPkg    = errors.New("multiple root cargo package found")
 	ErrRootPkgNotFound = errors.New("root cargo package not found")
 )
@@ -24,11 +25,12 @@ type lockFile struct {
 	Packages []cargoPkg `toml:"package"`
 }
 
+// * Parse Cargo.lock File
 func Parse(contents string) (*langeco.Package, *langeco.Dependencies, error) {
 	var lockfile lockFile
 
 	if _, err := toml.Decode(contents, &lockfile); err != nil {
-		return nil, nil, err
+		return nil, nil, ErrDecodingFailed
 	}
 
 	var rootPkg *cargoPkg
@@ -50,6 +52,15 @@ func Parse(contents string) (*langeco.Package, *langeco.Dependencies, error) {
 	for _, depStr := range rootPkg.Dependencies {
 		parts := strings.Fields(depStr)
 		if len(parts) < 2 {
+			for _, depPkg := range lockfile.Packages {
+				if depPkg.Name == parts[0] {
+					deps = append(deps, langeco.Package{
+						Name:    depPkg.Name,
+						Version: depPkg.Version,
+					})
+					break
+				}
+			}
 			continue
 		}
 		deps = append(deps, langeco.Package{

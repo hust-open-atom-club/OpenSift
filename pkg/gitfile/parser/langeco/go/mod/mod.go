@@ -11,6 +11,7 @@ var (
 	ErrParsingFailed = errors.New("parsing go.mod failed")
 )
 
+// * Parse go.mod
 func Parse(content string) (*langeco.Package, *langeco.Dependencies, error) {
 	f, err := modfile.Parse("go.mod", []byte(content), nil)
 	if err != nil {
