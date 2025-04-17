@@ -16,6 +16,12 @@ import (
 	"time"
 
 	parser "github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser"
+	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco"
+	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco/go/mod"
+	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco/java/maven"
+	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco/nodejs/npm"
+	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco/python/pypi/pyproject"
+	cargo "github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco/rust"
 	url "github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/url"
 	"github.com/HUSTSecLab/criticality_score/pkg/logger"
 	"github.com/go-git/go-git/v5"
@@ -45,6 +51,7 @@ type Repo struct {
 	ContributorCount int
 	OrgCount         int
 	CommitFrequency  float64
+	EcoDeps          map[*langeco.Package]*langeco.Dependencies
 }
 
 func NewRepo() Repo {
@@ -312,6 +319,47 @@ func GetEcosystem(filename string, filesize int64, e *map[string]int64) {
 	}
 }
 
+func GetDependency(file *object.File, d *map[*langeco.Package]*langeco.Dependencies) {
+	filename := filepath.Base(file.Name)
+	if v, ok := langeco.SUPPORTED_ECOS[filename]; !ok || !v {
+		return
+	}
+	content, err := file.Contents()
+	if err != nil {
+		logger.Error(err)
+		return
+	}
+
+	pkg := &langeco.Package{}
+	deps := &langeco.Dependencies{}
+
+	switch filename {
+	case langeco.NPM:
+		pkg, deps, err = npm.Parse(content)
+	case langeco.CARGO:
+		pkg, deps, err = cargo.Parse(content)
+	case langeco.PYPI:
+		pkg, deps, err = pyproject.Parse(content)
+	case langeco.GO_MOD:
+		pkg, deps, err = mod.Parse(content)
+	case langeco.MAVEN:
+		pkg, deps, err = maven.Parse(content)
+	//* case langeco.NUGET:
+	//*	return nuget.Parse(content)
+	default:
+		return
+	}
+
+	if err != nil {
+		logger.Error(err)
+		return
+	}
+
+	if pkg != nil {
+		(*d)[pkg] = deps
+	}
+}
+
 /*
 * License Info is now disabled but preserved
 func GetLicense(f *object.File) (string, error) {
@@ -431,14 +479,17 @@ func (repo *Repo) WalkRepo(r *git.Repository) error {
 
 	languages := make(map[string]int64, 0)
 	ecosystems := make(map[string]int64, 0)
+	ecoDeps := make(map[*langeco.Package]*langeco.Dependencies, 0)
 
 	fIter := tree.Files()
 
 	err = fIter.ForEach(func(f *object.File) error {
 		filename := filepath.Base(f.Name)
 		filesize := f.Size
+
 		GetLanguages(filename, filesize, &languages)
 		GetEcosystem(filename, filesize, &ecosystems)
+		GetDependency(f, &ecoDeps)
 		/*
 			* License Info is now disabled but preserved
 			if repo.Licenses == nil {
@@ -460,6 +511,7 @@ func (repo *Repo) WalkRepo(r *git.Repository) error {
 
 	repo.Languages = getTopNKeys(languages)
 	repo.Ecosystems = getTopNKeys(ecosystems)
+	repo.EcoDeps = ecoDeps
 
 	return nil
 }

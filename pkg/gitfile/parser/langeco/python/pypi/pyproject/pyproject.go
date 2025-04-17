@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/BurntSushi/toml"
+	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser"
 	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco"
 	"github.com/HUSTSecLab/criticality_score/pkg/logger"
 )
@@ -69,6 +70,7 @@ func Parse(content string) (*langeco.Package, *langeco.Dependencies, error) {
 	pkg := langeco.Package{
 		Name:    name,
 		Version: version,
+		Eco: parser.PYPI,
 	}
 
 	deps := make(langeco.Dependencies, 0)
@@ -131,5 +133,6 @@ func parseDeps(dep string) langeco.Package {
 	return langeco.Package{
 		Name:    name,
 		Version: version,
+		Eco: parser.PYPI,
 	}
 }

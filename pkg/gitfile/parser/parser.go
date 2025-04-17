@@ -1475,42 +1475,62 @@ var LANGUAGE_FILENAMES = map[string]string{
 	"nanorc":                       "nanorc",
 }
 
+const (
+	CONAN    = "conan"
+	CONDA    = "conda"
+	DART     = "dart"
+	DOTNET   = "dotnet"
+	GRADLE   = "gradle"
+	GO       = "go"
+	CARGO    = "cargo"
+	PYPI     = "pypi"
+	NPM      = "npm"
+	MAVEN    = "maven"
+	GEMS     = "rubygems"
+	JULIA    = "julia"
+	ELIXIR   = "elixir"
+	YARN     = "yarn"
+	NUGET    = "nuget"
+	COMPOSER = "COMPOSER"
+	BUNDLER  = "bundler"
+)
+
 var ECOSYSTEM_MAP = map[string]string{
-	"conanfile.py": "conan",
+	"conanfile.py": CONAN,
 	//* "environment.yaml":  "conda",
 	//* "environment.yml":   "conda",
 	//* packagename.json: "conda"
-	"pubspec.yaml":             "dart",
-	"runtimeconfig.json":       "dotnet",
-	"deps.json":                "dotnet",
-	"gradle.lockfile":          "gradle",
-	"mix.lock":                 "elixir",
-	"Manifest.toml":            "julia",
-	"package.json":             "npm",
-	"package-lock.json":        "npm",
-	".npmrc":                   "npm",
-	"node_modules":             "npm",
-	"yarn.lock":                "yarn",
-	"packages.config":          "nuget",
-	"package.lock.json":        "nuget",
-	"Directory.Build.props":    "nuget",
-	"Directory.Packages.props": "nuget",
-	"composer.lock":            "composer",
-	"composer.json":            "composer",
-	"Gemfile.lock":             "bundler",
-	"Gemfile":                  "rubygems",
-	"setup.py":                 "pypi",
-	"Pipfile":                  "pypi",
-	"Pipfile.lock":             "pypi",
-	"pyproject.toml":           "pypi",
-	//*	"requirements.txt":  "pypi",
-	"Cargo.toml":      "cargo",
-	"Cargo.lock":      "cargo",
-	"pom.xml":         "maven",
-	"build.gradle":    "gradle",
-	"settings.gradle": "gradle",
-	"go.sum":          "go",
-	"go.work.sum":     "go",
-	"go.mod":          "go",
-	"go.work":         "go",
+	"pubspec.yaml":             DART,
+	"runtimeconfig.json":       DOTNET,
+	"deps.json":                DOTNET,
+	"gradle.lockfile":          GRADLE,
+	"mix.lock":                 ELIXIR,
+	"Manifest.toml":            JULIA,
+	"package.json":             NPM,
+	"package-lock.json":        NPM,
+	".npmrc":                   NPM,
+	"node_modules":             NPM,
+	"yarn.lock":                YARN,
+	"packages.config":          NUGET,
+	"package.lock.json":        NUGET,
+	"Directory.Build.props":    NUGET,
+	"Directory.Packages.props": NUGET,
+	"composer.lock":            COMPOSER,
+	"composer.json":            COMPOSER,
+	"Gemfile.lock":             BUNDLER,
+	"Gemfile":                  GEMS,
+	"setup.py":                 PYPI,
+	"Pipfile":                  PYPI,
+	"Pipfile.lock":             PYPI,
+	"pyproject.toml":           PYPI,
+	//*	"requirements.txt":  PYPI,
+	"Cargo.toml":      CARGO,
+	"Cargo.lock":      CARGO,
+	"pom.xml":         MAVEN,
+	"build.gradle":    GRADLE,
+	"settings.gradle": GRADLE,
+	"go.sum":          GO,
+	"go.work.sum":     GO,
+	"go.mod":          GO,
+	"go.work":         GO,
 }

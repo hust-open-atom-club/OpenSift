@@ -31,7 +31,7 @@ func Parse(content string) (*langeco.Package, *langeco.Dependencies, error) {
 	}
 
 	// ToDo
-	return nil, nil, nil
+	return &langeco.Package{}, &langeco.Dependencies{}, nil
 }
 
 // UnmarshalJSONWithMetadata needed to detect start and end lines of deps

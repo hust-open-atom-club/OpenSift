@@ -7,6 +7,7 @@
 package git
 
 import (
+	"fmt"
 	"strconv"
 	"testing"
 
@@ -74,6 +75,61 @@ func TestGetURL(t *testing.T) {
 				t.Fatal(err)
 			}
 			require.Equal(t, test.url, result)
+		})
+	}
+}
+
+func TestEco(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected Repo
+	}{
+		{
+			input:    "https://github.com/gin-gonic/gin.git",
+			expected: Repo{},
+		},
+		{
+			input:    "https://github.com/facebook/react.git",
+			expected: Repo{},
+		},
+		{
+			input:    "https://github.com/pallets/flask.git",
+			expected: Repo{},
+		},
+		{
+			input:    "https://github.com/mstange/samply.git",
+			expected: Repo{},
+		},
+		{
+			input:    "https://github.com/junit-team/junit4.git",
+			expected: Repo{},
+		},
+	}
+	for n, test := range tests {
+		t.Run(strconv.Itoa(n), func(t *testing.T) {
+			u := url.ParseURL(test.input)
+			r, err := collector.EzCollect(&u)
+			if err != nil {
+				t.Fatal(err)
+			}
+			repo, err := ParseRepo(r)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if repo.EcoDeps == nil {
+				fmt.Println("Not found")
+				return
+			}
+			for k, v := range repo.EcoDeps {
+				if k != nil {
+					fmt.Println(*k)
+				}
+				if v != nil {
+					for _, dep := range *v {
+						fmt.Println(dep)
+					}
+				}
+			}
 		})
 	}
 }

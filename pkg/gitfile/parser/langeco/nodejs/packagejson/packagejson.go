@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 
+	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser"
 	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco"
 )
 
@@ -37,6 +38,7 @@ func Parse(content string) (*langeco.Package, *langeco.Dependencies, error) {
 	pkg := langeco.Package{
 		Name:    pkgJSON.Name,
 		Version: pkgJSON.Version,
+		Eco:     parser.NPM,
 	}
 
 	deps := make(langeco.Dependencies, 0)
@@ -45,6 +47,7 @@ func Parse(content string) (*langeco.Package, *langeco.Dependencies, error) {
 		deps = append(deps, langeco.Package{
 			Name:    name,
 			Version: version,
+			Eco:     parser.NPM,
 		})
 	}
 
@@ -52,6 +55,7 @@ func Parse(content string) (*langeco.Package, *langeco.Dependencies, error) {
 		deps = append(deps, langeco.Package{
 			Name:    name,
 			Version: version,
+			Eco:     parser.NPM,
 		})
 	}
 
@@ -59,6 +63,7 @@ func Parse(content string) (*langeco.Package, *langeco.Dependencies, error) {
 		deps = append(deps, langeco.Package{
 			Name:    name,
 			Version: version,
+			Eco:     parser.NPM,
 		})
 	}
 

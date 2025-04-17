@@ -3,6 +3,7 @@ package mod
 import (
 	"errors"
 
+	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser"
 	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco"
 	"golang.org/x/mod/modfile"
 )
@@ -23,6 +24,7 @@ func Parse(content string) (*langeco.Package, *langeco.Dependencies, error) {
 		pkg = langeco.Package{
 			Name:    f.Module.Mod.Path,
 			Version: f.Module.Mod.Version,
+			Eco:     parser.GO,
 		}
 	}
 
@@ -32,6 +34,7 @@ func Parse(content string) (*langeco.Package, *langeco.Dependencies, error) {
 			deps = append(deps, langeco.Package{
 				Name:    req.Mod.Path,
 				Version: req.Mod.Version,
+				Eco:     parser.GO,
 			})
 		}
 	}

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 
+	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser"
 	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco"
 )
 
@@ -34,5 +35,6 @@ func Parse(content string) (*langeco.Package, *langeco.Dependencies, error) {
 	return &langeco.Package{
 		Name:    data.Name,
 		Version: data.Version,
-	}, nil, nil
+		Eco:     parser.CONDA,
+	}, &langeco.Dependencies{}, nil
 }

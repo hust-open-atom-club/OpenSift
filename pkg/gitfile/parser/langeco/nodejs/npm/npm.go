@@ -4,6 +4,7 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser"
 	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco"
 	"github.com/HUSTSecLab/criticality_score/pkg/logger"
 
@@ -52,6 +53,7 @@ func Parse(content string) (*langeco.Package, *langeco.Dependencies, error) {
 	pkg := langeco.Package{
 		Name:    lockFile.Name,
 		Version: lockFile.Version,
+		Eco:     parser.NPM,
 	}
 
 	deps := make(langeco.Dependencies, 0)
@@ -60,6 +62,7 @@ func Parse(content string) (*langeco.Package, *langeco.Dependencies, error) {
 			deps = append(deps, langeco.Package{
 				Name:    k,
 				Version: v.Version,
+				Eco:     parser.NPM,
 			})
 		}
 	} else {
@@ -73,6 +76,7 @@ func Parse(content string) (*langeco.Package, *langeco.Dependencies, error) {
 			deps = append(deps, langeco.Package{
 				Name:    name,
 				Version: v.Version,
+				Eco:     parser.NPM,
 			})
 		}
 	}

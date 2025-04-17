@@ -27,5 +27,5 @@ type Dependency struct {
 
 func Parse(content string) (*langeco.Package, *langeco.Dependencies, error) {
 	// ToDo
-	return nil, nil, nil
+	return &langeco.Package{}, &langeco.Dependencies{}, nil
 }

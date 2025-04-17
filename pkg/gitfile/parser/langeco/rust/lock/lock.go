@@ -1,10 +1,11 @@
-package cargo
+package lock
 
 import (
 	"errors"
 	"strings"
 
 	"github.com/BurntSushi/toml"
+	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser"
 	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco"
 )
 
@@ -57,6 +58,7 @@ func Parse(contents string) (*langeco.Package, *langeco.Dependencies, error) {
 					deps = append(deps, langeco.Package{
 						Name:    depPkg.Name,
 						Version: depPkg.Version,
+						Eco:     parser.CARGO,
 					})
 					break
 				}
@@ -66,12 +68,14 @@ func Parse(contents string) (*langeco.Package, *langeco.Dependencies, error) {
 		deps = append(deps, langeco.Package{
 			Name:    parts[0],
 			Version: parts[1],
+			Eco:     parser.CARGO,
 		})
 	}
 
 	pkg := langeco.Package{
 		Name:    rootPkg.Name,
 		Version: rootPkg.Version,
+		Eco:     parser.CARGO,
 	}
 
 	return &pkg, &deps, nil
