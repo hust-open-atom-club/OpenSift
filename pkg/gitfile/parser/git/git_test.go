@@ -85,23 +85,23 @@ func TestEco(t *testing.T) {
 		expected Repo
 	}{
 		{
-			input:    "https://github.com/gin-gonic/gin.git",
+			input:    "https://github.com/gin-gonic/gin.git", //* Go
 			expected: Repo{},
 		},
 		{
-			input:    "https://github.com/facebook/react.git",
+			input:    "https://github.com/jquery/jquery.git", //* NPM
 			expected: Repo{},
 		},
 		{
-			input:    "https://github.com/pallets/flask.git",
+			input:    "https://github.com/pallets/flask.git", //* PyPI dependency type not totally solved
 			expected: Repo{},
 		},
 		{
-			input:    "https://github.com/mstange/samply.git",
+			input:    "https://github.com/serde-rs/json.git", //* Cargo
 			expected: Repo{},
 		},
 		{
-			input:    "https://github.com/junit-team/junit4.git",
+			input:    "https://github.com/junit-team/junit4.git", //* Maven
 			expected: Repo{},
 		},
 	}

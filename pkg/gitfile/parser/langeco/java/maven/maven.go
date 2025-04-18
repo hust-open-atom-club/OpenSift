@@ -3,6 +3,8 @@ package maven
 import (
 	"encoding/xml"
 	"fmt"
+	"io"
+	"strings"
 
 	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser"
 	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco"
@@ -327,45 +329,33 @@ type ProfileProperties struct {
 	SkipTests     string  `xml:"skipTests"`
 }
 
-type Properties struct {
-	ArgLine                        string `xml:"argLine"`
-	CheckstyleConfigdir            string `xml:"checkstyle.configdir"`
-	CheckstylePluginVersion        string `xml:"checkstyle.plugin.version"`
-	CheckstyleVersion              string `xml:"checkstyle.version"`
-	ClirrSkip                      string `xml:"clirr.skip"`
-	CommonsBcVersion               string `xml:"commons.bc.version"`
-	CommonsComponentid             string `xml:"commons.componentid"`
-	CommonsDistSvnStagingURL       string `xml:"commons.distSvnStagingUrl"`
-	CommonsEncoding                string `xml:"commons.encoding"`
-	CommonsJacocoVersion           string `xml:"commons.jacoco.version"`
-	CommonsJapicmpVersion          string `xml:"commons.japicmp.version"`
-	CommonsJavadocVersion          string `xml:"commons.javadoc.version"`
-	CommonsJiraID                  string `xml:"commons.jira.id"`
-	CommonsJiraPID                 string `xml:"commons.jira.pid"`
-	CommonsModuleName              string `xml:"commons.module.name"`
-	CommonsPackageID               string `xml:"commons.packageId"`
-	CommonsRCVersion               string `xml:"commons.rc.version"`
-	CommonsRelease2Desc            string `xml:"commons.release.2.desc"`
-	CommonsRelease2Name            string `xml:"commons.release.2.name"`
-	CommonsRelease2Version         string `xml:"commons.release.2.version"`
-	CommonsReleaseDesc             string `xml:"commons.release.desc"`
-	CommonsReleaseIsDistModule     string `xml:"commons.release.isDistModule"`
-	CommonsReleaseVersion          string `xml:"commons.release.version"`
-	CommonsReleaseManagerKey       string `xml:"commons.releaseManagerKey"`
-	CommonsReleaseManagerName      string `xml:"commons.releaseManagerName"`
-	CommonsSCMPubCheckoutDirectory string `xml:"commons.scmPubCheckoutDirectory"`
-	CommonsSCMPubURL               string `xml:"commons.scmPubUrl"`
-	CommonsSitePath                string `xml:"commons.site.path"`
-	CommonsSurefireVersion         string `xml:"commons.surefire.version"`
-	JapicmpSkip                    string `xml:"japicmp.skip"`
-	JmhVersion                     string `xml:"jmh.version"`
-	MavenCompilerSource            string `xml:"maven.compiler.source"`
-	MavenCompilerTarget            string `xml:"maven.compiler.target"`
-	ProjectBuildSourceEncoding     string `xml:"project.build.sourceEncoding"`
-	ProjectReportingOutputEncoding string `xml:"project.reporting.outputEncoding"`
-	SpotbugsImplVersion            string `xml:"spotbugs.impl.version"`
-	SpotbugsPluginVersion          string `xml:"spotbugs.plugin.version"`
-	UberjarName                    string `xml:"uberjar.name"`
+type Properties map[string]string
+
+func (m *Properties) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+	*m = Properties{}
+	for {
+		token, err := d.Token()
+		if err != nil {
+			if err == io.EOF {
+				return nil
+			}
+			return err
+		}
+
+		switch tt := token.(type) {
+		case xml.StartElement:
+			var value string
+			if err := d.DecodeElement(&value, &tt); err != nil {
+				return err
+			}
+			(*m)[tt.Name.Local] = value
+
+		case xml.EndElement:
+			if tt == start.End() {
+				return nil
+			}
+		}
+	}
 }
 
 type Reporting struct {
@@ -457,13 +447,27 @@ func Parse(content string) (*langeco.Package, *langeco.Dependencies, error) {
 
 	deps := make(langeco.Dependencies, 0)
 
+	fmt.Println(pom.Properties)
+
 	for _, dep := range pom.Dependencies.Dependency {
+		version := checkMacro(&pom.Properties, dep.Version)
+		groupId := checkMacro(&pom.Properties, dep.GroupId)
+		artifactId := checkMacro(&pom.Properties, dep.ArtifactId)
 		deps = append(deps, langeco.Package{
-			Name:    fmt.Sprintf("%s/%s", dep.GroupId, dep.ArtifactId),
-			Version: dep.Version,
+			Name:    fmt.Sprintf("%s/%s", groupId, artifactId),
+			Version: version,
 			Eco:     parser.MAVEN,
 		})
 	}
 
 	return &pkg, &deps, nil
+}
+
+func checkMacro(p *Properties, s string) string {
+	if strings.Contains(s, "${") {
+		if v, ok := (*p)[s[2:len(s)-1]]; ok {
+			return v
+		}
+	}
+	return s
 }

@@ -21,7 +21,7 @@ import (
 	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco/java/maven"
 	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco/nodejs/npm"
 	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco/python/pypi/pyproject"
-	cargo "github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco/rust"
+	cargo "github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco/rust/cargo"
 	url "github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/url"
 	"github.com/HUSTSecLab/criticality_score/pkg/logger"
 	"github.com/go-git/go-git/v5"
