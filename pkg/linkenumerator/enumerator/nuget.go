@@ -6,23 +6,23 @@ import (
 	"time"
 
 	"github.com/HUSTSecLab/criticality_score/pkg/linkenumerator/api"
-	"github.com/HUSTSecLab/criticality_score/pkg/linkenumerator/api/cargo"
+	"github.com/HUSTSecLab/criticality_score/pkg/linkenumerator/api/nuget"
 	"github.com/HUSTSecLab/criticality_score/pkg/logger"
 	"github.com/bytedance/gopkg/util/gopool"
 )
 
 // Todo Use channel to receive and write data
-func (c *enumeratorBase) EnumerateCargo() {
-	api_url := api.CRATES_IO_ENUMERATE_API_URL
+func (c *enumeratorBase) EnumerateNuget() {
+	api_url := api.NUGET_INDEX_URL
 	var wg sync.WaitGroup
-	ch := make(chan []cargo.Crate)
-	crates := []cargo.Crate{}
+	ch := make(chan []nuget.Datum)
+	pkgs := []nuget.Datum{}
 	// ToDo Set Wait Group
 	wg.Add(1)
 	gopool.Go(func() {
 		defer wg.Done()
-		for crate := range ch {
-			crates = append(crates, crate...)
+		for pkg := range ch {
+			pkgs = append(pkgs, pkg...)
 		}
 	})
 	for page := 1; page <= 1; page++ {
@@ -30,21 +30,20 @@ func (c *enumeratorBase) EnumerateCargo() {
 		gopool.Go(func() {
 			defer wg.Done()
 			u := fmt.Sprintf(
-				"%s?%s=%s&%s=%d&%s=%d",
+				"%s?%s=%d&%s=%d",
 				api_url,
-				"sort", "downloads",
-				"per_page", api.PER_PAGE,
-				"page", page,
+				"take", api.PER_PAGE,
+				"skip", page*api.PER_PAGE,
 			)
 			res, err := c.fetch(u)
 			if err != nil {
-				logger.Panic("Cargo", err)
+				logger.Panic("NuGet", err)
 			}
-			resp := cargo.Response{}
+			resp := nuget.Response{}
 			if err = res.UnmarshalJson(&resp); err != nil {
-				logger.Panic("Cargo", err)
+				logger.Panic("NuGet", err)
 			}
-			ch <- resp.Crates
+			ch <- resp.Data
 		})
 	}
 	wg.Wait()
