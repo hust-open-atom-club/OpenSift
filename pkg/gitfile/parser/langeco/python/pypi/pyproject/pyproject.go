@@ -70,7 +70,7 @@ func Parse(content string) (*langeco.Package, *langeco.Dependencies, error) {
 	pkg := langeco.Package{
 		Name:    name,
 		Version: version,
-		Eco: parser.PYPI,
+		Eco:     parser.PYPI,
 	}
 
 	deps := make(langeco.Dependencies, 0)
@@ -87,9 +87,7 @@ func Parse(content string) (*langeco.Package, *langeco.Dependencies, error) {
 		default:
 			logger.Info(value)
 		}
-
 	}
-
 	for name, element := range proj.Tool.Poetry.Dependencies {
 		var version string
 		switch value := element.(type) {
@@ -133,6 +131,6 @@ func parseDeps(dep string) langeco.Package {
 	return langeco.Package{
 		Name:    name,
 		Version: version,
-		Eco: parser.PYPI,
+		Eco:     parser.PYPI,
 	}
 }

@@ -447,8 +447,6 @@ func Parse(content string) (*langeco.Package, *langeco.Dependencies, error) {
 
 	deps := make(langeco.Dependencies, 0)
 
-	fmt.Println(pom.Properties)
-
 	for _, dep := range pom.Dependencies.Dependency {
 		version := checkMacro(&pom.Properties, dep.Version)
 		groupId := checkMacro(&pom.Properties, dep.GroupId)

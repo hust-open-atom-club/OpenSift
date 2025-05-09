@@ -46,6 +46,7 @@ func Parse(contents string) (*langeco.Package, *langeco.Dependencies, error) {
 		Version: cargoFile.Package.Version,
 		Eco:     parser.CARGO,
 	}
+
 	deps := make(langeco.Dependencies, 0)
 	deps = append(deps, *exactDependencies(cargoFile.Dependencies)...)
 	deps = append(deps, *exactDependencies(cargoFile.DevDependencies)...)
