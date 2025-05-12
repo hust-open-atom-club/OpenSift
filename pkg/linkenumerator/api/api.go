@@ -19,6 +19,7 @@ const (
 	GITEE_ENUMERATE_API_URL     = "https://api.indexea.com/v1/search/widget/wjawvtmm7r5t25ms1u3d"
 	CRATES_IO_ENUMERATE_API_URL = "https://crates.io/api/v1/crates"
 	PYPI_API_URL                = "https://pypi.org/simple/"
+	NUGET_INDEX_URL             = "https://azuresearch-ea.nuget.org/query"
 
 	GITLAB_TOTAL_PAGES = 100000
 
