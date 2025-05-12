@@ -4,6 +4,7 @@ import (
 	"strings"
 	"unicode"
 
+	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser"
 	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco"
 	"github.com/HUSTSecLab/criticality_score/pkg/logger"
 )
@@ -62,7 +63,6 @@ func Parse(content string) (*langeco.Package, *langeco.Dependencies, error) {
 	// `requirements.txt` can use byte order marks (BOM)
 	// e.g. on Windows `requirements.txt` can use UTF-16LE with BOM
 	// We need to override them to avoid the file being read incorrectly
-	pkg := langeco.Package{}
 	deps := make(langeco.Dependencies, 0)
 	for _, line := range strings.Split(content, "\n") {
 		line := strings.ReplaceAll(line, " ", "")
@@ -91,5 +91,7 @@ func Parse(content string) (*langeco.Package, *langeco.Dependencies, error) {
 		})
 	}
 
-	return &pkg, &deps, nil
+	return &langeco.Package{
+		Eco: parser.PYPI,
+	}, &deps, nil
 }

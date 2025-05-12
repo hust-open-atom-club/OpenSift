@@ -24,13 +24,13 @@ type packageInfo struct {
 	EndLine   int
 }
 
+// ToDo
 func Parse(content string) (*langeco.Package, *langeco.Dependencies, error) {
 	var lockFile lockFile
 	if err := jfather.Unmarshal([]byte(content), &lockFile); err != nil {
 		return nil, nil, ErrDecodingFailed
 	}
 
-	// ToDo
 	return &langeco.Package{}, &langeco.Dependencies{}, nil
 }
 

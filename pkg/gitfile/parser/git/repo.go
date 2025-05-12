@@ -181,7 +181,7 @@ func (repo *Repo) WalkRepo(r *git.Repository) error {
 	}
 
 	fIter := tree.Files()
-	led := NewLangEcoDeps()
+	led := NewLangEcoDeps(repo)
 
 	err = fIter.ForEach(func(f *object.File) error {
 		led.Parse(f)

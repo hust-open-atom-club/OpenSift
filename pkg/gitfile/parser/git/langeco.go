@@ -10,22 +10,33 @@ import (
 	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco/java/maven"
 	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco/nodejs/npm"
 	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco/python/pypi/pyproject"
+	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco/python/pypi/requirements"
 	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco/rust/cargo"
 	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco/rust/lock"
 	"github.com/HUSTSecLab/criticality_score/pkg/logger"
 	"github.com/go-git/go-git/v5/plumbing/object"
 )
 
+type LangEcoConfig struct {
+	defaultName    string
+	defaultVersion string
+	eco            map[string]bool
+}
+
 type LangEcoDeps struct {
 	languages    map[string]int64
 	ecosystems   map[string]int64
 	dependencies map[*langeco.Package]*langeco.Dependencies
-	config       map[string]bool
+	config       LangEcoConfig
 }
 
-func NewLangEcoDeps() LangEcoDeps {
+func NewLangEcoDeps(r *Repo) LangEcoDeps {
 	return LangEcoDeps{
-		config: langeco.SUPPORTED_ECOS,
+		config: LangEcoConfig{
+			defaultName:    r.Source + r.Owner + r.Name,
+			defaultVersion: "NotFound",
+			eco:            langeco.SUPPORTED_ECOS,
+		},
 	}
 }
 
@@ -47,7 +58,7 @@ func (led *LangEcoDeps) Parse(f *object.File) error {
 	//* Get Ecosystem and Dependency
 	if v, ok := parser.ECOSYSTEM_MAP[filename]; ok {
 		led.ecosystems[v] += filesize
-		if t, ok := led.config[v]; ok && t {
+		if t, ok := led.config.eco[v]; ok && t {
 			led.getDependencies(f)
 		}
 	}
@@ -91,6 +102,8 @@ func (led *LangEcoDeps) getDependencies(file *object.File) {
 		pkg, deps, err = pyproject.Parse(content)
 	case langeco.MAVEN_POM:
 		pkg, deps, err = maven.Parse(content)
+	case langeco.PY_REQUIREMENTS:
+		pkg, deps, err = requirements.Parse(content)
 	//* case langeco.NUGET:
 	//*	return nuget.Parse(content)
 	default:
@@ -103,9 +116,12 @@ func (led *LangEcoDeps) getDependencies(file *object.File) {
 	}
 
 	if pkg != nil {
+		if pkg.Name == "" {
+			pkg.Name = led.config.defaultName
+		}
 		led.dependencies[pkg] = deps
 		if v, ok := langeco.TRUSTED_FILES[eco]; ok && filename == v {
-			led.config[eco] = false
+			led.config.eco[eco] = false
 		}
 	}
 }

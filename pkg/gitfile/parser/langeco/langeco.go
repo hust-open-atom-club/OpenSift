@@ -1,6 +1,8 @@
 package langeco
 
-import "github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser"
+import (
+	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser"
+)
 
 // ToDo Merge results from different files instead of choose a trusted one as final
 
