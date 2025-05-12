@@ -66,32 +66,71 @@ func main() {
 
 	platforms := strings.Split(*flagPlatforms, ",")
 
+	var platformList = map[string]struct {
+		Enumerator  func() enumerator.Enumerator
+		TablePrefix string
+	}{
+		"github": {
+			Enumerator: func() enumerator.Enumerator {
+				return enumerator.NewGithubEnumerator(&enumerator.GithubEnumeratorConfig{
+					MinStars:        *flagMinStars,
+					StarOverlap:     *flagStarOverlap,
+					RequireMinStars: *flagRequireMinStars,
+					Query:           *flagQuery,
+					StartDate:       flagStartDate.Time(),
+					EndDate:         flagEndDate.Time(),
+					Workers:         *flagJobs,
+				})
+			},
+			TablePrefix: "github",
+		},
+		"gitlab": {
+			Enumerator: func() enumerator.Enumerator {
+				return enumerator.NewGitlabEnumerator(*flagTake, *flagJobs)
+			},
+			TablePrefix: "gitlab",
+		},
+		"bitbucket": {
+			Enumerator: func() enumerator.Enumerator {
+				return enumerator.NewBitBucketEnumerator(*flagTake)
+			},
+			TablePrefix: "bitbucket",
+		},
+		"pypi": {
+			Enumerator: func() enumerator.Enumerator {
+				return enumerator.NewPypiBigQueryEnumerator(&enumerator.PypiBigQueryEnumeratorConfig{
+					ProjectID: "magnetic-nimbus-425712-e3",
+				})
+			},
+			TablePrefix: "pypi",
+		},
+		"pypi_slow": {
+			Enumerator: func() enumerator.Enumerator {
+				return enumerator.NewPypiEnumerator(&enumerator.PypiEnumeratorConfig{
+					Jobs: *flagJobs,
+				})
+			},
+			TablePrefix: "pypi",
+		},
+		"npm": {
+			Enumerator: func() enumerator.Enumerator {
+				return enumerator.NewNpmEnumerator()
+			},
+			TablePrefix: "npm",
+		},
+	}
+
 	for _, platform := range platforms {
 		var w writer.Writer
 		var tablePrefix string
 		var en enumerator.Enumerator
 
-		switch platform {
-		case "github":
-			tablePrefix = "github"
-			githubConfig := enumerator.GithubEnumeratorConfig{
-				MinStars:        *flagMinStars,
-				StarOverlap:     *flagStarOverlap,
-				RequireMinStars: *flagRequireMinStars,
-				Query:           *flagQuery,
-				StartDate:       flagStartDate.Time(),
-				EndDate:         flagEndDate.Time(),
-				Workers:         *flagJobs,
-			}
-			en = enumerator.NewGithubEnumerator(&githubConfig)
-		case "gitlab":
-			tablePrefix = "gitlab"
-			en = enumerator.NewGitlabEnumerator(*flagTake, *flagJobs)
-		case "bitbucket":
-			tablePrefix = "bitbucket"
-			en = enumerator.NewBitBucketEnumerator(*flagTake)
-		default:
-			panic("unknown platform")
+		if platform, ok := platformList[platform]; ok {
+			en = platform.Enumerator()
+			tablePrefix = platform.TablePrefix
+		} else {
+			log.Errorf("unknown platform %s", platform)
+			return
 		}
 
 		switch *flagOutputType {
