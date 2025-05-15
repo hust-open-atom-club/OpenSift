@@ -29,6 +29,21 @@ var muTasks sync.Mutex
 var fetchInProgress bool
 var taskCond = sync.NewCond(&muTasks)
 
+// When such thing occur: <1> is thread id
+// 1. <1> running a task
+// 2. <2> fetching database
+// 3. <1> update database and delete task from tasksSet
+// 4. <2> append to tasks and tasksSet
+// Because things will change when fetching database,
+// so we delay real delete after step 4
+//
+// But another problem appears:
+// Until next fetch database, task cannot be start manually.
+var (
+	toDeleteTasks []string
+	muToDelete    sync.Mutex
+)
+
 var isStop = false
 var muStop sync.Mutex
 var stopCond = sync.NewCond(&muStop)
@@ -53,6 +68,14 @@ func fetchTasksFromDatabase() error {
 				tasksSet[*r.GitLink] = struct{}{}
 			}
 		}
+
+		muToDelete.Lock()
+		// real delete tasksSet
+		for _, t := range toDeleteTasks {
+			delete(tasksSet, t)
+		}
+		toDeleteTasks = make([]string, 0)
+		muToDelete.Unlock()
 
 		muTasks.Unlock()
 		if !ok {
@@ -147,9 +170,9 @@ func GetTask() (string, error) {
 // tasks which is same with executing one), so executing tasks are store in a set,
 // when task is finished, this method is supposed to be called.
 func FinishTask(t string) {
-	muTasks.Lock()
-	defer muTasks.Unlock()
-	delete(tasksSet, t)
+	muToDelete.Lock()
+	defer muToDelete.Unlock()
+	toDeleteTasks = append(toDeleteTasks, t)
 }
 
 func GetPendingTasks() []string {
