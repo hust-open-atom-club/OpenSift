@@ -56,6 +56,15 @@ func Collect(gitLink string, disableCollect bool) {
 		muRunningTasks.Unlock()
 	}()
 
+	// TODO: consider remove this recover function
+	defer func() {
+		if p := recover(); p != nil {
+			logger.WithFields(map[string]any{
+				"gitLink": gitLink,
+			}).Errorf("PANIC occurs: %v", p)
+		}
+	}()
+
 	gmr := repository.NewGitMetricsRepository(storage.GetDefaultAppDatabaseContext())
 
 	gf, err := gmr.GetGitFileByLink(gitLink)
