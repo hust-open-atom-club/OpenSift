@@ -27,7 +27,7 @@ func main() {
 
 	logger.Infof("Launching %d go routines...", *flagJobsCount)
 
-	schedule.SetFetchOptions(*flagJobsCount*5, *flagJobsCount*2)
+	schedule.SetFetchOptions(*flagJobsCount*10, *flagJobsCount*2)
 
 	var wg sync.WaitGroup
 
