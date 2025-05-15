@@ -79,10 +79,14 @@ func Collect(gitLink string, disableCollect bool) {
 				"gitlink": gitLink,
 			}).Warnf("file path in database is not exsits in filesystem, regenerate again")
 		}
-		filePathRel = util.GetGitRepositoryPathFromURL("", gitLink)
+		filePathRel, err = util.GetGitRepositoryPathFromURL("", gitLink)
+		if err != nil {
+			logger.Errorf("could not parse url: %v", err)
+			return
+		}
 		filePathAbs, err = filepath.Abs(filepath.Join(config.GetGitStoragePath(), filePathRel))
 		if err != nil {
-			logger.Errorf("Filepath generate fail")
+			logger.Errorf("filepath generate fail")
 			return
 		}
 

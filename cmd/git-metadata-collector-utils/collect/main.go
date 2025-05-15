@@ -82,7 +82,12 @@ func main() {
 			defer wg.Done()
 			u := url.ParseURL(input)
 
-			path := gitUtil.GetGitRepositoryPath(config.GetGitStoragePath(), &u)
+			path, err := gitUtil.GetGitRepositoryPath(config.GetGitStoragePath(), &u)
+			if err != nil {
+				logger.Errorf("parse url failed: %s", u.URL)
+				return
+			}
+
 			r, err := collector.Open(path)
 
 			if err != nil || r == nil {

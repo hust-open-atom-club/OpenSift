@@ -2,6 +2,7 @@ package util
 
 import (
 	"encoding/csv"
+	"fmt"
 	"os"
 	"path"
 	"strconv"
@@ -44,8 +45,12 @@ func Save2CSV(outputPath string, content [][]string) error {
 	return nil
 }
 
-func GetGitRepositoryPath(storagePath string, u *url.RepoURL) string {
+func GetGitRepositoryPath(storagePath string, u *url.RepoURL) (string, error) {
 	pathnames := strings.Split(u.Pathname, "/")
+	if len(pathnames) < 2 {
+		return "", fmt.Errorf("bad pathname: %s", u.Pathname)
+	}
+
 	username := pathnames[1]
 	var prefix string
 	if len(username) < 4 {
@@ -55,10 +60,10 @@ func GetGitRepositoryPath(storagePath string, u *url.RepoURL) string {
 	}
 
 	// join path
-	return path.Join(storagePath, u.Resource, prefix, u.Pathname)
+	return path.Join(storagePath, u.Resource, prefix, u.Pathname), nil
 }
 
-func GetGitRepositoryPathFromURL(storagePath string, gitLink string) string {
+func GetGitRepositoryPathFromURL(storagePath string, gitLink string) (string, error) {
 	u := url.ParseURL(gitLink)
 	return GetGitRepositoryPath(storagePath, &u)
 }
