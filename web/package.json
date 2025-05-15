@@ -12,6 +12,7 @@
   "dependencies": {
     "@ant-design/nextjs-registry": "^1.0.2",
     "@ant-design/v5-patch-for-react-19": "^1.0.3",
+    "ahooks": "^3.8.4",
     "antd": "^5.23.3",
     "clsx": "^2.1.1",
     "next": "15.1.6",

@@ -4,6 +4,143 @@
         "contact": {}
     },
     "paths": {
+        "/admin/gitfiles": {
+            "get": {
+                "summary": "Get Git File List",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Git link",
+                        "name": "link",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Filter, 0: no filter, 1: success, 2: fail, 3: never success",
+                        "name": "filter",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Skip count",
+                        "name": "skip",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Take count",
+                        "name": "take",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.PageDTO-model_GitFileDTO"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/gitfiles/manual": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "Append to collector manual list",
+                "parameters": [
+                    {
+                        "description": "Append manual request",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.GitFileAppendManualReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/gitfiles/start": {
+            "post": {
+                "description": "Starts the Git File collection process",
+                "summary": "Start Git File Collector",
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/gitfiles/status": {
+            "get": {
+                "summary": "Get git files statistics and collector status",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.GitFileStatusResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/gitfiles/stop": {
+            "post": {
+                "description": "Stops the Git File collection process",
+                "summary": "Stop Git File Collector",
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/histories": {
             "get": {
                 "description": "Get score histories by git link",
@@ -157,6 +294,94 @@
         }
     },
     "definitions": {
+        "model.GitFileAppendManualReq": {
+            "type": "object",
+            "properties": {
+                "gitLink": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.GitFileDTO": {
+            "type": "object",
+            "properties": {
+                "failedTimes": {
+                    "type": "integer"
+                },
+                "filePath": {
+                    "type": "string"
+                },
+                "gitLink": {
+                    "type": "string"
+                },
+                "lastSuccess": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                },
+                "takeStorage": {
+                    "type": "integer"
+                },
+                "takeTimeMs": {
+                    "type": "integer"
+                },
+                "updateTime": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.GitFileStatisticsResultDTO": {
+            "type": "object",
+            "properties": {
+                "fail": {
+                    "type": "integer"
+                },
+                "neverSuccess": {
+                    "type": "integer"
+                },
+                "success": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.GitFileStatusResp": {
+            "type": "object",
+            "properties": {
+                "collector": {
+                    "$ref": "#/definitions/rpc.StatusResp"
+                },
+                "gitFile": {
+                    "$ref": "#/definitions/model.GitFileStatisticsResultDTO"
+                }
+            }
+        },
+        "model.PageDTO-model_GitFileDTO": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.GitFileDTO"
+                    }
+                },
+                "start": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
         "model.PageDTO-model_RankingResultDTO": {
             "type": "object",
             "properties": {
@@ -356,6 +581,37 @@
                     "type": "integer"
                 },
                 "updateTime": {
+                    "type": "string"
+                }
+            }
+        },
+        "rpc.StatusResp": {
+            "type": "object",
+            "properties": {
+                "currentTasks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/task.RunningTask"
+                    }
+                },
+                "isRunning": {
+                    "type": "boolean"
+                },
+                "pendingTasks": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "task.RunningTask": {
+            "type": "object",
+            "properties": {
+                "link": {
+                    "type": "string"
+                },
+                "start": {
                     "type": "string"
                 }
             }

@@ -7,6 +7,7 @@
 package git
 
 import (
+	"fmt"
 	"strconv"
 	"testing"
 
@@ -76,4 +77,13 @@ func TestGetURL(t *testing.T) {
 			require.Equal(t, test.url, result)
 		})
 	}
+}
+
+func TestTempTest(t *testing.T) {
+	r, _ := collector.Open("/home/chengziqiu/Workspace/criticality_score/tmp_git_storage/github.com/00/15/0015/ESP32-OV5640-AF")
+
+	remotes, _ := GetRemotes(r)
+
+	fmt.Print(remotes)
+
 }

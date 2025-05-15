@@ -109,7 +109,6 @@ select git_link, created_since, updated_since, contributor_count, commit_frequen
 drop table git_metrics;
 
 alter table git_metrics_tmp rename to git_metrics;
-alter sequence public.git_metrics_tmp_seq rename to git_metrics_seq
 alter table git_metrics rename constraint git_metrics_tmp_pkey to git_metrics_pkey;
 
 -- ****** END git metrics

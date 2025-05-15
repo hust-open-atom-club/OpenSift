@@ -4,6 +4,8 @@ import (
 	"encoding/csv"
 	"os"
 	"path"
+	"strconv"
+	"strings"
 
 	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/url"
 )
@@ -43,6 +45,20 @@ func Save2CSV(outputPath string, content [][]string) error {
 }
 
 func GetGitRepositoryPath(storagePath string, u *url.RepoURL) string {
+	pathnames := strings.Split(u.Pathname, "/")
+	username := pathnames[1]
+	var prefix string
+	if len(username) < 4 {
+		prefix = strconv.Itoa(len(username)) + "/" + username[0:1]
+	} else {
+		prefix = username[0:2] + "/" + username[2:4]
+	}
+
 	// join path
-	return path.Join(storagePath, u.Resource, u.Pathname)
+	return path.Join(storagePath, u.Resource, prefix, u.Pathname)
+}
+
+func GetGitRepositoryPathFromURL(storagePath string, gitLink string) string {
+	u := url.ParseURL(gitLink)
+	return GetGitRepositoryPath(storagePath, &u)
 }

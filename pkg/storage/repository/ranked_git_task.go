@@ -34,12 +34,11 @@ select git_link, type
 from (
     select git_link, 0 as type from (
         select git_link from all_gitlinks
-        except select git_link from failed_git_metrics
-        except select git_link from git_metrics
+        except select git_link from git_files
     ) order by git_link
 ) union (
-    select git_link, 1 as type from failed_git_metrics
-    where update_time < now() - least(pow(2, times), 60) * interval '1 day'
+    select git_link, 1 as type from git_files 
+    where success = false and update_time < now() - least(pow(2, failed_times), 60) * interval '1 day'
     order by update_time desc
 ) union (
     select git_link, 2 as type from (

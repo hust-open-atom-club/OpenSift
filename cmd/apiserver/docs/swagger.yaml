@@ -1,4 +1,61 @@
 definitions:
+  model.GitFileAppendManualReq:
+    properties:
+      gitLink:
+        type: string
+    type: object
+  model.GitFileDTO:
+    properties:
+      failedTimes:
+        type: integer
+      filePath:
+        type: string
+      gitLink:
+        type: string
+      lastSuccess:
+        type: string
+      message:
+        type: string
+      success:
+        type: boolean
+      takeStorage:
+        type: integer
+      takeTimeMs:
+        type: integer
+      updateTime:
+        type: string
+    type: object
+  model.GitFileStatisticsResultDTO:
+    properties:
+      fail:
+        type: integer
+      neverSuccess:
+        type: integer
+      success:
+        type: integer
+      total:
+        type: integer
+    type: object
+  model.GitFileStatusResp:
+    properties:
+      collector:
+        $ref: '#/definitions/rpc.StatusResp'
+      gitFile:
+        $ref: '#/definitions/model.GitFileStatisticsResultDTO'
+    type: object
+  model.PageDTO-model_GitFileDTO:
+    properties:
+      count:
+        type: integer
+      items:
+        items:
+          $ref: '#/definitions/model.GitFileDTO'
+        type: array
+      start:
+        type: integer
+      total:
+        type: integer
+    type: object
   model.PageDTO-model_RankingResultDTO:
     properties:
       count:
@@ -132,9 +189,117 @@ definitions:
       updateTime:
         type: string
     type: object
+  rpc.StatusResp:
+    properties:
+      currentTasks:
+        items:
+          $ref: '#/definitions/task.RunningTask'
+        type: array
+      isRunning:
+        type: boolean
+      pendingTasks:
+        items:
+          type: string
+        type: array
+    type: object
+  task.RunningTask:
+    properties:
+      link:
+        type: string
+      start:
+        type: string
+    type: object
 info:
   contact: {}
 paths:
+  /admin/gitfiles:
+    get:
+      parameters:
+      - description: Git link
+        in: query
+        name: link
+        type: string
+      - description: 'Filter, 0: no filter, 1: success, 2: fail, 3: never success'
+        in: query
+        name: filter
+        type: integer
+      - description: Skip count
+        in: query
+        name: skip
+        type: integer
+      - description: Take count
+        in: query
+        name: take
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.PageDTO-model_GitFileDTO'
+      summary: Get Git File List
+  /admin/gitfiles/manual:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Append manual request
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/model.GitFileAppendManualReq'
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Append to collector manual list
+  /admin/gitfiles/start:
+    post:
+      description: Starts the Git File collection process
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Start Git File Collector
+  /admin/gitfiles/status:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.GitFileStatusResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get git files statistics and collector status
+  /admin/gitfiles/stop:
+    post:
+      description: Stops the Git File collection process
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Stop Git File Collector
   /histories:
     get:
       consumes:

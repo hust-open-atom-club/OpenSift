@@ -11,6 +11,9 @@ const nextConfig: NextConfig = {
       }
     ]
   },
+  env: {
+    NEXT_PUBLIC_BACKEND: (process.env.BACKEND || 'http://localhost:5000')
+  }
 };
 
 export default nextConfig;

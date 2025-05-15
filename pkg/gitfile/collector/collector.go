@@ -8,8 +8,8 @@
 package collector
 
 import (
-	"fmt"
 	"os"
+	"path/filepath"
 
 	parser "github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser"
 	url "github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/url"
@@ -20,19 +20,21 @@ import (
 )
 
 // clone or update the repository, and collect metadata
-func Collect(u *url.RepoURL, storagePath string) (*gogit.Repository, error) {
-	r, err := Clone(u, storagePath)
-
-	if err == gogit.ErrRepositoryAlreadyExists {
-		r, err = Update(u, storagePath)
+func Collect(u *url.RepoURL, path string) (*gogit.Repository, error) {
+	_, err := Open(path)
+	if err != nil { // not exsists
+		r, err := Clone(u, path)
+		if err != nil {
+			logger.Errorf("Failed to Clone %s, %v", u.URL, err)
+		}
+		return r, err
+	} else {
+		r, err := Update(u, path)
 		if err != nil {
 			logger.Errorf("Failed to Update %s, %v", u.URL, err)
 		}
-	} else if err != nil {
-		logger.Errorf("Failed to Clone %s, %v", u.URL, err)
+		return r, err
 	}
-
-	return r, err
 }
 
 // mem clone the repository, and collect metadata
@@ -47,15 +49,23 @@ func EzCollect(u *url.RepoURL) (*gogit.Repository, error) {
 }
 
 // only clone the repository, if it exists, return error
-func Clone(u *url.RepoURL, storagePath string) (*gogit.Repository, error) {
-	path := fmt.Sprintf("%s/%s%s", storagePath, u.Resource, u.Pathname)
-	tmpDir, _ := os.MkdirTemp(
-		fmt.Sprintf("%s/tmp/%s%s", storagePath, u.Resource, u.Pathname),
+func Clone(u *url.RepoURL, path string) (*gogit.Repository, error) {
+	// get parent path of the path
+	err := os.MkdirAll(filepath.Dir(path), 0777)
+	if err != nil {
+		return nil, err
+	}
+	tmpDir, err := os.MkdirTemp(
+		filepath.Dir(path),
 		"clone-tmp-",
 	)
+	if err != nil {
+		return nil, err
+	}
+
 	defer os.RemoveAll(tmpDir)
 
-	r, err := gogit.PlainClone(tmpDir, false, &gogit.CloneOptions{
+	_, err = gogit.PlainClone(tmpDir, false, &gogit.CloneOptions{
 		URL: u.URL,
 		// Progress:     os.Stdout,
 		SingleBranch: false,
@@ -67,11 +77,18 @@ func Clone(u *url.RepoURL, storagePath string) (*gogit.Repository, error) {
 		return nil, err
 	}
 
+	// If the path exists, remove it before moving the tmpDir
+	if _, err := os.Stat(path); err == nil {
+		if err := os.RemoveAll(path); err != nil {
+			return nil, err
+		}
+	}
+
 	if err = os.Rename(tmpDir, path); err != nil {
 		return nil, err
 	}
 
-	return r, nil
+	return Open(path)
 }
 
 // only clone the repository into memory
@@ -159,26 +176,42 @@ func Fetch(r *gogit.Repository, path string) error {
 }
 */
 
-func Update(u *url.RepoURL, storagePath string) (*gogit.Repository, error) {
-	path := fmt.Sprintf("%s/%s%s", storagePath, u.Resource, u.Pathname)
+func Update(u *url.RepoURL, path string) (*gogit.Repository, error) {
 	url := u.URL
 	r, err := Open(path)
-
 	if err != nil {
 		logger.Errorf("Failed to open %s, %v", path, err)
 		return r, err
 	}
 
-	err = Pull(r, url)
-
-	// err := Fetch(r)
-	if err == gogit.NoErrAlreadyUpToDate {
-		err = nil
-	} else {
-		logger.Errorf("Failed to pull %s, %v", path, err)
+	remoteRefs, err := r.Remotes()
+	if err != nil {
+		return r, err
 	}
 
-	return r, err
+	for _, remoteRef := range remoteRefs {
+		err := remoteRef.Fetch(&gogit.FetchOptions{
+			RemoteURL: url,
+		})
+		if err != nil && err != gogit.NoErrAlreadyUpToDate {
+			return r, err
+		}
+	}
+
+	return r, nil
+
+	// Following is old worktree-style
+
+	// err = Pull(r, url)
+
+	// // err := Fetch(r)
+	// if err == gogit.NoErrAlreadyUpToDate {
+	// 	err = nil
+	// } else {
+	// 	logger.Errorf("Failed to pull %s, %v", path, err)
+	// }
+
+	// return r, err
 }
 
 // Check if the url provided is available

@@ -19,6 +19,7 @@ func main() {
 	logger.ConfigAsCommandLineTool()
 
 	ctx := storage.GetDefaultAppDatabaseContext()
+	defer ctx.Close()
 
 	result, err := os.ReadDir("migrations")
 	if err != nil {

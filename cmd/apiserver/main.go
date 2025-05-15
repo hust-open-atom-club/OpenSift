@@ -15,8 +15,9 @@ import (
 
 func main() {
 	var (
-		flagHost = pflag.StringP("host", "H", "0.0.0.0", "apiserver host")
-		flagPort = pflag.IntP("port", "p", 5000, "apiserver port")
+		flagHost         = pflag.StringP("host", "H", "0.0.0.0", "apiserver host")
+		flagPort         = pflag.IntP("port", "p", 5000, "apiserver port")
+		flagCollectorRpc = pflag.StringP("collector-rpc", "r", "", "collector rpc address")
 	)
 
 	config.RegistCommonFlags(pflag.CommandLine)
@@ -27,7 +28,7 @@ func main() {
 
 	s := server.NewServer()
 	apiGroup := s.Group("/api/v1")
-	controller.Regist(apiGroup)
+	controller.Regist(apiGroup, *flagCollectorRpc)
 
 	docs.SwaggerInfo.BasePath = "/api/v1"
 	s.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
