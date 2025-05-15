@@ -7,6 +7,7 @@
 package url
 
 import (
+	"fmt"
 	"net/url"
 	"regexp"
 	"strconv"
@@ -152,6 +153,10 @@ func ParseURL(input string) (RepoURL, error) {
 	output.Query = q
 	output.URL = re.ReplaceAllString(output.URL, "")
 	output.Pathname = re.ReplaceAllString(output.Pathname, "")
+
+	if strings.Contains(output.Pathname, " ") {
+		return output, fmt.Errorf("pathname contains space")
+	}
 
 	return output, nil
 }

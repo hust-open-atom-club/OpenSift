@@ -11,6 +11,7 @@ func TestParseURL(t *testing.T) {
 	tests := []struct {
 		input    string
 		expected RepoURL
+		hasError bool
 	}{
 		{input: "http://ionicabizau.net/blog", expected: RepoURL{
 			Protocols: []string{"http"},
@@ -216,11 +217,17 @@ func TestParseURL(t *testing.T) {
 			URL:       "javascript://%0aalert(1)",
 			Query:     map[string][]string{},
 		}},
+		{input: "https://abcabc/ /abc", hasError: true},
+		{input: "git://????????/abc", hasError: true},
 	}
 
 	for n, test := range tests {
 		t.Run(strconv.Itoa(n), func(t *testing.T) {
-			require.Equal(t, test.expected, ParseURL(test.input))
+			ret, err := ParseURL(test.input)
+			require.True(t, (test.hasError) == (err != nil))
+			if !test.hasError {
+				require.Equal(t, test.expected, ret)
+			}
 		})
 	}
 }

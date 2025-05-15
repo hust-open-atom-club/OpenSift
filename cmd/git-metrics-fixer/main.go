@@ -71,7 +71,7 @@ func main() {
 			defer func() { <-workpool }()
 			logger.Infof("Collecting %s", link)
 			r := &gogit.Repository{}
-			u := url.ParseURL(link)
+			u, _ := url.ParseURL(link)
 			r, err := collector.Collect(&u, *filePath)
 			if err != nil {
 				logger.Println("Collecting Failed:", link)
