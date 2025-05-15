@@ -24,11 +24,10 @@ type GitMetricsRepository interface {
 	// and the data will not copy from old data
 	BatchInsertOrUpdate(data []*GitMetric) error
 
-	CountGitFiles(linkQuery string) (int, error)
 	// successFilter:
 	// 0: no filter, 1: success, 2: fail, 3: never success
 	//
-	QueryGitFiles(linkQuery string, successFilter int, skip int, take int) (iter.Seq[*GitFile], error)
+	QueryGitFiles(linkQuery string, successFilter int, skip int, take int) (iter.Seq[*GitFile], int, error)
 	GetGitFileByLink(link string) (*GitFile, error)
 	GetGitFilesStatistics() (*GitFileStatisticsResult, error)
 
@@ -83,12 +82,12 @@ func (g *gitmetricsRepository) GetGitFileByLink(link string) (*GitFile, error) {
 }
 
 // CountGitFiles implements GitMetricsRepository.
-func (g *gitmetricsRepository) CountGitFiles(linkQuery string) (int, error) {
-	var cnt int
-	r := g.ctx.QueryRow("SELECT COUNT(*) FROM git_files WHERE git_link like $1", "%"+linkQuery+"%")
-	err := r.Scan(&cnt)
-	return cnt, err
-}
+// func (g *gitmetricsRepository) CountGitFiles(linkQuery string) (int, error) {
+// 	var cnt int
+// 	r := g.ctx.QueryRow("SELECT COUNT(*) FROM git_files WHERE git_link like $1", "%"+linkQuery+"%")
+// 	err := r.Scan(&cnt)
+// 	return cnt, err
+// }
 
 var _ GitMetricsRepository = (*gitmetricsRepository)(nil)
 
@@ -160,7 +159,7 @@ func (g *gitmetricsRepository) GetGitFilesStatistics() (*GitFileStatisticsResult
 }
 
 // QueryGitFiles implements GitMetricsRepository.
-func (g *gitmetricsRepository) QueryGitFiles(linkQuery string, successFilter, skip int, take int) (iter.Seq[*GitFile], error) {
+func (g *gitmetricsRepository) QueryGitFiles(linkQuery string, successFilter, skip int, take int) (iter.Seq[*GitFile], int, error) {
 	var whereSentences = make([]string, 0)
 	var args = make([]any, 0)
 
@@ -187,7 +186,16 @@ func (g *gitmetricsRepository) QueryGitFiles(linkQuery string, successFilter, sk
 		whereSentence += strings.Join(whereSentences, " AND ")
 	}
 	args = append(args, skip, take)
-	return sqlutil.QueryCommon[GitFile](g.ctx, "git_files", whereSentence+paginationSentence, args...)
+
+	var cnt int
+	r := g.ctx.QueryRow("SELECT COUNT(*) FROM git_files "+whereSentence, args[0:len(args)-2]...)
+	err := r.Scan(&cnt)
+	if err != nil {
+		return nil, cnt, err
+	}
+
+	d, err := sqlutil.QueryCommon[GitFile](g.ctx, "git_files", whereSentence+paginationSentence, args...)
+	return d, cnt, err
 }
 
 func NewGitMetricsRepository(appDb storage.AppDatabaseContext) GitMetricsRepository {

@@ -75,7 +75,7 @@ func getGitFilesList(c *gin.Context) {
 	}
 
 	r := repository.NewGitMetricsRepository(storage.GetDefaultAppDatabaseContext())
-	ret, err := r.QueryGitFiles(q.Link, q.Filter, q.Skip, q.Take)
+	ret, cnt, err := r.QueryGitFiles(q.Link, q.Filter, q.Skip, q.Take)
 	if err != nil {
 		c.JSON(500, "fetch database error")
 		return
@@ -83,12 +83,6 @@ func getGitFilesList(c *gin.Context) {
 	items := lo.Map(slices.Collect(ret), func(i *repository.GitFile, _ int) *model.GitFileDTO {
 		return model.GitFileDOToDTO(i)
 	})
-
-	cnt, err := r.CountGitFiles(q.Link)
-	if err != nil {
-		c.JSON(500, "count git files error")
-		return
-	}
 
 	c.JSON(200, model.NewPageDTO(cnt, q.Skip, q.Take, items))
 }
