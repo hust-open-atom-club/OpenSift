@@ -84,12 +84,12 @@ func Collect(gitLink string, disableCollect bool) {
 			logger.Errorf("could not parse url: %v", err)
 			return
 		}
-		filePathAbs, err = filepath.Abs(filepath.Join(config.GetGitStoragePath(), filePathRel))
-		if err != nil {
-			logger.Errorf("filepath generate fail")
-			return
-		}
+	}
 
+	filePathAbs, err = filepath.Abs(filepath.Join(config.GetGitStoragePath(), filePathRel))
+	if err != nil {
+		logger.Errorf("filepath generate fail")
+		return
 	}
 
 	recordClone := func(success bool, e error) {
