@@ -12,7 +12,7 @@ function RunningTask({ t }: { t: TaskRunningTask }) {
     if (t.start) {
       const d = dayjs().diff(dayjs(t.start), "second")
       if (d > 3600) {
-        setTake(`${Math.floor(d / 3600)} 小时 ${Math.floor(d / 60)} 分`)
+        setTake(`${Math.floor(d / 3600)} 小时 ${Math.floor(d / 60) % 60} 分`)
       } else if (d > 60) {
         setTake(`${Math.floor(d / 60)} 分 ${d % 60} 秒`)
       } else if (d > 10) {
