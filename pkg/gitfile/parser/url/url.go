@@ -147,7 +147,7 @@ func ParseURL(input string) (RepoURL, error) {
 
 	q, err := url.ParseQuery(output.Search)
 	if err != nil {
-		panic(err)
+		return output, err
 	}
 
 	output.Query = q
