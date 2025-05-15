@@ -27,7 +27,7 @@ func main() {
 	}
 	var count int
 	for _, input := range inputs {
-		u := url.ParseURL(input[0])
+		u, _ := url.ParseURL(input[0])
 		path = *flagStoragePath + u.Pathname
 		_, err := git.PlainOpen(path)
 		if err == git.ErrRepositoryNotExists {

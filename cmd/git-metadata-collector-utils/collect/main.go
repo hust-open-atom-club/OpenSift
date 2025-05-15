@@ -80,7 +80,7 @@ func main() {
 
 		gopool.Go(func() {
 			defer wg.Done()
-			u := url.ParseURL(input)
+			u, _ := url.ParseURL(input)
 
 			path, err := gitUtil.GetGitRepositoryPath(config.GetGitStoragePath(), &u)
 			if err != nil {

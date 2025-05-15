@@ -42,7 +42,7 @@ func NewRepoURL(url string) RepoURL {
 }
 
 // ParseURL parse paths (local paths, urls: ssh/git/etc)
-func ParseURL(input string) RepoURL {
+func ParseURL(input string) (RepoURL, error) {
 	input = strings.TrimSpace(input)
 	var re = regexp.MustCompile(`\r\n|\r`)
 	input = string(re.ReplaceAll([]byte(input), []byte("")))
@@ -153,7 +153,7 @@ func ParseURL(input string) RepoURL {
 	output.URL = re.ReplaceAllString(output.URL, "")
 	output.Pathname = re.ReplaceAllString(output.Pathname, "")
 
-	return output
+	return output, nil
 }
 
 // IsSsh check if an input value is a ssh url or not

@@ -63,14 +63,14 @@ func main() {
 				}
 				err = collector.Pull(r, "")
 			} else if *inMemoryFlag {
-				u := url.ParseURL(input)
+				u, _ := url.ParseURL(input)
 				r, err = collector.EzCollect(&u)
 			} else {
 				if config.GetGitStoragePath() == "" {
 					logger.Errorf("Storage path is not set")
 					return
 				}
-				u := url.ParseURL(input)
+				u, _ := url.ParseURL(input)
 				r, err = collector.Collect(&u, config.GetGitStoragePath())
 			}
 

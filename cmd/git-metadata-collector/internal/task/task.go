@@ -143,7 +143,11 @@ func Collect(gitLink string, disableCollect bool) {
 
 	}
 
-	u := url.ParseURL(gitLink)
+	u, err := url.ParseURL(gitLink)
+	if err != nil {
+		logger.Errorf("url.ParseURL fail: %s: %v", gitLink, err)
+		return
+	}
 	r, err := collector.Collect(&u, filePathAbs)
 	if err != nil {
 		recordClone(false, err)

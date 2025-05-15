@@ -64,6 +64,9 @@ func GetGitRepositoryPath(storagePath string, u *url.RepoURL) (string, error) {
 }
 
 func GetGitRepositoryPathFromURL(storagePath string, gitLink string) (string, error) {
-	u := url.ParseURL(gitLink)
+	u, err := url.ParseURL(gitLink)
+	if err != nil {
+		return "", err
+	}
 	return GetGitRepositoryPath(storagePath, &u)
 }

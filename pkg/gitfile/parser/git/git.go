@@ -506,7 +506,7 @@ func ParseRepo(r *git.Repository) (*Repo, error) {
 
 	repo.URL = u
 
-	uu := url.ParseURL(u)
+	uu, _ := url.ParseURL(u)
 
 	if uu.Pathname == "" || uu.Resource == "" {
 		return nil, errPathNameNotFound

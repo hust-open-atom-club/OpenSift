@@ -55,7 +55,7 @@ func main() {
 
 		gopool.Go(func() {
 			defer wg.Done()
-			u := url.ParseURL(input[0])
+			u, _ := url.ParseURL(input[0])
 			_, err := collector.Collect(&u, viper.GetString(viperStorageKey))
 			if err != nil {
 				logger.Panicf("Cloning %s Failed", input)
