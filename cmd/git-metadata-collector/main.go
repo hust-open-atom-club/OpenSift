@@ -2,6 +2,7 @@ package main
 
 import (
 	"sync"
+	"time"
 
 	"github.com/HUSTSecLab/criticality_score/cmd/git-metadata-collector/internal/schedule"
 	"github.com/HUSTSecLab/criticality_score/cmd/git-metadata-collector/internal/task"
@@ -34,7 +35,7 @@ func main() {
 	for i := 0; i < *flagJobsCount; i++ {
 		wg.Add(1)
 		go func() {
-			// cnt := 0
+			cnt := 0
 			for {
 				t, err := schedule.GetTask()
 				if err != nil {
@@ -42,12 +43,12 @@ func main() {
 				}
 
 				// // begin sleep trick
-				// if cnt%10 == 0 {
-				// 	time.Sleep(5 * time.Second)
-				// } else {
-				// 	time.Sleep(2 * time.Second)
-				// }
-				// cnt++
+				if cnt%10 == 0 {
+					<-time.After(5 * time.Second)
+				} else {
+					<-time.After(2 * time.Second)
+				}
+				cnt++
 				// end sleep trick
 				task.Collect(t, *flagDisableCollect)
 
