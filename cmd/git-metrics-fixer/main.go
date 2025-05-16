@@ -72,7 +72,7 @@ func main() {
 			logger.Infof("Collecting %s", link)
 			r := &gogit.Repository{}
 			u, _ := url.ParseURL(link)
-			r, err := collector.Collect(&u, *filePath)
+			r, err := collector.Collect(&u, *filePath, nil)
 			if err != nil {
 				logger.Println("Collecting Failed:", link)
 				return

@@ -189,11 +189,20 @@ definitions:
       updateTime:
         type: string
     type: object
+  rpc.RunningTaskDTO:
+    properties:
+      link:
+        type: string
+      progress:
+        type: string
+      start:
+        type: string
+    type: object
   rpc.StatusResp:
     properties:
       currentTasks:
         items:
-          $ref: '#/definitions/task.RunningTask'
+          $ref: '#/definitions/rpc.RunningTaskDTO'
         type: array
       isRunning:
         type: boolean
@@ -201,13 +210,6 @@ definitions:
         items:
           type: string
         type: array
-    type: object
-  task.RunningTask:
-    properties:
-      link:
-        type: string
-      start:
-        type: string
     type: object
 info:
   contact: {}

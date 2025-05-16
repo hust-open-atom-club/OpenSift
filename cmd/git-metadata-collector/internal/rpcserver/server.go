@@ -1,4 +1,4 @@
-package rpc
+package rpcserver
 
 import (
 	"net"
@@ -6,7 +6,9 @@ import (
 	"strconv"
 
 	"github.com/HUSTSecLab/criticality_score/cmd/git-metadata-collector/internal/schedule"
+
 	"github.com/HUSTSecLab/criticality_score/cmd/git-metadata-collector/internal/task"
+	rpcproto "github.com/HUSTSecLab/criticality_score/cmd/git-metadata-collector/rpc"
 	"github.com/HUSTSecLab/criticality_score/pkg/logger"
 )
 
@@ -22,11 +24,11 @@ func (r *RpcServiceServer) AddManualTask(req struct{ GitLink string }, resp *str
 }
 
 // QueryCurrent implements RpcService.
-func (r *RpcServiceServer) QueryCurrent(req struct{}, resp *StatusResp) error {
-	*resp = StatusResp{
-		task.GetRunningTasks(),
-		schedule.GetPendingTasks(),
-		schedule.IsScheduleRunning(),
+func (r *RpcServiceServer) QueryCurrent(req struct{}, resp *rpcproto.StatusResp) error {
+	*resp = rpcproto.StatusResp{
+		CurrentTasks: task.GetRunningTasks(),
+		PendingTasks: schedule.GetPendingTasks(),
+		IsRunning:    schedule.IsScheduleRunning(),
 	}
 	return nil
 }
@@ -43,7 +45,7 @@ func (r *RpcServiceServer) Stop(req struct{}, resp *struct{}) error {
 	return nil
 }
 
-var _ RpcService = (*RpcServiceServer)(nil)
+var _ rpcproto.RpcService = (*RpcServiceServer)(nil)
 
 func RunServer(port int) {
 	err := rpc.RegisterName("Collector", new(RpcServiceServer))

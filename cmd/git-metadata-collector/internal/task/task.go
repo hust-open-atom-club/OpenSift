@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/HUSTSecLab/criticality_score/cmd/git-metadata-collector/rpc"
 	"github.com/HUSTSecLab/criticality_score/pkg/config"
 	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/collector"
 	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/git"
@@ -20,24 +21,23 @@ import (
 )
 
 type RunningTask struct {
-	Link  string    `json:"link"`
-	Start time.Time `json:"start"`
+	Start    time.Time
+	Progress TermBuffer
 }
 
-var runningTasks = make(map[string]struct {
-	t time.Time
-}, 0)
+var runningTasks = make(map[string]*RunningTask, 0)
 var muRunningTasks sync.Mutex
 
-func GetRunningTasks() []RunningTask {
+func GetRunningTasks() []rpc.RunningTaskDTO {
 	muRunningTasks.Lock()
 	defer muRunningTasks.Unlock()
 
-	tasks := make([]RunningTask, 0, len(runningTasks))
+	tasks := make([]rpc.RunningTaskDTO, 0, len(runningTasks))
 	for k, v := range runningTasks {
-		tasks = append(tasks, RunningTask{
-			Link:  k,
-			Start: v.t,
+		tasks = append(tasks, rpc.RunningTaskDTO{
+			Link:     k,
+			Start:    v.Start,
+			Progress: v.Progress.String(),
 		})
 	}
 	return tasks
@@ -46,8 +46,13 @@ func GetRunningTasks() []RunningTask {
 func Collect(gitLink string, disableCollect bool) {
 	timeBegin := time.Now()
 
+	var currentTask = RunningTask{
+		Start:    timeBegin,
+		Progress: TermBuffer{},
+	}
+
 	muRunningTasks.Lock()
-	runningTasks[gitLink] = struct{ t time.Time }{timeBegin}
+	runningTasks[gitLink] = &currentTask
 	muRunningTasks.Unlock()
 
 	defer func() {
@@ -157,7 +162,7 @@ func Collect(gitLink string, disableCollect bool) {
 		logger.Errorf("url.ParseURL fail: %s: %v", gitLink, err)
 		return
 	}
-	r, err := collector.Collect(&u, filePathAbs)
+	r, err := collector.Collect(&u, filePathAbs, &currentTask.Progress)
 	if err != nil {
 		recordClone(false, err)
 		return

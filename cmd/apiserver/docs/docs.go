@@ -596,13 +596,27 @@ const docTemplate = `{
                 }
             }
         },
+        "rpc.RunningTaskDTO": {
+            "type": "object",
+            "properties": {
+                "link": {
+                    "type": "string"
+                },
+                "progress": {
+                    "type": "string"
+                },
+                "start": {
+                    "type": "string"
+                }
+            }
+        },
         "rpc.StatusResp": {
             "type": "object",
             "properties": {
                 "currentTasks": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/task.RunningTask"
+                        "$ref": "#/definitions/rpc.RunningTaskDTO"
                     }
                 },
                 "isRunning": {
@@ -613,17 +627,6 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
-                }
-            }
-        },
-        "task.RunningTask": {
-            "type": "object",
-            "properties": {
-                "link": {
-                    "type": "string"
-                },
-                "start": {
-                    "type": "string"
                 }
             }
         }

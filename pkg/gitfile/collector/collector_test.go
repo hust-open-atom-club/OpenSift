@@ -25,8 +25,8 @@ func TestCollect(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.input, func(t *testing.T) {
-			u := url.ParseURL(test.input)
-			_, err := Collect(&u, t.TempDir())
+			u, _ := url.ParseURL(test.input)
+			_, err := Collect(&u, t.TempDir(), nil)
 			require.Equal(t, test.expected, err)
 		})
 	}
@@ -44,7 +44,7 @@ func TestEzCollect(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.input, func(t *testing.T) {
-			u := url.ParseURL(test.input)
+			u, _ := url.ParseURL(test.input)
 			_, err := EzCollect(&u)
 			require.Equal(t, test.expected, err)
 		})
@@ -66,7 +66,7 @@ func TestCheck(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.input, func(t *testing.T) {
-			u := url.ParseURL(test.input)
+			u, _ := url.ParseURL(test.input)
 			require.Equal(t, test.expected, Check(&u) == nil)
 		})
 	}

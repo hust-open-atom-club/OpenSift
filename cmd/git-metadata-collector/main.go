@@ -4,9 +4,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/HUSTSecLab/criticality_score/cmd/git-metadata-collector/internal/rpcserver"
 	"github.com/HUSTSecLab/criticality_score/cmd/git-metadata-collector/internal/schedule"
 	"github.com/HUSTSecLab/criticality_score/cmd/git-metadata-collector/internal/task"
-	"github.com/HUSTSecLab/criticality_score/cmd/git-metadata-collector/rpc"
 	"github.com/HUSTSecLab/criticality_score/pkg/config"
 	"github.com/HUSTSecLab/criticality_score/pkg/logger"
 	"github.com/spf13/pflag"
@@ -22,7 +22,7 @@ func main() {
 	config.ParseFlags(pflag.CommandLine)
 	logger.SetContext("git-metadata-collector")
 
-	go rpc.RunServer(*flagRpcPort)
+	go rpcserver.RunServer(*flagRpcPort)
 
 	// psql.CreateTable(db)
 

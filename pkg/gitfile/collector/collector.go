@@ -8,9 +8,11 @@
 package collector
 
 import (
+	"io"
 	"os"
 	"path/filepath"
 
+	"github.com/HUSTSecLab/criticality_score/pkg/config"
 	parser "github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser"
 	url "github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/url"
 	"github.com/HUSTSecLab/criticality_score/pkg/logger"
@@ -20,16 +22,16 @@ import (
 )
 
 // clone or update the repository, and collect metadata
-func Collect(u *url.RepoURL, path string) (*gogit.Repository, error) {
+func Collect(u *url.RepoURL, path string, progress io.Writer) (*gogit.Repository, error) {
 	_, err := Open(path)
 	if err != nil { // not exsists
-		r, err := Clone(u, path)
+		r, err := Clone(u, path, progress)
 		if err != nil {
 			logger.Errorf("Failed to Clone %s, %v", u.URL, err)
 		}
 		return r, err
 	} else {
-		r, err := Update(u, path)
+		r, err := Update(u, path, progress)
 		if err != nil {
 			logger.Errorf("Failed to Update %s, %v", u.URL, err)
 		}
@@ -49,14 +51,19 @@ func EzCollect(u *url.RepoURL) (*gogit.Repository, error) {
 }
 
 // only clone the repository, if it exists, return error
-func Clone(u *url.RepoURL, path string) (*gogit.Repository, error) {
+func Clone(u *url.RepoURL, path string, progress io.Writer) (*gogit.Repository, error) {
 	// get parent path of the path
+	tmpPath := filepath.Dir(path)
+	if config.GetGitStoragePath() != "" {
+		tmpPath = config.GetGitStoragePath()
+	}
+
 	err := os.MkdirAll(filepath.Dir(path), 0777)
 	if err != nil {
 		return nil, err
 	}
 	tmpDir, err := os.MkdirTemp(
-		filepath.Dir(path),
+		tmpPath,
 		"clone-tmp-",
 	)
 	if err != nil {
@@ -66,8 +73,8 @@ func Clone(u *url.RepoURL, path string) (*gogit.Repository, error) {
 	defer os.RemoveAll(tmpDir)
 
 	_, err = gogit.PlainClone(tmpDir, false, &gogit.CloneOptions{
-		URL: u.URL,
-		// Progress:     os.Stdout,
+		URL:          u.URL,
+		Progress:     progress,
 		SingleBranch: false,
 		Mirror:       true,
 		//* NoCheckout: true,
@@ -176,7 +183,7 @@ func Fetch(r *gogit.Repository, path string) error {
 }
 */
 
-func Update(u *url.RepoURL, path string) (*gogit.Repository, error) {
+func Update(u *url.RepoURL, path string, progress io.Writer) (*gogit.Repository, error) {
 	url := u.URL
 	r, err := Open(path)
 	if err != nil {
@@ -192,6 +199,7 @@ func Update(u *url.RepoURL, path string) (*gogit.Repository, error) {
 	for _, remoteRef := range remoteRefs {
 		err := remoteRef.Fetch(&gogit.FetchOptions{
 			RemoteURL: url,
+			Progress:  progress,
 		})
 		if err != nil && err != gogit.NoErrAlreadyUpToDate {
 			return r, err

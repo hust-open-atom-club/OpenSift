@@ -1,11 +1,17 @@
 package rpc
 
-import "github.com/HUSTSecLab/criticality_score/cmd/git-metadata-collector/internal/task"
+import "time"
+
+type RunningTaskDTO struct {
+	Link     string    `json:"link"`
+	Start    time.Time `json:"start"`
+	Progress string    `json:"progress"`
+}
 
 type StatusResp struct {
-	CurrentTasks []task.RunningTask `json:"currentTasks"`
-	PendingTasks []string           `json:"pendingTasks"`
-	IsRunning    bool               `json:"isRunning"`
+	CurrentTasks []RunningTaskDTO `json:"currentTasks"`
+	PendingTasks []string         `json:"pendingTasks"`
+	IsRunning    bool             `json:"isRunning"`
 }
 
 type RpcService interface {
