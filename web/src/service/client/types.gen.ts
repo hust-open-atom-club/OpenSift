@@ -102,15 +102,16 @@ export type ModelResultLangDetailDto = {
     updateTime?: string;
 };
 
-export type RpcStatusResp = {
-    currentTasks?: Array<TaskRunningTask>;
-    isRunning?: boolean;
-    pendingTasks?: Array<string>;
+export type RpcRunningTaskDto = {
+    link?: string;
+    progress?: string;
+    start?: string;
 };
 
-export type TaskRunningTask = {
-    link?: string;
-    start?: string;
+export type RpcStatusResp = {
+    currentTasks?: Array<RpcRunningTaskDto>;
+    isRunning?: boolean;
+    pendingTasks?: Array<string>;
 };
 
 export type GetAdminGitfilesData = {

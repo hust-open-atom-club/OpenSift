@@ -1,11 +1,11 @@
-import { Button, Col, message, Popconfirm, Popover, Row, Statistic } from "antd";
-import { SyncOutlined, InfoCircleFilled, MoreOutlined, LoadingOutlined, WarningOutlined } from "@ant-design/icons"
+import { Button, Col, message, Popconfirm, Popover, Row, Statistic, Tooltip } from "antd";
+import { SyncOutlined, InfoCircleFilled, MoreOutlined, LoadingOutlined, WarningOutlined, MessageOutlined } from "@ant-design/icons"
 import { useInterval, useRequest } from "ahooks";
-import { getAdminGitfilesStatus, ModelGitFileStatusResp, postAdminGitfilesStart, postAdminGitfilesStop, TaskRunningTask } from "@/service/client";
+import { getAdminGitfilesStatus, ModelGitFileStatusResp, postAdminGitfilesStart, postAdminGitfilesStop, RpcRunningTaskDto } from "@/service/client";
 import { useState } from "react";
 import dayjs from "dayjs";
 
-function RunningTask({ t }: { t: TaskRunningTask }) {
+function RunningTask({ t }: { t: RpcRunningTaskDto }) {
   const [take, setTake] = useState("");
 
   useInterval(() => {
@@ -22,7 +22,9 @@ function RunningTask({ t }: { t: TaskRunningTask }) {
   }, 1000);
 
   return <div>
-    <span className="bg-blue-600 text-white px-1 rounded-md mr-2"><LoadingOutlined /> {take} </span> {t.link}
+    <span className="bg-blue-600 text-white px-1 rounded-md mr-2"><LoadingOutlined /> {take} </span> {t.link} <Tooltip title={<div className="max-h-40 overflow-auto preser whitespace-pre-wrap">{t.progress}</div>}>
+      <MessageOutlined />
+    </Tooltip>
   </div>
 }
 
