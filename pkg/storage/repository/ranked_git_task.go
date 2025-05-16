@@ -42,7 +42,6 @@ from (
 ) union all (
     select git_link, 2 + EXP(EXTRACT(DAY from (update_time - now()))) as nice from git_files 
 		where update_time < now() - interval '30 days'
-) ORDER BY nice LIMIT 1000
-LIMIT $1
+) ORDER BY nice LIMIT $1
 	`, limit)
 }
