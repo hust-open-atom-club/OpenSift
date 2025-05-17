@@ -123,6 +123,7 @@ export default function GitFileTable() {
     <div className="sticky bottom-0 py-4 bg-white border-t border-slate-200 flex justify-end">
       <Spin spinning={loading}>
         <Pagination
+          showQuickJumper
           current={data ? (data.start!! / data.count!!) + 1 : 1}
           total={data?.total}
           pageSize={data?.count}
