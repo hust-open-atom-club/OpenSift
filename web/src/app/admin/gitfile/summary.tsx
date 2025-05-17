@@ -22,7 +22,7 @@ function RunningTask({ t }: { t: RpcRunningTaskDto }) {
   }, 1000);
 
   return <div>
-    <span className="bg-blue-600 text-white px-1 rounded-md mr-2"><LoadingOutlined /> {take} </span> {t.link} <Tooltip title={<div className="max-h-40 overflow-auto preser whitespace-pre-wrap">{t.progress}</div>}>
+    <span className="bg-blue-600 text-white px-1 rounded-md mr-2"><LoadingOutlined /> {take} </span> {t.link} <Tooltip title={<div className="max-h-40 overflow-auto whitespace-pre-wrap">{t.progress}</div>}>
       <MessageOutlined />
     </Tooltip>
   </div>
