@@ -3,11 +3,14 @@ package task
 import (
 	"strings"
 	"sync"
+
+	"github.com/samber/lo"
 )
 
 // a goroutine safe bytes.TermBuffer
 type TermBuffer struct {
-	lines []string
+	lines [][]byte
+	pos   int
 	mutex sync.Mutex
 }
 
@@ -17,17 +20,25 @@ func (s *TermBuffer) Write(p []byte) (n int, err error) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
-	str := string(p)
 	if s.lines == nil {
-		s.lines = make([]string, 1)
+		s.lines = make([][]byte, 0)
+		s.lines = append(s.lines, make([]byte, 0))
 	}
-	for _, c := range str {
+	for _, c := range p {
 		if c == '\n' {
-			s.lines = append(s.lines, "")
+			s.lines = append(s.lines, make([]byte, 0))
+			s.pos = 0
 		} else if c == '\r' {
-			s.lines[len(s.lines)-1] = ""
+			s.pos = 0
 		} else {
-			s.lines[len(s.lines)-1] += string(c)
+			lastLine := &s.lines[len(s.lines)-1]
+			if s.pos >= len(*lastLine) {
+				s.lines[len(s.lines)-1] = append(s.lines[len(s.lines)-1], c)
+				s.pos++
+			} else {
+				(*lastLine)[s.pos] = c
+				s.pos++
+			}
 		}
 
 	}
@@ -42,5 +53,7 @@ func (s *TermBuffer) String() string {
 	if s.lines == nil {
 		return ""
 	}
-	return strings.Join(s.lines, "\n")
+	return strings.Join(lo.Map(s.lines, func(i []byte, _ int) string {
+		return string(i)
+	}), "\n")
 }
