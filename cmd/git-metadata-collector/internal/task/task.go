@@ -115,7 +115,7 @@ func Collect(gitLink string, disableCollect bool) {
 		}
 		var msg **string
 		if e != nil {
-			msg = sqlutil.ToNullable(e.Error())
+			msg = sqlutil.ToNullable(e.Error() + "\nOutput:\n" + currentTask.Progress.String())
 		} else {
 			msg = sqlutil.ToData[*string](nil)
 		}

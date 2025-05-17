@@ -10,6 +10,7 @@ package collector
 import (
 	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
 
 	"github.com/HUSTSecLab/criticality_score/pkg/config"
@@ -25,7 +26,7 @@ import (
 func Collect(u *url.RepoURL, path string, progress io.Writer) (*gogit.Repository, error) {
 	_, err := Open(path)
 	if err != nil { // not exsists
-		r, err := Clone(u, path, progress)
+		r, err := CloneOutProcess(u, path, progress)
 		if err != nil {
 			logger.Errorf("Failed to Clone %s, %v", u.URL, err)
 		}
@@ -50,6 +51,55 @@ func EzCollect(u *url.RepoURL) (*gogit.Repository, error) {
 	return r, err
 }
 
+// clone use system git
+func CloneOutProcess(u *url.RepoURL, path string, progress io.Writer) (*gogit.Repository, error) {
+	// get parent path of the path
+	tmpPath := filepath.Dir(path)
+	if config.GetGitStoragePath() != "" {
+		tmpPath = config.GetGitStoragePath()
+	}
+
+	err := os.MkdirAll(filepath.Dir(path), 0777)
+	if err != nil {
+		return nil, err
+	}
+	tmpDir, err := os.MkdirTemp(
+		tmpPath,
+		"clone-tmp-",
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	defer os.RemoveAll(tmpDir)
+
+	cmd := exec.Command("git", "clone", "--mirror", "--progress", u.URL, tmpDir)
+	cmd.Env = append(os.Environ(), "GIT_TERMINAL_PROMPT=0")
+	cmd.Stderr = progress
+	cmd.Stdout = progress
+	devnull, _ := os.OpenFile(os.DevNull, os.O_WRONLY, 0755)
+	cmd.Stdin = devnull
+	err = cmd.Run()
+
+	if err != nil {
+		return nil, err
+	}
+
+	// If the path exists, remove it before moving the tmpDir
+	if _, err := os.Stat(path); err == nil {
+		if err := os.RemoveAll(path); err != nil {
+			return nil, err
+		}
+	}
+
+	if err = os.Rename(tmpDir, path); err != nil {
+		return nil, err
+	}
+
+	return Open(path)
+}
+
+// Very slow, USE CloneOutProcess Instead
 // only clone the repository, if it exists, return error
 func Clone(u *url.RepoURL, path string, progress io.Writer) (*gogit.Repository, error) {
 	// get parent path of the path
