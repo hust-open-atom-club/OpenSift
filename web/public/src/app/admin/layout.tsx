@@ -1,7 +1,7 @@
 "use client";
 import React from 'react';
 import { Breadcrumb, ConfigProvider, Layout, Menu, theme } from 'antd';
-import { usePathname } from 'next/navigation';
+import { redirect, usePathname } from 'next/navigation';
 import zhCN from "antd/locale/zh_CN"
 import Link from 'next/link';
 

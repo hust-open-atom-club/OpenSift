@@ -16,6 +16,7 @@
     "antd": "^5.23.3",
     "clsx": "^2.1.1",
     "next": "15.1.6",
+    "papaparse": "^5.5.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
@@ -23,6 +24,7 @@
     "@hey-api/client-fetch": "^0.8.1",
     "@hey-api/openapi-ts": "^0.64.1",
     "@types/node": "^20",
+    "@types/papaparse": "^5.3.16",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "postcss": "^8",
