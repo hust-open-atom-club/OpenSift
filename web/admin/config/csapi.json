@@ -1,0 +1,994 @@
+{
+    "schemes": [],
+    "swagger": "2.0",
+    "info": {
+        "description": "",
+        "title": "",
+        "contact": {},
+        "version": ""
+    },
+    "host": "",
+    "basePath": "/api/v1",
+    "paths": {
+        "/admin/gitfiles": {
+            "get": {
+                "summary": "Get Git File List",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Git link",
+                        "name": "link",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Filter, 0: no filter, 1: success, 2: fail, 3: never success",
+                        "name": "filter",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Skip count",
+                        "name": "skip",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Take count",
+                        "name": "take",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.PageDTO-model_GitFileDTO"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/gitfiles/manual": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "Append to collector manual list",
+                "parameters": [
+                    {
+                        "description": "Append manual request",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.GitFileAppendManualReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/gitfiles/start": {
+            "post": {
+                "description": "Starts the Git File collection process",
+                "summary": "Start Git File Collector",
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/gitfiles/status": {
+            "get": {
+                "summary": "Get git files statistics and collector status",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.GitFileStatusResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/gitfiles/stop": {
+            "post": {
+                "description": "Stops the Git File collection process",
+                "summary": "Stop Git File Collector",
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/session/github/callback": {
+            "get": {
+                "description": "Handles the GitHub OAuth callback and returns JWT token if user is authorized",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "GitHub OAuth callback",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "GitHub OAuth Code",
+                        "name": "code",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.GitHubCallbackResp"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/session/github/clientid": {
+            "get": {
+                "description": "Get github client id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Get github client id",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.GitHubClientIDResp"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/session/userinfo": {
+            "get": {
+                "description": "Returns the authenticated user's username and policy",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Get user information",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.UserInfoResp"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/toolset/instances": {
+            "get": {
+                "description": "获取所有运行中的工具实例的信息",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "toolset"
+                ],
+                "summary": "获取运行中的工具实例列表",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.ToolInstanceDTO"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "根据工具ID和参数创建并运行工具实例",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "toolset"
+                ],
+                "summary": "创建工具实例",
+                "parameters": [
+                    {
+                        "description": "工具实例创建参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.ToolCreateInstanceReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.ToolInstanceDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/toolset/instances/{id}/attach": {
+            "get": {
+                "description": "通过 WebSocket 方式 attach 到指定工具实例",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "toolset"
+                ],
+                "summary": "WebSocket 连接工具实例",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "实例ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "101": {
+                        "description": "WebSocket 连接已建立",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/toolset/instances/{id}/log": {
+            "get": {
+                "description": "获取指定工具实例的日志",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "toolset"
+                ],
+                "summary": "获取工具实例日志",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "实例ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {}
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/toolset/list": {
+            "get": {
+                "description": "获取所有可用工具的信息",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "toolset"
+                ],
+                "summary": "获取工具列表",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.ToolDTO"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/histories": {
+            "get": {
+                "description": "Get score histories by git link",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get score histories",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Git link",
+                        "name": "link",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Skip count",
+                        "name": "start",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Take count",
+                        "name": "take",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.PageDTO-model_ResultDTO"
+                        }
+                    }
+                }
+            }
+        },
+        "/rankings": {
+            "get": {
+                "description": "Get ranking results, optionally including all details",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get ranking results",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Skip count",
+                        "name": "start",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Take count",
+                        "name": "take",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Include details",
+                        "name": "detail",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.PageDTO-model_RankingResultDTO"
+                        }
+                    }
+                }
+            }
+        },
+        "/results": {
+            "get": {
+                "description": "Search score results by git link\nNOTE: All details are ignored, should use /results/:scoreid to get details\nNOTE: Maxium take count is 1000",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Search score results by git link",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Search query",
+                        "name": "q",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Skip count",
+                        "name": "start",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Take count",
+                        "name": "take",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.PageDTO-model_ResultDTO"
+                        }
+                    }
+                }
+            }
+        },
+        "/results/{scoreid}": {
+            "get": {
+                "description": "Get score results, including all details by scoreid",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get score results",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Score ID",
+                        "name": "scoreid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.ResultDTO"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "gin.H": {
+            "type": "object",
+            "additionalProperties": {}
+        },
+        "model.GitFileAppendManualReq": {
+            "type": "object",
+            "properties": {
+                "gitLink": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.GitFileDTO": {
+            "type": "object",
+            "properties": {
+                "failedTimes": {
+                    "type": "integer"
+                },
+                "filePath": {
+                    "type": "string"
+                },
+                "gitLink": {
+                    "type": "string"
+                },
+                "lastSuccess": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                },
+                "takeStorage": {
+                    "type": "integer"
+                },
+                "takeTimeMs": {
+                    "type": "integer"
+                },
+                "updateTime": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.GitFileStatisticsResultDTO": {
+            "type": "object",
+            "properties": {
+                "fail": {
+                    "type": "integer"
+                },
+                "neverSuccess": {
+                    "type": "integer"
+                },
+                "success": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.GitFileStatusResp": {
+            "type": "object",
+            "properties": {
+                "collector": {
+                    "$ref": "#/definitions/rpc.StatusResp"
+                },
+                "gitFile": {
+                    "$ref": "#/definitions/model.GitFileStatisticsResultDTO"
+                }
+            }
+        },
+        "model.GitHubCallbackResp": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.GitHubClientIDResp": {
+            "type": "object",
+            "properties": {
+                "clientId": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.PageDTO-model_GitFileDTO": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.GitFileDTO"
+                    }
+                },
+                "start": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.PageDTO-model_RankingResultDTO": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.RankingResultDTO"
+                    }
+                },
+                "start": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.PageDTO-model_ResultDTO": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.ResultDTO"
+                    }
+                },
+                "start": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.RankingResultDTO": {
+            "type": "object",
+            "properties": {
+                "distDetail": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.ResultDistDetailDTO"
+                    }
+                },
+                "distroScore": {
+                    "type": "number"
+                },
+                "gitDetail": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.ResultGitMetadataDTO"
+                    }
+                },
+                "gitScore": {
+                    "type": "number"
+                },
+                "langDetail": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.ResultLangDetailDTO"
+                    }
+                },
+                "langScore": {
+                    "type": "number"
+                },
+                "link": {
+                    "type": "string"
+                },
+                "ranking": {
+                    "type": "integer"
+                },
+                "score": {
+                    "type": "number"
+                },
+                "scoreID": {
+                    "type": "integer"
+                },
+                "updateTime": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.ResultDTO": {
+            "type": "object",
+            "properties": {
+                "distDetail": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.ResultDistDetailDTO"
+                    }
+                },
+                "distroScore": {
+                    "type": "number"
+                },
+                "gitDetail": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.ResultGitMetadataDTO"
+                    }
+                },
+                "gitScore": {
+                    "type": "number"
+                },
+                "langDetail": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.ResultLangDetailDTO"
+                    }
+                },
+                "langScore": {
+                    "type": "number"
+                },
+                "link": {
+                    "type": "string"
+                },
+                "score": {
+                    "type": "number"
+                },
+                "scoreID": {
+                    "type": "integer"
+                },
+                "updateTime": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.ResultDistDetailDTO": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "impact": {
+                    "type": "number"
+                },
+                "pageRank": {
+                    "type": "number"
+                },
+                "type": {
+                    "type": "integer"
+                },
+                "updateTime": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.ResultGitMetadataDTO": {
+            "type": "object",
+            "properties": {
+                "commitFrequency": {
+                    "type": "number"
+                },
+                "contributorCount": {
+                    "type": "integer"
+                },
+                "createdSince": {
+                    "type": "string"
+                },
+                "language": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "license": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "orgCount": {
+                    "type": "integer"
+                },
+                "updateTime": {
+                    "type": "string"
+                },
+                "updatedSince": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.ResultLangDetailDTO": {
+            "type": "object",
+            "properties": {
+                "depCount": {
+                    "type": "integer"
+                },
+                "langEcoImpact": {
+                    "type": "number"
+                },
+                "type": {
+                    "type": "integer"
+                },
+                "updateTime": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.ToolArgDTO": {
+            "type": "object",
+            "properties": {
+                "default": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Name is the name of the argument.",
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.ToolCreateInstanceReq": {
+            "type": "object",
+            "properties": {
+                "args": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "toolId": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.ToolDTO": {
+            "type": "object",
+            "properties": {
+                "args": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.ToolArgDTO"
+                    }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "description": "ID is the unique identifier for the toolset.",
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.ToolInstanceDTO": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "startTime": {
+                    "type": "string"
+                },
+                "tool": {
+                    "$ref": "#/definitions/model.ToolDTO"
+                }
+            }
+        },
+        "model.UserInfoResp": {
+            "type": "object",
+            "properties": {
+                "policy": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "rpc.RunningTaskDTO": {
+            "type": "object",
+            "properties": {
+                "link": {
+                    "type": "string"
+                },
+                "progress": {
+                    "type": "string"
+                },
+                "start": {
+                    "type": "string"
+                }
+            }
+        },
+        "rpc.StatusResp": {
+            "type": "object",
+            "properties": {
+                "currentTasks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/rpc.RunningTaskDTO"
+                    }
+                },
+                "isRunning": {
+                    "type": "boolean"
+                },
+                "pendingTasks": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}
