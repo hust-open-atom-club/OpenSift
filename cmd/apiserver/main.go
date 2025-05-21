@@ -6,6 +6,7 @@ import (
 	"github.com/HUSTSecLab/criticality_score/cmd/apiserver/docs"
 	"github.com/HUSTSecLab/criticality_score/cmd/apiserver/internal/controller"
 	"github.com/HUSTSecLab/criticality_score/cmd/apiserver/internal/server"
+	_ "github.com/HUSTSecLab/criticality_score/cmd/apiserver/internal/toolimpl"
 	"github.com/HUSTSecLab/criticality_score/pkg/config"
 	"github.com/HUSTSecLab/criticality_score/pkg/logger"
 	"github.com/spf13/pflag"
@@ -15,12 +16,12 @@ import (
 
 func main() {
 	var (
-		flagHost         = pflag.StringP("host", "H", "0.0.0.0", "apiserver host")
-		flagPort         = pflag.IntP("port", "p", 5000, "apiserver port")
-		flagCollectorRpc = pflag.StringP("collector-rpc", "r", "", "collector rpc address")
+		flagHost = pflag.StringP("host", "H", "0.0.0.0", "apiserver host")
+		flagPort = pflag.IntP("port", "p", 5000, "apiserver port")
 	)
 
 	config.RegistCommonFlags(pflag.CommandLine)
+	config.RegistRpcFlags(pflag.CommandLine, true, true)
 	config.ParseFlags(pflag.CommandLine)
 
 	logger.SetContext("apiserver")
@@ -28,7 +29,7 @@ func main() {
 
 	s := server.NewServer()
 	apiGroup := s.Group("/api/v1")
-	controller.Regist(apiGroup, *flagCollectorRpc)
+	controller.Regist(apiGroup)
 
 	docs.SwaggerInfo.BasePath = "/api/v1"
 	s.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))

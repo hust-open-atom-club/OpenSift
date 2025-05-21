@@ -152,6 +152,272 @@ const docTemplate = `{
                 }
             }
         },
+        "/admin/session/github/callback": {
+            "get": {
+                "description": "Handles the GitHub OAuth callback and returns JWT token if user is authorized",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "GitHub OAuth callback",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "GitHub OAuth Code",
+                        "name": "code",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.GitHubCallbackResp"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/session/github/clientid": {
+            "get": {
+                "description": "Get github client id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Get github client id",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.GitHubClientIDResp"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/session/userinfo": {
+            "get": {
+                "description": "Returns the authenticated user's username and policy",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Get user information",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.UserInfoResp"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/toolset/instances": {
+            "get": {
+                "description": "获取所有运行中的工具实例的信息",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "toolset"
+                ],
+                "summary": "获取运行中的工具实例列表",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.ToolInstanceDTO"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "根据工具ID和参数创建并运行工具实例",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "toolset"
+                ],
+                "summary": "创建工具实例",
+                "parameters": [
+                    {
+                        "description": "工具实例创建参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.ToolCreateInstanceReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.ToolInstanceDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/toolset/instances/{id}/attach": {
+            "get": {
+                "description": "通过 WebSocket 方式 attach 到指定工具实例",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "toolset"
+                ],
+                "summary": "WebSocket 连接工具实例",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "实例ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "101": {
+                        "description": "WebSocket 连接已建立",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/toolset/instances/{id}/log": {
+            "get": {
+                "description": "获取指定工具实例的日志",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "toolset"
+                ],
+                "summary": "获取工具实例日志",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "实例ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {}
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/toolset/list": {
+            "get": {
+                "description": "获取所有可用工具的信息",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "toolset"
+                ],
+                "summary": "获取工具列表",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.ToolDTO"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/histories": {
             "get": {
                 "description": "Get score histories by git link",
@@ -305,6 +571,10 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "gin.H": {
+            "type": "object",
+            "additionalProperties": {}
+        },
         "model.GitFileAppendManualReq": {
             "type": "object",
             "properties": {
@@ -370,6 +640,22 @@ const docTemplate = `{
                 },
                 "gitFile": {
                     "$ref": "#/definitions/model.GitFileStatisticsResultDTO"
+                }
+            }
+        },
+        "model.GitHubCallbackResp": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.GitHubClientIDResp": {
+            "type": "object",
+            "properties": {
+                "clientId": {
+                    "type": "string"
                 }
             }
         },
@@ -592,6 +878,83 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "updateTime": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.ToolArgDTO": {
+            "type": "object",
+            "properties": {
+                "default": {},
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Name is the name of the argument.",
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.ToolCreateInstanceReq": {
+            "type": "object",
+            "properties": {
+                "args": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "toolId": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.ToolDTO": {
+            "type": "object",
+            "properties": {
+                "args": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.ToolArgDTO"
+                    }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "description": "ID is the unique identifier for the toolset.",
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.ToolInstanceDTO": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "startTime": {
+                    "type": "string"
+                },
+                "tool": {
+                    "$ref": "#/definitions/model.ToolDTO"
+                }
+            }
+        },
+        "model.UserInfoResp": {
+            "type": "object",
+            "properties": {
+                "policy": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "username": {
                     "type": "string"
                 }
             }

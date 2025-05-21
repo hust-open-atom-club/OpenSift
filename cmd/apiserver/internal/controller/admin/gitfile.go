@@ -1,10 +1,11 @@
-package controller
+package admin
 
 import (
 	"slices"
 
 	"github.com/HUSTSecLab/criticality_score/cmd/apiserver/internal/model"
 	"github.com/HUSTSecLab/criticality_score/cmd/git-metadata-collector/rpc"
+	"github.com/HUSTSecLab/criticality_score/pkg/config"
 	"github.com/HUSTSecLab/criticality_score/pkg/logger"
 	"github.com/HUSTSecLab/criticality_score/pkg/storage"
 	"github.com/HUSTSecLab/criticality_score/pkg/storage/repository"
@@ -12,13 +13,17 @@ import (
 	"github.com/samber/lo"
 )
 
-var rpcAddress string
-
 // @Summary	Get git files statistics and collector status
 // @Router			/admin/gitfiles/status	[get]
 // @Success			200	{object}	model.GitFileStatusResp
 // @Failure			500	{string}	string
 func getGitFilesStatus(c *gin.Context) {
+	rpcAddress := config.GetRpcCollectorAddress()
+	if rpcAddress == "" {
+		c.JSON(500, "rpc address is not set")
+		return
+	}
+
 	r, err := rpc.NewRpcServiceClient(rpcAddress)
 
 	var collectorRet *rpc.StatusResp = nil
@@ -95,6 +100,12 @@ func getGitFilesList(c *gin.Context) {
 // @Accept			json
 // @Param           req  body    model.GitFileAppendManualReq  true "Append manual request"
 func appendGitFilesManualList(c *gin.Context) {
+	rpcAddress := config.GetRpcCollectorAddress()
+	if rpcAddress == "" {
+		c.JSON(500, "rpc address is not set")
+		return
+	}
+
 	r, err := rpc.NewRpcServiceClient(rpcAddress)
 	if err != nil {
 		c.JSON(500, "")
@@ -125,6 +136,12 @@ func appendGitFilesManualList(c *gin.Context) {
 // @Success      204 {string} string "No Content"
 // @Failure      500 {string} string "Internal Server Error"
 func startGitFileCollector(c *gin.Context) {
+	rpcAddress := config.GetRpcCollectorAddress()
+	if rpcAddress == "" {
+		c.JSON(500, "rpc address is not set")
+		return
+	}
+
 	r, err := rpc.NewRpcServiceClient(rpcAddress)
 	if err != nil {
 		c.JSON(500, "")
@@ -143,6 +160,11 @@ func startGitFileCollector(c *gin.Context) {
 // @Success      204 {string} string "No Content"
 // @Failure      500 {string} string "Internal Server Error"
 func stopGitFileCollector(c *gin.Context) {
+	rpcAddress := config.GetRpcCollectorAddress()
+	if rpcAddress == "" {
+		c.JSON(500, "rpc address is not set")
+		return
+	}
 	r, err := rpc.NewRpcServiceClient(rpcAddress)
 	if err != nil {
 		c.JSON(500, "")
@@ -155,13 +177,11 @@ func stopGitFileCollector(c *gin.Context) {
 	c.JSON(204, "")
 }
 
-func registAdmin(r gin.IRouter, rpcAddr string) {
-	rpcAddress = rpcAddr
-
-	r.GET("/admin/gitfiles", getGitFilesList)
-	r.GET("/admin/gitfiles/status", getGitFilesStatus)
-	r.POST("/admin/gitfiles/manual", appendGitFilesManualList)
-	r.POST("/admin/gitfiles/start", startGitFileCollector)
-	r.POST("/admin/gitfiles/stop", stopGitFileCollector)
+func registGitFile(r gin.IRoutes) {
+	r.GET("/gitfiles", getGitFilesList)
+	r.GET("/gitfiles/status", getGitFilesStatus)
+	r.POST("/gitfiles/manual", appendGitFilesManualList)
+	r.POST("/gitfiles/start", startGitFileCollector)
+	r.POST("/gitfiles/stop", stopGitFileCollector)
 	// TODO: Delete Repo, update stastics only
 }

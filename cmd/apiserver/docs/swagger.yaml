@@ -1,4 +1,7 @@
 definitions:
+  gin.H:
+    additionalProperties: {}
+    type: object
   model.GitFileAppendManualReq:
     properties:
       gitLink:
@@ -42,6 +45,16 @@ definitions:
         $ref: '#/definitions/rpc.StatusResp'
       gitFile:
         $ref: '#/definitions/model.GitFileStatisticsResultDTO'
+    type: object
+  model.GitHubCallbackResp:
+    properties:
+      token:
+        type: string
+    type: object
+  model.GitHubClientIDResp:
+    properties:
+      clientId:
+        type: string
     type: object
   model.PageDTO-model_GitFileDTO:
     properties:
@@ -189,6 +202,57 @@ definitions:
       updateTime:
         type: string
     type: object
+  model.ToolArgDTO:
+    properties:
+      default: {}
+      description:
+        type: string
+      name:
+        description: Name is the name of the argument.
+        type: string
+      type:
+        type: string
+    type: object
+  model.ToolCreateInstanceReq:
+    properties:
+      args:
+        additionalProperties: {}
+        type: object
+      toolId:
+        type: string
+    type: object
+  model.ToolDTO:
+    properties:
+      args:
+        items:
+          $ref: '#/definitions/model.ToolArgDTO'
+        type: array
+      description:
+        type: string
+      id:
+        description: ID is the unique identifier for the toolset.
+        type: string
+      name:
+        type: string
+    type: object
+  model.ToolInstanceDTO:
+    properties:
+      id:
+        type: string
+      startTime:
+        type: string
+      tool:
+        $ref: '#/definitions/model.ToolDTO'
+    type: object
+  model.UserInfoResp:
+    properties:
+      policy:
+        items:
+          type: string
+        type: array
+      username:
+        type: string
+    type: object
   rpc.RunningTaskDTO:
     properties:
       link:
@@ -302,6 +366,182 @@ paths:
           schema:
             type: string
       summary: Stop Git File Collector
+  /admin/session/github/callback:
+    get:
+      description: Handles the GitHub OAuth callback and returns JWT token if user
+        is authorized
+      parameters:
+      - description: GitHub OAuth Code
+        in: query
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.GitHubCallbackResp'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: GitHub OAuth callback
+      tags:
+      - admin
+  /admin/session/github/clientid:
+    get:
+      description: Get github client id
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.GitHubClientIDResp'
+      summary: Get github client id
+      tags:
+      - admin
+  /admin/session/userinfo:
+    get:
+      description: Returns the authenticated user's username and policy
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.UserInfoResp'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get user information
+      tags:
+      - admin
+  /admin/toolset/instances:
+    get:
+      description: 获取所有运行中的工具实例的信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.ToolInstanceDTO'
+            type: array
+      summary: 获取运行中的工具实例列表
+      tags:
+      - toolset
+    post:
+      consumes:
+      - application/json
+      description: 根据工具ID和参数创建并运行工具实例
+      parameters:
+      - description: 工具实例创建参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.ToolCreateInstanceReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ToolInstanceDTO'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: 创建工具实例
+      tags:
+      - toolset
+  /admin/toolset/instances/{id}/attach:
+    get:
+      description: 通过 WebSocket 方式 attach 到指定工具实例
+      parameters:
+      - description: 实例ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "101":
+          description: WebSocket 连接已建立
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: WebSocket 连接工具实例
+      tags:
+      - toolset
+  /admin/toolset/instances/{id}/log:
+    get:
+      description: 获取指定工具实例的日志
+      parameters:
+      - description: 实例ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema: {}
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: 获取工具实例日志
+      tags:
+      - toolset
+  /admin/toolset/list:
+    get:
+      description: 获取所有可用工具的信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.ToolDTO'
+            type: array
+      summary: 获取工具列表
+      tags:
+      - toolset
   /histories:
     get:
       consumes:

@@ -82,6 +82,26 @@ func RegistGithubTokenFlags(flag *pflag.FlagSet) {
 	viper.BindEnv("token.github", "GITHUB")
 }
 
+func RegistRpcFlags(flag *pflag.FlagSet, collector bool, workflow bool) {
+	if collector {
+		flag.String("rpc-collector", "", "")
+		viper.BindPFlag("rpc.collector", flag.Lookup("rpc-collector"))
+	}
+	if workflow {
+		flag.String("rpc-workflow", "", "")
+		viper.BindPFlag("rpc.workflow", flag.Lookup("rpc-workflow"))
+	}
+}
+
+func RegistWebFlags(flag *pflag.FlagSet) {
+	flag.String("web-github-oauth-client-id", "", "github oauth client id")
+	flag.String("web-github-oauth-client-secret", "", "github oauth client secret")
+	flag.String("web-tool-history-dir", "./tool_history", "tool history dir")
+	viper.BindPFlag("web.github-oauth-client", flag.Lookup("web-github-oauth-client-id"))
+	viper.BindPFlag("web.github-oauth-secret", flag.Lookup("web-github-oauth-client-secret"))
+	viper.BindPFlag("web.tool-history-dir", flag.Lookup("web-tool-history-dir"))
+}
+
 // include config file, database, log
 func RegistCommonFlags(flag *pflag.FlagSet) {
 	RegistConfigFileFlags(flag)

@@ -1,7 +1,10 @@
 package config
 
 import (
+	"fmt"
 	"os"
+	"strconv"
+	"strings"
 
 	"github.com/HUSTSecLab/criticality_score/pkg/logger"
 	"github.com/HUSTSecLab/criticality_score/pkg/storage"
@@ -102,4 +105,48 @@ func GetGithubToken() string {
 
 func GetGitStoragePath() string {
 	return viper.GetString("git.storage")
+}
+
+func GetRpcCollectorAddress() string {
+	return viper.GetString("rpc.collector")
+}
+
+func GetRpcWorkflowAddress() string {
+	return viper.GetString("rpc.workflow")
+}
+
+func addrToPort(addr string) (int, error) {
+	if addr == "" {
+		return 0, fmt.Errorf("address is not set")
+	}
+	strs := strings.Split(addr, ":")
+	portStr := strs[len(strs)-1]
+	if portStr == "" {
+		return 0, fmt.Errorf("port is not set")
+	}
+	port, err := strconv.Atoi(portStr)
+	if err != nil {
+		return 0, fmt.Errorf("port is not a number: %v", err)
+	}
+	return port, nil
+}
+
+func GetRpcCollectorPort() (int, error) {
+	addr := viper.GetString("rpc.collector")
+	return addrToPort(addr)
+}
+
+func GetRpcWorkflowPort() (int, error) {
+	addr := viper.GetString("rpc.workflow")
+	return addrToPort(addr)
+}
+
+func GetWebGitHubOAuth() (clientID, clientSecret string) {
+	clientID = viper.GetString("web.github-oauth-client")
+	clientSecret = viper.GetString("web.github-oauth-secret")
+	return clientID, clientSecret
+}
+
+func GetWebToolHistoryDir() string {
+	return viper.GetString("web.tool-history-dir")
 }
