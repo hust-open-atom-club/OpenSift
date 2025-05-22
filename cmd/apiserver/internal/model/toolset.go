@@ -18,6 +18,7 @@ type ToolDTO struct {
 	ID           string          `json:"id"`
 	Name         string          `json:"name"`
 	Description  string          `json:"description"`
+	Group        string          `json:"group"`
 	Args         []ToolArgDTO    `json:"args"`
 	AllowSignals []ToolSignalDTO `json:"allowedSignals"`
 }
@@ -70,6 +71,7 @@ func ToToolDTO(t *tool.Tool) *ToolDTO {
 		ID:          t.ID,
 		Name:        t.Name,
 		Description: t.Description,
+		Group:       t.Group,
 	}
 	tDTO.Args = lo.Map(t.Args, func(arg tool.ToolArg, _ int) ToolArgDTO {
 		return *ToToolArgDTO(&arg)

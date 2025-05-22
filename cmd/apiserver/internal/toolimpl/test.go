@@ -11,6 +11,7 @@ var testTool = &tool.Tool{
 	ID:          "862910f9-8ce0-4cd9-a26c-86f84a783967",
 	Name:        "测试工具",
 	Description: "该工具用于测试功能是否正常。",
+	Group:       "示例工具",
 	Args: []tool.ToolArg{
 		{Name: "arg1", Type: tool.ToolArgTypeString,
 			Description: "arg 1 desc", Default: "default"},
@@ -18,6 +19,8 @@ var testTool = &tool.Tool{
 			Description: "arg 2 desc", Default: 1},
 		{Name: "arg3", Type: tool.ToolArgTypeBool,
 			Description: "arg 3 desc", Default: true},
+		{Name: "arg4", Type: tool.ToolArgTypeFloat,
+			Description: "arg 4 desc", Default: 1.0},
 	},
 	Run: tool.CanioalizeWrapper(testImpl),
 }

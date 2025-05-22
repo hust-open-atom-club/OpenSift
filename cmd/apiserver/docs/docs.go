@@ -1034,6 +1034,9 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
+                "group": {
+                    "type": "string"
+                },
                 "id": {
                     "description": "ID is the unique identifier for the toolset.",
                     "type": "string"

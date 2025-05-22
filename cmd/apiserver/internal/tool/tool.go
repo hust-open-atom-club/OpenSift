@@ -10,6 +10,7 @@ type Tool struct {
 	ID           string
 	Name         string
 	Description  string
+	Group        string
 	Args         []ToolArg
 	AllowSignals []ToolSignal
 	Run          ToolRunner

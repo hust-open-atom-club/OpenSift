@@ -225,6 +225,7 @@ declare namespace API {
     allowedSignals?: ToolSignalDTO[];
     args?: ToolArgDTO[];
     description?: string;
+    group?: string;
     /** ID is the unique identifier for the toolset. */
     id?: string;
     name?: string;
