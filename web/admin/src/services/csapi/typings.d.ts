@@ -15,14 +15,25 @@ declare namespace API {
     code: string;
   };
 
-  type getAdminToolsetInstancesIdAttachParams = {
+  type getAdminToolsetInstancesIdLogParams = {
+    /** 实例ID */
+    id: string;
+    /** 是否获取所有日志，默认只获取最后1MB */
+    all?: boolean;
+  };
+
+  type getAdminToolsetInstancesIdParams = {
     /** 实例ID */
     id: string;
   };
 
-  type getAdminToolsetInstancesIdLogParams = {
-    /** 实例ID */
-    id: string;
+  type getAdminToolsetInstancesParams = {
+    /** 是否获取所有实例，默认只获取运行中的实例 */
+    all?: boolean;
+    /** 跳过的实例数量，默认0 */
+    skip?: number;
+    /** 获取的实例数量，默认10 */
+    take?: number;
   };
 
   type getHistoriesParams = {
@@ -95,6 +106,10 @@ declare namespace API {
 
   type H = true;
 
+  type KillToolInstanceReq = {
+    signal: number;
+  };
+
   type PageDTOModelGitFileDTO = {
     count?: number;
     items?: GitFileDTO[];
@@ -114,6 +129,18 @@ declare namespace API {
     items?: ResultDTO[];
     start?: number;
     total?: number;
+  };
+
+  type PageDTOModelToolInstanceHistoryDTO = {
+    count?: number;
+    items?: ToolInstanceHistoryDTO[];
+    start?: number;
+    total?: number;
+  };
+
+  type postAdminToolsetInstancesIdKillParams = {
+    /** 实例ID */
+    id: string;
   };
 
   type RankingResultDTO = {
@@ -182,7 +209,7 @@ declare namespace API {
   };
 
   type ToolArgDTO = {
-    default?: string;
+    default?: any;
     description?: string;
     /** Name is the name of the argument. */
     name?: string;
@@ -195,6 +222,7 @@ declare namespace API {
   };
 
   type ToolDTO = {
+    allowedSignals?: ToolSignalDTO[];
     args?: ToolArgDTO[];
     description?: string;
     /** ID is the unique identifier for the toolset. */
@@ -202,10 +230,23 @@ declare namespace API {
     name?: string;
   };
 
-  type ToolInstanceDTO = {
+  type ToolInstanceHistoryDTO = {
+    endTime?: string;
+    err?: string;
     id?: string;
+    isRunning?: boolean;
+    launchUserName?: string;
+    ret?: number;
     startTime?: string;
     tool?: ToolDTO;
+    toolId?: string;
+    toolName?: string;
+  };
+
+  type ToolSignalDTO = {
+    description?: string;
+    name?: string;
+    value?: number;
   };
 
   type UserInfoResp = {

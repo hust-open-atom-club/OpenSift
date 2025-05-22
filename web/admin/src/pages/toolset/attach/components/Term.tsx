@@ -6,9 +6,11 @@ import '@xterm/xterm/css/xterm.css'
 
 type Props = {
   id: string;
+  onTruncate?: () => void;
+  onRefresh?: () => void;
 }
 
-export default function Term({ id }: Props) {
+export default function Term({ id, onTruncate, onRefresh }: Props) {
 
   const ref = useRef<HTMLDivElement>(null);
   const instance = useRef<Terminal>();
@@ -69,9 +71,22 @@ export default function Term({ id }: Props) {
 
   }
 
+  const writeLocalMessage = (data: string) => {
+    if (!instance.current) return;
+    // write yellow background, black text
+    // if current line is not empty, add a new line
+    const cursorX = instance.current.buffer.active.cursorX;
+    if (cursorX > 0) {
+      instance.current.write("\r\n");
+    }
+
+    const d = "\x1b[43m\x1b[30m * " + data + "   \x1b[0m\r\n";
+    instance.current.write(d);
+  }
+
   useEffect(() => {
     if (!instance.current) return;
-    instance.current.writeln(`* Connecting to instance ${id} ...`)
+    writeLocalMessage(`Connecting to instance ${id} ...`)
     instance.current?.onData((data) => {
       const d = new TextEncoder().encode("\x00" + data);
       // console.log("[TERM DEBUG] on data", d);
@@ -103,11 +118,11 @@ export default function Term({ id }: Props) {
     };
     const onError = (e: Event) => {
       console.log("[TERM DEBUG] error", e);
-      instance.current?.writeln(`* Connection error occurred.`);
+      writeLocalMessage(`Connection error occurred.`);
     };
     const onClose = (e: Event) => {
       console.log("[TERM DEBUG] WebSocket connection closed", e);
-      instance.current?.writeln(`* Connection closed.`);
+      writeLocalMessage(`Connection closed.`);
     }
     const onMessage = (e: MessageEvent) => {
       // if data is Blob
@@ -115,15 +130,26 @@ export default function Term({ id }: Props) {
         const d = new Uint8Array(e.data);
         if (d[0] === 0x01 || d[0] === 0x02)
           instance.current?.write(d.slice(1));
+        if (d[0] === 0x09) {
+          writeLocalMessage(`Instance is not running, dumping logs...`);
+          const ww = d.slice(1);
+          const truncatedFlag = "truncated.";
+          if (ww.slice(0, truncatedFlag.length).toString() === truncatedFlag) {
+            writeLocalMessage(`The log is too long, truncated to 1MB.`);
+            onTruncate?.();
+          }
+          instance.current?.write(ww);
+        }
         if (d[0] === 0x06) {
           // d[1..5] is return code of big endian
           const code = d[1] << 24 | d[2] << 16 | d[3] << 8 | d[4];
           const errMessage = new TextDecoder().decode(d.slice(5));
-          let msg = `* Instance exited with code ${code}`
+          let msg = `Instance exited with code ${code}`
+          onRefresh?.();
           if (!!errMessage) {
             msg += `\n${errMessage}`;
           }
-          instance.current?.writeln(msg);
+          writeLocalMessage(msg);
           ws.close();
           socket.current = undefined;
         }

@@ -6,6 +6,9 @@ import (
 	"github.com/HUSTSecLab/criticality_score/cmd/apiserver/docs"
 	"github.com/HUSTSecLab/criticality_score/cmd/apiserver/internal/controller"
 	"github.com/HUSTSecLab/criticality_score/cmd/apiserver/internal/server"
+	"github.com/HUSTSecLab/criticality_score/cmd/apiserver/internal/tool"
+
+	// regist all tool implementations
 	_ "github.com/HUSTSecLab/criticality_score/cmd/apiserver/internal/toolimpl"
 	"github.com/HUSTSecLab/criticality_score/pkg/config"
 	"github.com/HUSTSecLab/criticality_score/pkg/logger"
@@ -26,6 +29,10 @@ func main() {
 
 	logger.SetContext("apiserver")
 	logger.Info("Start apiserver...")
+
+	// initialize tool
+	tool.OpenAndInitDB()
+	defer tool.CloseDB()
 
 	s := server.NewServer()
 	apiGroup := s.Group("/api/v1")

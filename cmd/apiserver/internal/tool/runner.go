@@ -1,13 +1,15 @@
 package tool
 
 import (
-	"encoding/json"
+	"io"
 	"os"
 	"path"
 	"time"
 
 	"github.com/HUSTSecLab/criticality_score/pkg/config"
+	"github.com/HUSTSecLab/criticality_score/pkg/logger"
 	"github.com/google/uuid"
+	"github.com/samber/lo"
 )
 
 type ResizeArg struct {
@@ -37,14 +39,27 @@ type ToolInstance struct {
 var runningInstances = make(map[string]*ToolInstance)
 
 type ToolInstanceHistory struct {
-	ID             string    `json:"id"`
-	ToolID         string    `json:"toolId"`
-	ToolName       string    `json:"toolName"`
-	LaunchUserName string    `json:"launchUserName"`
-	StartTime      time.Time `json:"startTime"`
-	EndTime        time.Time `json:"endTime"`
-	Ret            int       `json:"ret"`
-	Err            string    `json:"err"`
+	ID             string
+	ToolID         string
+	ToolName       string
+	LaunchUserName string
+	StartTime      *time.Time
+	EndTime        *time.Time
+	Ret            *int
+	Err            *string
+	// Not in database
+	IsRunning bool
+}
+
+func RunningInstanceToHistory(inst *ToolInstance) *ToolInstanceHistory {
+	return &ToolInstanceHistory{
+		ID:             inst.ID,
+		ToolID:         inst.Tool.ID,
+		ToolName:       inst.Tool.Name,
+		LaunchUserName: inst.LaunchUserName,
+		StartTime:      lo.ToPtr(inst.StartTime),
+		IsRunning:      true,
+	}
 }
 
 func CreateAndRun(tool *Tool, args map[string]any, launchUser string) (*ToolInstance, error) {
@@ -63,7 +78,6 @@ func CreateAndRun(tool *Tool, args map[string]any, launchUser string) (*ToolInst
 		return nil, err
 	}
 	logFileName := path.Join(dir, id+".log")
-	metaFileName := path.Join(dir, id+".json")
 
 	logFile, err := os.OpenFile(logFileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
@@ -95,15 +109,10 @@ func CreateAndRun(tool *Tool, args map[string]any, launchUser string) (*ToolInst
 		ToolID:         tool.ID,
 		ToolName:       tool.Name,
 		LaunchUserName: launchUser,
-		StartTime:      time.Now(),
+		StartTime:      lo.ToPtr(time.Now()),
 	}
 
-	// write meta to file
-	d, err := json.MarshalIndent(meta, "", "  ")
-	if err != nil {
-		return nil, err
-	}
-	err = os.WriteFile(metaFileName, d, 0644)
+	err = SaveToolInstanceHistory(meta)
 	if err != nil {
 		return nil, err
 	}
@@ -135,18 +144,16 @@ func CreateAndRun(tool *Tool, args map[string]any, launchUser string) (*ToolInst
 			Err error
 		}{ret, err}
 		close(inst.Result)
-		meta.EndTime = time.Now()
-		meta.Ret = ret
+		meta.EndTime = lo.ToPtr(time.Now())
+		meta.Ret = lo.ToPtr(ret)
 		if err != nil {
-			meta.Err = err.Error()
+			meta.Err = lo.ToPtr(err.Error())
 		}
 
-		// write meta to file
-		d, err := json.MarshalIndent(meta, "", "  ")
+		err = SaveToolInstanceHistory(meta)
 		if err != nil {
-			return
+			logger.Errorf("save tool instance history error: %v", err)
 		}
-		os.WriteFile(metaFileName, d, 0644)
 	}()
 	return inst, nil
 }
@@ -163,52 +170,78 @@ func GetRunningInstance(id string) (*ToolInstance, error) {
 	return inst, nil
 }
 
-func GetHistoryInstances() ([]*ToolInstanceHistory, error) {
-	dir := config.GetWebToolHistoryDir()
-	files, err := os.ReadDir(dir)
-
+func GetInstanceHistory(id string) (*ToolInstanceHistory, error) {
+	inst, ok := runningInstances[id]
+	if ok {
+		return RunningInstanceToHistory(inst), nil
+	}
+	item, err := QueryToolInstanceHistory(id)
 	if err != nil {
 		return nil, err
 	}
-
-	var instances []*ToolInstanceHistory
-	for _, file := range files {
-		if file.IsDir() {
-			continue
-		}
-		if path.Ext(file.Name()) != ".json" {
-			continue
-		}
-		fileName := path.Join(dir, file.Name())
-		data, err := os.ReadFile(fileName)
-		if err != nil {
-			return nil, err
-		}
-		var instance ToolInstanceHistory
-		err = json.Unmarshal(data, &instance)
-		if err != nil {
-			return nil, err
-		}
-		instances = append(instances, &instance)
+	if item == nil {
+		return nil, os.ErrNotExist
 	}
-	return instances, nil
+	return item, nil
 }
 
-func GetLog(id string) (string, error) {
+func GetInstanceHistories(running bool, skip, take int) ([]*ToolInstanceHistory, error) {
+	if running {
+		items := lo.MapToSlice(runningInstances, func(k string, v *ToolInstance) *ToolInstanceHistory {
+			return RunningInstanceToHistory(v)
+		})
+		return lo.Slice(items, skip, skip+take), nil
+	} else {
+		items, err := QueryToolInstancesHistoryOrderByStartTime(skip, take)
+		if err != nil {
+			return nil, err
+		}
+		// set IsRunning
+		for _, item := range items {
+			if _, ok := runningInstances[item.ID]; ok {
+				item.IsRunning = true
+			}
+		}
+		return items, nil
+	}
+}
+
+func GetLog(id string, all bool) ([]byte, error) {
 	dir := config.GetWebToolHistoryDir()
 	logFileName := path.Join(dir, id+".log")
 	logFile, err := os.OpenFile(logFileName, os.O_RDONLY, 0666)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	defer logFile.Close()
+	// if all is false and size > 1MB, return last 1MB
+	if !all {
+		fi, err := logFile.Stat()
+		if err != nil {
+			return nil, err
+		}
+		if fi.Size() > 1024*1024 {
+			_, err = logFile.Seek(-1024*1024, io.SeekEnd)
+			if err != nil {
+				return nil, err
+			}
+			// read last 1MB
+			data := make([]byte, 1024*1024)
+			_, err = logFile.Read(data)
+			if err != nil {
+				return nil, err
+			}
+			return append([]byte("truncated."), data...), nil
+		}
+	}
+	// read all
 	data, err := os.ReadFile(logFileName)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return string(data), nil
+	return data, nil
 }
 
-func (inst *ToolInstance) TerminateInstance() {
-	inst.Kill <- 2
+func (inst *ToolInstance) TerminateInstance(sig int) {
+	inst.Kill <- sig
 }

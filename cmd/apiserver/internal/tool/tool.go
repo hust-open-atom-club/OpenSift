@@ -7,11 +7,12 @@ import (
 type ToolRunner func(args map[string]any, in io.Reader, out io.Writer, kill chan int, resize chan ResizeArg) (int, error)
 
 type Tool struct {
-	ID          string
-	Name        string
-	Description string
-	Args        []ToolArg
-	Run         ToolRunner
+	ID           string
+	Name         string
+	Description  string
+	Args         []ToolArg
+	AllowSignals []ToolSignal
+	Run          ToolRunner
 }
 
 type ToolArgType string
@@ -28,6 +29,30 @@ type ToolArg struct {
 	Type        ToolArgType
 	Description string
 	Default     any
+}
+
+var (
+	ToolSignalTemplateKill = &ToolSignal{
+		Value:       9,
+		Name:        "SIGKILL",
+		Description: "强制杀死进程",
+	}
+	ToolSignalTemplateInt = &ToolSignal{
+		Value:       2,
+		Name:        "SIGINT",
+		Description: "CTRL+C 优雅退出",
+	}
+	ToolSignalTemplateTerm = &ToolSignal{
+		Value:       15,
+		Name:        "SIGTERM",
+		Description: "请求终止进程",
+	}
+)
+
+type ToolSignal struct {
+	Value       int
+	Name        string
+	Description string
 }
 
 var toolset = make(map[string]*Tool)

@@ -28,7 +28,7 @@ var upgrader = websocket.Upgrader{
 // @Router       /admin/toolset/list [get]
 func listTools(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, lo.Map(tool.GetToolList(), func(t *tool.Tool, _ int) model.ToolDTO {
-		return *model.ToolToToolDTO(t)
+		return *model.ToToolDTO(t)
 	}))
 }
 
@@ -39,7 +39,7 @@ func listTools(ctx *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param        data  body      model.ToolCreateInstanceReq  true  "工具实例创建参数"
-// @Success      200   {object}  model.ToolInstanceDTO
+// @Success      200   {object}  model.ToolInstanceHistoryDTO
 // @Failure      400   {object}  gin.H
 // @Failure      500   {object}  gin.H
 // @Router       /admin/toolset/instances [post]
@@ -63,7 +63,8 @@ func createInstance(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, model.ToolInstanceToToolInstanceDTO(inst))
+	ctx.JSON(http.StatusOK, model.ToToolInstanceHistoryDTO(
+		tool.RunningInstanceToHistory(inst)))
 }
 
 type websocketWriter struct {
@@ -94,6 +95,16 @@ func (w *websocketWriter) Write(p []byte) (n int, err error) {
 // @Failure      400  {object}  gin.H
 // @Failure      500  {object}  gin.H
 // @Router       /admin/toolset/instances/{id}/attach [get]
+
+// Web socket 报文格式
+// Binary Message
+// 第一个字节是消息类型
+// 0: 输入
+// 1：输出
+// 2：错误
+// 6：程序终止，1-4 字节状态码，后面为可选的错误信息
+// 7: resize， 1-4 字节宽度，5-8 字节高度
+// 9: 已经结束的实例的输出
 func attachInstance(ctx *gin.Context) {
 	type P struct {
 		ID string `uri:"id" binding:"required"`
@@ -106,7 +117,20 @@ func attachInstance(ctx *gin.Context) {
 
 	inst, err := tool.GetRunningInstance(p.ID)
 	if inst == nil || err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		if log, err := tool.GetLog(p.ID, false); err == nil {
+			// attach to dead instance
+			conn, err := upgrader.Upgrade(ctx.Writer, ctx.Request, nil)
+			if err != nil {
+				ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+			toSend := []byte{9}
+			toSend = append(toSend, log...)
+			conn.WriteMessage(websocket.BinaryMessage, toSend)
+			conn.Close()
+			return
+		}
+		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -119,14 +143,6 @@ func attachInstance(ctx *gin.Context) {
 
 	muWebsocket := &sync.Mutex{}
 
-	// 报文格式
-	// Binary Message
-	// 第一个字节是消息类型
-	// 0: 输入
-	// 1：输出
-	// 2：错误
-	// 6：程序终止，1-4 字节状态码，后面为可选的错误信息
-	// 7: resize， 1-4 字节宽度，5-8 字节高度
 	outputWriter := &websocketWriter{conn: conn, t: 1, mu: muWebsocket}
 	// errWriter := &websocketWriter{conn: conn, t: 2}
 	inst.Output.AddWriter(outputWriter)
@@ -154,7 +170,7 @@ func attachInstance(ctx *gin.Context) {
 		}
 	}()
 
-	log, _ := tool.GetLog(inst.ID)
+	log, _ := tool.GetLog(inst.ID, false)
 	outputWriter.Write([]byte(log))
 
 	// wait for disconnect
@@ -193,49 +209,177 @@ func attachInstance(ctx *gin.Context) {
 // @Tags         toolset
 // @Produce      json
 // @Param        id   path      string  true  "实例ID"
-// @Success      200  {object}  interface{}
+// @Param        all  query     bool    false "是否获取所有日志，默认只获取最后1MB"
+// @Success      200  {object}  []byte  "日志内容"
 // @Failure      400  {object}  gin.H
 // @Failure      500  {object}  gin.H
 // @Router       /admin/toolset/instances/{id}/log [get]
 func getLog(ctx *gin.Context) {
 	type P struct {
-		id string `uri:"id"`
+		ID string `uri:"id" binding:"required"`
+	}
+	type Q struct {
+		all bool `form:"all"`
 	}
 
-	var q P
-	if err := ctx.ShouldBindUri(&q); err != nil {
+	var p P
+	var q Q
+	if err := ctx.ShouldBindUri(&p); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if err := ctx.ShouldBindQuery(&q); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	log, err := tool.GetLog(q.id)
+	log, err := tool.GetLog(p.ID, q.all)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, log)
+	ctx.Data(http.StatusOK, "application/octet-stream", log)
 }
 
-// getRunningInstances godoc
+// getInstances godoc
 // @Summary      获取运行中的工具实例列表
 // @Description  获取所有运行中的工具实例的信息
+// @Param        all  query     bool    false "是否获取所有实例，默认只获取运行中的实例"
+// @Param        skip query     int     false "跳过的实例数量，默认0"
+// @Param        take query     int     false "获取的实例数量，默认10"
 // @Tags         toolset
 // @Produce      json
-// @Success      200  {array}   model.ToolInstanceDTO
+// @Success      200  {object}  model.PageDTO[model.ToolInstanceHistoryDTO]
 // @Router       /admin/toolset/instances [get]
-func getRunningInstances(ctx *gin.Context) {
-	instances := tool.GetRunningInstances()
-	ret := lo.MapToSlice(instances, func(k string, t *tool.ToolInstance) model.ToolInstanceDTO {
-		return *model.ToolInstanceToToolInstanceDTO(t)
+func getInstances(ctx *gin.Context) {
+	type Q struct {
+		All  bool `form:"all"`
+		Skip int  `form:"skip"`
+		Take int  `form:"take"`
+	}
+
+	var q = Q{
+		Skip: 0,
+		Take: 10,
+	}
+	if err := ctx.ShouldBindQuery(&q); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	var cnt int
+	if q.All {
+		var err error
+		cnt, err = tool.CountToolInstanceHistories()
+
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+	} else {
+		v := tool.GetRunningInstances()
+		cnt = len(v)
+	}
+
+	instances, err := tool.GetInstanceHistories(!q.All, q.Skip, q.Take)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ret := lo.Map(instances, func(i *tool.ToolInstanceHistory, _ int) model.ToolInstanceHistoryDTO {
+		return *model.ToToolInstanceHistoryDTO(i)
 	})
-	ctx.JSON(http.StatusOK, ret)
+	ctx.JSON(http.StatusOK, model.NewPageDTO(cnt, q.Skip, q.Take, ret))
+}
+
+// killInstance godoc
+// @Summary      杀死工具实例
+// @Description  杀死指定工具实例
+// @Tags         toolset
+// @Param        id   path      string  true  "实例ID"
+// @Param        data  body     model.KillToolInstanceReq  true  "工具实例杀死参数"
+// @Success      204  {object}  gin.H
+// @Failure      400  {object}  gin.H
+// @Failure      500  {object}  gin.H
+// @Router       /admin/toolset/instances/{id}/kill [post]
+func killInstance(ctx *gin.Context) {
+	type P struct {
+		ID string `uri:"id" binding:"required"`
+	}
+	var p P
+	if err := ctx.ShouldBindUri(&p); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	inst, err := tool.GetRunningInstance(p.ID)
+	if inst == nil || err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	var req model.KillToolInstanceReq
+
+	if err := ctx.ShouldBindBodyWithJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	ok := false
+
+	for _, sig := range inst.Tool.AllowSignals {
+		if sig.Value == req.Signal {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid signal"})
+		return
+	}
+
+	inst.Kill <- req.Signal
+	ctx.JSON(http.StatusNoContent, nil)
+}
+
+// getInstance godoc
+// @Summary      获取单个工具实例详情
+// @Description  获取指定ID的工具实例的详细信息
+// @Tags         toolset
+// @Produce      json
+// @Param        id   path      string  true  "实例ID"
+// @Success      200  {object}  model.ToolInstanceHistoryDTO
+// @Failure      400  {object}  gin.H
+// @Failure      404  {object}  gin.H
+// @Router       /admin/toolset/instances/{id} [get]
+func getInstance(ctx *gin.Context) {
+	type P struct {
+		ID string `uri:"id" binding:"required"`
+	}
+	var p P
+	if err := ctx.ShouldBindUri(&p); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	history, err := tool.GetInstanceHistory(p.ID)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "Instance not found"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, model.ToToolInstanceHistoryDTO(history))
 }
 
 func registToolset(e gin.IRoutes) {
 	e.GET("/toolset/list", listTools)
-	e.GET("/toolset/instances", getRunningInstances)
+	e.GET("/toolset/instances", getInstances)
 	e.POST("/toolset/instances", createInstance)
+	e.GET("/toolset/instances/:id", getInstance)
 	e.GET("/toolset/instances/:id/attach", attachInstance)
 	e.GET("/toolset/instances/:id/log", getLog)
+	e.POST("/toolset/instances/:id/kill", killInstance)
 }

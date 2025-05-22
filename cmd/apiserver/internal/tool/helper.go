@@ -10,6 +10,12 @@ import (
 	"github.com/creack/pty"
 )
 
+var ExternalCommandToolSignals = []ToolSignal{
+	*ToolSignalTemplateInt,
+	*ToolSignalTemplateTerm,
+	*ToolSignalTemplateKill,
+}
+
 func RunExternalCommand(args []string, env []string, in io.Reader, out io.Writer, kill chan int, resize chan ResizeArg) (int, error) {
 	cmd := exec.Command(args[0], args[1:]...)
 	cmd.Env = append(os.Environ(), env...)
@@ -42,8 +48,21 @@ func RunExternalCommand(args []string, env []string, in io.Reader, out io.Writer
 	}()
 
 	go func() {
-		<-kill
-		cmd.Process.Signal(os.Interrupt)
+		for {
+			select {
+			case <-done:
+				return
+			case sig := <-kill:
+				switch sig {
+				case 2:
+					cmd.Process.Signal(os.Interrupt)
+				case 15:
+					cmd.Process.Signal(os.Kill)
+				case 9:
+					cmd.Process.Signal(os.Kill)
+				}
+			}
+		}
 	}()
 
 	go func() {
@@ -61,11 +80,9 @@ func RunExternalCommand(args []string, env []string, in io.Reader, out io.Writer
 	}()
 
 	cmd.Wait()
-	// if done is listened, send a signal to exit
-	select {
-	case done <- struct{}{}:
-	default:
-	}
+	// close done, so that all listeners can receive empty
+	// messages and exit
+	close(done)
 	return 0, nil
 }
 

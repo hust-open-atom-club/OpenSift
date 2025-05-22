@@ -56,6 +56,13 @@ definitions:
       clientId:
         type: string
     type: object
+  model.KillToolInstanceReq:
+    properties:
+      signal:
+        type: integer
+    required:
+    - signal
+    type: object
   model.PageDTO-model_GitFileDTO:
     properties:
       count:
@@ -89,6 +96,19 @@ definitions:
       items:
         items:
           $ref: '#/definitions/model.ResultDTO'
+        type: array
+      start:
+        type: integer
+      total:
+        type: integer
+    type: object
+  model.PageDTO-model_ToolInstanceHistoryDTO:
+    properties:
+      count:
+        type: integer
+      items:
+        items:
+          $ref: '#/definitions/model.ToolInstanceHistoryDTO'
         type: array
       start:
         type: integer
@@ -223,6 +243,10 @@ definitions:
     type: object
   model.ToolDTO:
     properties:
+      allowedSignals:
+        items:
+          $ref: '#/definitions/model.ToolSignalDTO'
+        type: array
       args:
         items:
           $ref: '#/definitions/model.ToolArgDTO'
@@ -235,14 +259,37 @@ definitions:
       name:
         type: string
     type: object
-  model.ToolInstanceDTO:
+  model.ToolInstanceHistoryDTO:
     properties:
+      endTime:
+        type: string
+      err:
+        type: string
       id:
         type: string
+      isRunning:
+        type: boolean
+      launchUserName:
+        type: string
+      ret:
+        type: integer
       startTime:
         type: string
       tool:
         $ref: '#/definitions/model.ToolDTO'
+      toolId:
+        type: string
+      toolName:
+        type: string
+    type: object
+  model.ToolSignalDTO:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      value:
+        type: integer
     type: object
   model.UserInfoResp:
     properties:
@@ -433,15 +480,26 @@ paths:
   /admin/toolset/instances:
     get:
       description: 获取所有运行中的工具实例的信息
+      parameters:
+      - description: 是否获取所有实例，默认只获取运行中的实例
+        in: query
+        name: all
+        type: boolean
+      - description: 跳过的实例数量，默认0
+        in: query
+        name: skip
+        type: integer
+      - description: 获取的实例数量，默认10
+        in: query
+        name: take
+        type: integer
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/model.ToolInstanceDTO'
-            type: array
+            $ref: '#/definitions/model.PageDTO-model_ToolInstanceHistoryDTO'
       summary: 获取运行中的工具实例列表
       tags:
       - toolset
@@ -462,7 +520,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.ToolInstanceDTO'
+            $ref: '#/definitions/model.ToolInstanceHistoryDTO'
         "400":
           description: Bad Request
           schema:
@@ -474,36 +532,9 @@ paths:
       summary: 创建工具实例
       tags:
       - toolset
-  /admin/toolset/instances/{id}/attach:
+  /admin/toolset/instances/{id}:
     get:
-      description: 通过 WebSocket 方式 attach 到指定工具实例
-      parameters:
-      - description: 实例ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "101":
-          description: WebSocket 连接已建立
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/gin.H'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/gin.H'
-      summary: WebSocket 连接工具实例
-      tags:
-      - toolset
-  /admin/toolset/instances/{id}/log:
-    get:
-      description: 获取指定工具实例的日志
+      description: 获取指定ID的工具实例的详细信息
       parameters:
       - description: 实例ID
         in: path
@@ -515,7 +546,72 @@ paths:
       responses:
         "200":
           description: OK
-          schema: {}
+          schema:
+            $ref: '#/definitions/model.ToolInstanceHistoryDTO'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gin.H'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: 获取单个工具实例详情
+      tags:
+      - toolset
+  /admin/toolset/instances/{id}/kill:
+    post:
+      description: 杀死指定工具实例
+      parameters:
+      - description: 实例ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 工具实例杀死参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.KillToolInstanceReq'
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/gin.H'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: 杀死工具实例
+      tags:
+      - toolset
+  /admin/toolset/instances/{id}/log:
+    get:
+      description: 获取指定工具实例的日志
+      parameters:
+      - description: 实例ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 是否获取所有日志，默认只获取最后1MB
+        in: query
+        name: all
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 日志内容
+          schema:
+            items:
+              type: integer
+            type: array
         "400":
           description: Bad Request
           schema:

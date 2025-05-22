@@ -3,13 +3,21 @@
 import { request } from '@umijs/max';
 
 /** 获取运行中的工具实例列表 获取所有运行中的工具实例的信息 GET /admin/toolset/instances */
-export async function getAdminToolsetInstances(options?: {
-  [key: string]: any;
-}) {
-  return request<API.ToolInstanceDTO[]>('/admin/toolset/instances', {
-    method: 'GET',
-    ...(options || {}),
-  });
+export async function getAdminToolsetInstances(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getAdminToolsetInstancesParams,
+  options?: { [key: string]: any },
+) {
+  return request<API.PageDTOModelToolInstanceHistoryDTO>(
+    '/admin/toolset/instances',
+    {
+      method: 'GET',
+      params: {
+        ...params,
+      },
+      ...(options || {}),
+    },
+  );
 }
 
 /** 创建工具实例 根据工具ID和参数创建并运行工具实例 POST /admin/toolset/instances */
@@ -17,7 +25,7 @@ export async function postAdminToolsetInstances(
   body: API.ToolCreateInstanceReq,
   options?: { [key: string]: any },
 ) {
-  return request<API.ToolInstanceDTO>('/admin/toolset/instances', {
+  return request<API.ToolInstanceHistoryDTO>('/admin/toolset/instances', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -27,16 +35,38 @@ export async function postAdminToolsetInstances(
   });
 }
 
-/** WebSocket 连接工具实例 通过 WebSocket 方式 attach 到指定工具实例 GET /admin/toolset/instances/${param0}/attach */
-export async function getAdminToolsetInstancesIdAttach(
+/** 获取单个工具实例详情 获取指定ID的工具实例的详细信息 GET /admin/toolset/instances/${param0} */
+export async function getAdminToolsetInstancesId(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.getAdminToolsetInstancesIdAttachParams,
+  params: API.getAdminToolsetInstancesIdParams,
   options?: { [key: string]: any },
 ) {
   const { id: param0, ...queryParams } = params;
-  return request<any>(`/admin/toolset/instances/${param0}/attach`, {
-    method: 'GET',
+  return request<API.ToolInstanceHistoryDTO>(
+    `/admin/toolset/instances/${param0}`,
+    {
+      method: 'GET',
+      params: { ...queryParams },
+      ...(options || {}),
+    },
+  );
+}
+
+/** 杀死工具实例 杀死指定工具实例 POST /admin/toolset/instances/${param0}/kill */
+export async function postAdminToolsetInstancesIdKill(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.postAdminToolsetInstancesIdKillParams,
+  body: API.KillToolInstanceReq,
+  options?: { [key: string]: any },
+) {
+  const { id: param0, ...queryParams } = params;
+  return request<any>(`/admin/toolset/instances/${param0}/kill`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
     params: { ...queryParams },
+    data: body,
     ...(options || {}),
   });
 }
@@ -48,9 +78,11 @@ export async function getAdminToolsetInstancesIdLog(
   options?: { [key: string]: any },
 ) {
   const { id: param0, ...queryParams } = params;
-  return request<any>(`/admin/toolset/instances/${param0}/log`, {
+  return request<number[]>(`/admin/toolset/instances/${param0}/log`, {
     method: 'GET',
-    params: { ...queryParams },
+    params: {
+      ...queryParams,
+    },
     ...(options || {}),
   });
 }

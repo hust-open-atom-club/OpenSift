@@ -4,14 +4,22 @@ import (
 	"time"
 
 	"github.com/HUSTSecLab/criticality_score/cmd/apiserver/internal/tool"
+	"github.com/samber/lo"
 )
+
+type ToolSignalDTO struct {
+	Value       int    `json:"value"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
 
 type ToolDTO struct {
 	// ID is the unique identifier for the toolset.
-	ID          string       `json:"id"`
-	Name        string       `json:"name"`
-	Description string       `json:"description"`
-	Args        []ToolArgDTO `json:"args"`
+	ID           string          `json:"id"`
+	Name         string          `json:"name"`
+	Description  string          `json:"description"`
+	Args         []ToolArgDTO    `json:"args"`
+	AllowSignals []ToolSignalDTO `json:"allowedSignals"`
 }
 
 type ToolArgDTO struct {
@@ -27,14 +35,21 @@ type ToolCreateInstanceReq struct {
 	Args   map[string]any `json:"args"`
 }
 
-type ToolInstanceDTO struct {
-	ID        string    `json:"id"`
-	Tool      *ToolDTO  `json:"tool"`
-	StartTime time.Time `json:"startTime"`
+type ToolInstanceHistoryDTO struct {
+	ID             string     `json:"id"`
+	ToolID         string     `json:"toolId"`
+	ToolName       string     `json:"toolName"`
+	Tool           *ToolDTO   `json:"tool"`
+	LaunchUserName string     `json:"launchUserName"`
+	StartTime      *time.Time `json:"startTime"`
+	EndTime        *time.Time `json:"endTime"`
+	Ret            *int       `json:"ret"`
+	Err            *string    `json:"err"`
+	IsRunning      bool       `json:"isRunning"`
 }
 
-func ToolArgToToolArgDTO(arg tool.ToolArg) ToolArgDTO {
-	return ToolArgDTO{
+func ToToolArgDTO(arg *tool.ToolArg) *ToolArgDTO {
+	return &ToolArgDTO{
 		Name:        arg.Name,
 		Type:        string(arg.Type),
 		Default:     arg.Default,
@@ -42,25 +57,48 @@ func ToolArgToToolArgDTO(arg tool.ToolArg) ToolArgDTO {
 	}
 }
 
-func ToolToToolDTO(tool *tool.Tool) *ToolDTO {
-	toolDTO := &ToolDTO{
-		ID:          tool.ID,
-		Name:        tool.Name,
-		Description: tool.Description,
+func ToToolSignalDTO(signal *tool.ToolSignal) *ToolSignalDTO {
+	return &ToolSignalDTO{
+		Value:       signal.Value,
+		Name:        signal.Name,
+		Description: signal.Description,
 	}
-	if len(tool.Args) > 0 {
-		toolDTO.Args = make([]ToolArgDTO, len(tool.Args))
-		for i, arg := range tool.Args {
-			toolDTO.Args[i] = ToolArgToToolArgDTO(arg)
-		}
-	}
-	return toolDTO
 }
 
-func ToolInstanceToToolInstanceDTO(inst *tool.ToolInstance) *ToolInstanceDTO {
-	return &ToolInstanceDTO{
-		ID:        inst.ID,
-		Tool:      ToolToToolDTO(inst.Tool),
-		StartTime: inst.StartTime,
+func ToToolDTO(t *tool.Tool) *ToolDTO {
+	tDTO := &ToolDTO{
+		ID:          t.ID,
+		Name:        t.Name,
+		Description: t.Description,
 	}
+	tDTO.Args = lo.Map(t.Args, func(arg tool.ToolArg, _ int) ToolArgDTO {
+		return *ToToolArgDTO(&arg)
+	})
+	tDTO.AllowSignals = lo.Map(t.AllowSignals, func(signal tool.ToolSignal, _ int) ToolSignalDTO {
+		return *ToToolSignalDTO(&signal)
+	})
+
+	return tDTO
+}
+
+func ToToolInstanceHistoryDTO(inst *tool.ToolInstanceHistory) *ToolInstanceHistoryDTO {
+	tool, _ := tool.GetTool(inst.ToolID)
+	t := ToToolDTO(tool)
+
+	return &ToolInstanceHistoryDTO{
+		ID:             inst.ID,
+		ToolID:         inst.ToolID,
+		ToolName:       inst.ToolName,
+		Tool:           t,
+		LaunchUserName: inst.LaunchUserName,
+		StartTime:      inst.StartTime,
+		EndTime:        inst.EndTime,
+		Ret:            inst.Ret,
+		Err:            inst.Err,
+		IsRunning:      inst.IsRunning,
+	}
+}
+
+type KillToolInstanceReq struct {
+	Signal int `json:"signal" binding:"required"`
 }

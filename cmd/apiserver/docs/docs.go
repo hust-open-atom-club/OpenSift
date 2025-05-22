@@ -258,14 +258,31 @@ const docTemplate = `{
                     "toolset"
                 ],
                 "summary": "获取运行中的工具实例列表",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "是否获取所有实例，默认只获取运行中的实例",
+                        "name": "all",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "跳过的实例数量，默认0",
+                        "name": "skip",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "获取的实例数量，默认10",
+                        "name": "take",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/model.ToolInstanceDTO"
-                            }
+                            "$ref": "#/definitions/model.PageDTO-model_ToolInstanceHistoryDTO"
                         }
                     }
                 }
@@ -297,7 +314,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.ToolInstanceDTO"
+                            "$ref": "#/definitions/model.ToolInstanceHistoryDTO"
                         }
                     },
                     "400": {
@@ -315,16 +332,16 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/toolset/instances/{id}/attach": {
+        "/admin/toolset/instances/{id}": {
             "get": {
-                "description": "通过 WebSocket 方式 attach 到指定工具实例",
+                "description": "获取指定ID的工具实例的详细信息",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "toolset"
                 ],
-                "summary": "WebSocket 连接工具实例",
+                "summary": "获取单个工具实例详情",
                 "parameters": [
                     {
                         "type": "string",
@@ -335,10 +352,57 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "101": {
-                        "description": "WebSocket 连接已建立",
+                    "200": {
+                        "description": "OK",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/model.ToolInstanceHistoryDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/toolset/instances/{id}/kill": {
+            "post": {
+                "description": "杀死指定工具实例",
+                "tags": [
+                    "toolset"
+                ],
+                "summary": "杀死工具实例",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "实例ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "工具实例杀死参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.KillToolInstanceReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
                         }
                     },
                     "400": {
@@ -373,12 +437,23 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "是否获取所有日志，默认只获取最后1MB",
+                        "name": "all",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
-                        "schema": {}
+                        "description": "日志内容",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        }
                     },
                     "400": {
                         "description": "Bad Request",
@@ -659,6 +734,17 @@ const docTemplate = `{
                 }
             }
         },
+        "model.KillToolInstanceReq": {
+            "type": "object",
+            "required": [
+                "signal"
+            ],
+            "properties": {
+                "signal": {
+                    "type": "integer"
+                }
+            }
+        },
         "model.PageDTO-model_GitFileDTO": {
             "type": "object",
             "properties": {
@@ -709,6 +795,26 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/model.ResultDTO"
+                    }
+                },
+                "start": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.PageDTO-model_ToolInstanceHistoryDTO": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.ToolInstanceHistoryDTO"
                     }
                 },
                 "start": {
@@ -913,6 +1019,12 @@ const docTemplate = `{
         "model.ToolDTO": {
             "type": "object",
             "properties": {
+                "allowedSignals": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.ToolSignalDTO"
+                    }
+                },
                 "args": {
                     "type": "array",
                     "items": {
@@ -931,17 +1043,52 @@ const docTemplate = `{
                 }
             }
         },
-        "model.ToolInstanceDTO": {
+        "model.ToolInstanceHistoryDTO": {
             "type": "object",
             "properties": {
+                "endTime": {
+                    "type": "string"
+                },
+                "err": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
+                },
+                "isRunning": {
+                    "type": "boolean"
+                },
+                "launchUserName": {
+                    "type": "string"
+                },
+                "ret": {
+                    "type": "integer"
                 },
                 "startTime": {
                     "type": "string"
                 },
                 "tool": {
                     "$ref": "#/definitions/model.ToolDTO"
+                },
+                "toolId": {
+                    "type": "string"
+                },
+                "toolName": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.ToolSignalDTO": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "integer"
                 }
             }
         },
