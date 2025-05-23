@@ -10,6 +10,7 @@ package git
 import (
 	"errors"
 	"fmt"
+	"path/filepath"
 	"sort"
 	"strings"
 	"time"
@@ -20,6 +21,7 @@ import (
 	"github.com/HUSTSecLab/criticality_score/pkg/logger"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"
+	"github.com/google/licensecheck"
 )
 
 var (
@@ -30,11 +32,11 @@ var (
 )
 
 type Repo struct {
-	Name   string
-	Owner  string
-	Source string
-	URL    string
-	//*	Licenses []string
+	Name     string
+	Owner    string
+	Source   string
+	URL      string
+	Licenses []string
 	//* is_maintained bool
 	Languages        []string
 	Ecosystems       []string
@@ -48,11 +50,11 @@ type Repo struct {
 
 func NewRepo() Repo {
 	return Repo{
-		Name:   parser.UNKNOWN_NAME,
-		Owner:  parser.UNKNOWN_OWNER,
-		Source: parser.UNKNOWN_SOURCE,
-		URL:    parser.UNKNOWN_URL,
-		//*	Licenses:         nil,
+		Name:             parser.UNKNOWN_NAME,
+		Owner:            parser.UNKNOWN_OWNER,
+		Source:           parser.UNKNOWN_SOURCE,
+		URL:              parser.UNKNOWN_URL,
+		Licenses:         nil,
 		Languages:        nil,
 		Ecosystems:       nil,
 		CreatedSince:     parser.UNKNOWN_TIME,
@@ -63,8 +65,6 @@ func NewRepo() Repo {
 	}
 }
 
-/*
-* License Info is now disabled but preserved
 func GetLicense(f *object.File) (string, error) {
 	text, err := f.Contents()
 	if err != nil {
@@ -79,7 +79,6 @@ func GetLicense(f *object.File) (string, error) {
 
 	return license, nil
 }
-*/
 
 func getTopNKeys(m map[string]int64) []string {
 	keys := make([]string, 0, len(m))
@@ -138,7 +137,7 @@ func (repo *Repo) WalkLog(r *git.Repository) error {
 		e = strings.Split(c.Author.Email, "@")
 		org := e[len(e)-1]
 
-		//! It made sense that this `if`` statement is not necessary but sometimes there are errors
+		//! It made sense that this `if` statement is not necessary but sometimes there are errors
 		if created_since.After(c.Committer.When) {
 			created_since = c.Committer.When
 		}
@@ -151,6 +150,7 @@ func (repo *Repo) WalkLog(r *git.Repository) error {
 
 		return nil
 	})
+
 	if err != nil {
 		return err
 	}
@@ -185,19 +185,17 @@ func (repo *Repo) WalkRepo(r *git.Repository) error {
 
 	err = fIter.ForEach(func(f *object.File) error {
 		led.Parse(f)
-		/*
-			* License Info is now disabled but preserved
-			if repo.Licenses == nil {
-				if _, ok := parser.LICENSE_FILENAMES[filename]; ok {
-					license, err := GetLicense(f)
-					if err != nil {
-						logger.Error(err)
-					} else if license != "" {
-						repo.Licenses = []string{license}
-					}
+		filename := filepath.Base(f.Name)
+		if repo.Licenses == nil {
+			if _, ok := parser.LICENSE_FILENAMES[filename]; ok {
+				license, err := GetLicense(f)
+				if err != nil {
+					logger.Error(err)
+				} else if license != "" {
+					repo.Licenses = []string{license}
 				}
 			}
-		*/
+		}
 		return nil
 	})
 
@@ -218,7 +216,7 @@ func (repo *Repo) Show() {
 			"[%v]: %v    [%v]: %v    [%v]: %v\n"+
 			"[%v]: %v\n"+
 			"[%v]: %v\n"+
-			//* "[%v]: %v\n"+
+			"[%v]: %v\n"+
 			"[%v]: %v\n"+
 			"[%v]: %v\n"+
 			"[%v]: %v    [%v]: %v\n"+
@@ -226,7 +224,7 @@ func (repo *Repo) Show() {
 		"Repository Name", repo.Name,
 		"Source", repo.Source,
 		"Owner", repo.Owner,
-		//* "License", repo.Licenses,
+		"License", repo.Licenses,
 		"URL", repo.URL,
 		"Languages", repo.Languages,
 		"Ecosystems", repo.Ecosystems,

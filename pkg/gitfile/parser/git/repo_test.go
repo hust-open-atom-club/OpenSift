@@ -1,9 +1,3 @@
-/*
- * @Author: 7erry
- * @Date: 2024-08-31 03:50:13
- * @LastEditTime: 2025-01-07 19:01:54
- * @Description:
- */
 package git
 
 import (
