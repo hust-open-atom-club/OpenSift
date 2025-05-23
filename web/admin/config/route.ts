@@ -55,6 +55,11 @@ const routes: IBestAFSRoute[] = [
     access: "canViewGitFile"
   },
   {
+    name: "工作流",
+    path: "/workflow",
+    component: "workflow",
+  },
+  {
     name: "工具集",
     path: "/toolset",
     routes: [
