@@ -32,6 +32,9 @@ type LangEcoDeps struct {
 
 func NewLangEcoDeps(r *Repo) LangEcoDeps {
 	return LangEcoDeps{
+		languages:    map[string]int64{},
+		ecosystems:   map[string]int64{},
+		dependencies: map[*langeco.Package]*langeco.Dependencies{},
 		config: LangEcoConfig{
 			defaultName:    r.Source + r.Owner + r.Name,
 			defaultVersion: "NotFound",
