@@ -4,6 +4,8 @@ import (
 	"io"
 	"os"
 	"path"
+	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/HUSTSecLab/criticality_score/pkg/config"
@@ -209,6 +211,15 @@ func GetInstanceHistories(running bool, skip, take int) ([]*ToolInstanceHistory,
 func GetLog(id string, all bool) ([]byte, error) {
 	dir := config.GetWebToolHistoryDir()
 	logFileName := path.Join(dir, id+".log")
+	logFileName, err := filepath.Abs(logFileName)
+	if err != nil {
+		return nil, err
+	}
+	// check if filename exceeds the directory boundary
+	if !strings.HasPrefix(logFileName, dir) {
+		return nil, os.ErrNotExist
+	}
+
 	logFile, err := os.OpenFile(logFileName, os.O_RDONLY, 0666)
 	if err != nil {
 		return nil, err
