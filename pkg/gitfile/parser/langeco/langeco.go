@@ -4,8 +4,6 @@ import (
 	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser"
 )
 
-// ToDo Merge results from different files instead of choose a trusted one as final
-
 var (
 	SUPPORTED_ECOS = map[string]bool{
 		parser.NPM:   true,
@@ -13,6 +11,7 @@ var (
 		parser.MAVEN: true,
 		parser.CARGO: true,
 		parser.PYPI:  true,
+		parser.NUGET: true,
 	}
 
 	TRUSTED_FILES = map[string]string{
@@ -21,10 +20,13 @@ var (
 		parser.MAVEN: MAVEN_POM,
 		parser.CARGO: CARGO_TOML,
 		parser.PYPI:  PY_PROJECT,
+		parser.NUGET: NUGET_CONFIG, //* NUGET_PROPS
 	}
 )
 
 const (
+	NUGET_CONFIG        = "packages.config"
+	NUGET_PROPS         = "packages.props"
 	NPM_PACKAGE_LOCK    = "package-lock.json"
 	NODEJS_PACKAGE_JSON = "package.json"
 	GO_MOD              = "go.mod"
@@ -32,7 +34,7 @@ const (
 	MAVEN_POM           = "pom.xml"
 	CARGO_TOML          = "Cargo.toml"
 	CARGO_LOCK          = "Cargo.lock"
-	NUGET               = ""
+	DOT_NET             = "deps.json"
 	PY_PROJECT          = "pyproject.toml"
 	PY_REQUIREMENTS     = "requirements.txt"
 )
@@ -44,26 +46,3 @@ type Package struct {
 }
 
 type Dependencies []Package
-
-/*
-func ExactUniqueDependencies(ecoDeps *map[*Package]*Dependencies) {
-	eco := map[string]bool{}
-	pkg := map[string]bool{}
-	version := map[string]bool{}
-	for k, v := range *ecoDeps {
-		_, eok := eco[k.Eco]
-		_, pok := pkg[k.Name]
-		_, vok := version[k.Version]
-		if !eok {
-			eco[k.Eco] = true
-		}
-		if !pok {
-			eco[k.Name] = true
-		}
-		if !vok {
-			version[k.Version] = true
-		}
-
-	}
-}
-*/

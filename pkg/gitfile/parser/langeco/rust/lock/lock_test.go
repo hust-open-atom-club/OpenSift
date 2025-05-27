@@ -8,7 +8,7 @@ import (
 )
 
 func TestParse(t *testing.T) {
-	file, _ := os.Open("cargo.lock")
+	file, _ := os.Open("")
 	defer file.Close()
 	data, _ := io.ReadAll(file)
 	t.Run("Parse Cargo Lockfile", func(t *testing.T) {

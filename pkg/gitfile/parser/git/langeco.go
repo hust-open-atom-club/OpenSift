@@ -5,6 +5,8 @@ import (
 
 	parser "github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser"
 	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco"
+	dotnet "github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco/dornet"
+	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco/dornet/nuget"
 	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco/go/mod"
 	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco/go/sum"
 	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco/java/maven"
@@ -37,7 +39,7 @@ func NewLangEcoDeps(r *Repo) LangEcoDeps {
 		dependencies: map[*langeco.Package]*langeco.Dependencies{},
 		config: LangEcoConfig{
 			defaultName:    r.Source + r.Owner + r.Name,
-			defaultVersion: "NotFound",
+			defaultVersion: " ",
 			eco:            langeco.SUPPORTED_ECOS,
 		},
 	}
@@ -107,8 +109,10 @@ func (led *LangEcoDeps) getDependencies(file *object.File) {
 		pkg, deps, err = maven.Parse(content)
 	case langeco.PY_REQUIREMENTS:
 		pkg, deps, err = requirements.Parse(content)
-	//* case langeco.NUGET:
-	//*	return nuget.Parse(content)
+	case langeco.DOT_NET:
+		pkg, deps, err = dotnet.Parse(content)
+	case langeco.NUGET_CONFIG:
+		pkg, deps, err = nuget.Parse(content)
 	default:
 		return
 	}
@@ -121,6 +125,9 @@ func (led *LangEcoDeps) getDependencies(file *object.File) {
 	if pkg != nil {
 		if pkg.Name == "" {
 			pkg.Name = led.config.defaultName
+		}
+		if pkg.Version == "" {
+			pkg.Version = led.config.defaultVersion
 		}
 		led.dependencies[pkg] = deps
 		if v, ok := langeco.TRUSTED_FILES[eco]; ok && filename == v {

@@ -32,11 +32,11 @@ var (
 )
 
 type Repo struct {
-	Name     string
-	Owner    string
-	Source   string
-	URL      string
-	Licenses []string
+	Name    string
+	Owner   string
+	Source  string
+	URL     string
+	License []string
 	//* is_maintained bool
 	Languages        []string
 	Ecosystems       []string
@@ -54,7 +54,7 @@ func NewRepo() Repo {
 		Owner:            parser.UNKNOWN_OWNER,
 		Source:           parser.UNKNOWN_SOURCE,
 		URL:              parser.UNKNOWN_URL,
-		Licenses:         nil,
+		License:          nil,
 		Languages:        nil,
 		Ecosystems:       nil,
 		CreatedSince:     parser.UNKNOWN_TIME,
@@ -186,13 +186,13 @@ func (repo *Repo) WalkRepo(r *git.Repository) error {
 	err = fIter.ForEach(func(f *object.File) error {
 		led.Parse(f)
 		filename := filepath.Base(f.Name)
-		if repo.Licenses == nil {
+		if repo.License == nil {
 			if _, ok := parser.LICENSE_FILENAMES[filename]; ok {
 				license, err := GetLicense(f)
 				if err != nil {
 					logger.Error(err)
 				} else if license != "" {
-					repo.Licenses = []string{license}
+					repo.License = []string{license}
 				}
 			}
 		}
@@ -224,7 +224,7 @@ func (repo *Repo) Show() {
 		"Repository Name", repo.Name,
 		"Source", repo.Source,
 		"Owner", repo.Owner,
-		"License", repo.Licenses,
+		"License", repo.License,
 		"URL", repo.URL,
 		"Languages", repo.Languages,
 		"Ecosystems", repo.Ecosystems,
@@ -245,7 +245,6 @@ func ParseRepo(r *git.Repository) (*Repo, error) {
 		logger.Errorf("Failed to Get RepoURL for %v", err)
 		return nil, err
 	}
-
 	if u == "" {
 		return nil, errUrlNotFound
 	}

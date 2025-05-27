@@ -62,18 +62,15 @@ func Parse(content string) (*langeco.Package, *langeco.Dependencies, error) {
 			continue
 		}
 
-		// Take target libraries for RuntimeTarget
 		if targetLibs, ok := depsFile.Targets[depsFile.RuntimeTarget.Name]; !ok {
-			// If the target is not found, take all dependencies
 		} else if !isRuntimeLibrary(targetLibs, nameVer) {
-			// Skip non-runtime libraries
-			// cf. https://github.com/aquasecurity/trivy/pull/7039#discussion_r1674566823
 			continue
 		}
 
 		deps = append(deps, langeco.Package{
 			Name:    split[0],
 			Version: split[1],
+			Eco:     parser.DOTNET,
 		})
 	}
 

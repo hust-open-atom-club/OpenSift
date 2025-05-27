@@ -37,7 +37,7 @@ func Parse(contents string) (*langeco.Package, *langeco.Dependencies, error) {
 	var rootPkg *cargoPkg
 
 	for _, pkg := range lockfile.Packages {
-		if pkg.Source == "" {
+		if pkg.Source == "" && pkg.Dependencies != nil {
 			if rootPkg != nil {
 				return nil, nil, ErrMultiRootPkg
 			}
@@ -80,5 +80,3 @@ func Parse(contents string) (*langeco.Package, *langeco.Dependencies, error) {
 
 	return &pkg, &deps, nil
 }
-
-// ToDo Parsing Indirect dependencies is available but not necessary now

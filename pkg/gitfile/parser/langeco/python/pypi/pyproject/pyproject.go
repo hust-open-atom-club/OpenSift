@@ -104,6 +104,7 @@ func Parse(content string) (*langeco.Package, *langeco.Dependencies, error) {
 		deps = append(deps, langeco.Package{
 			Name:    name,
 			Version: version,
+			Eco:     parser.PYPI,
 		})
 	}
 

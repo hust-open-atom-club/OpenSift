@@ -88,6 +88,7 @@ func Parse(content string) (*langeco.Package, *langeco.Dependencies, error) {
 		deps = append(deps, langeco.Package{
 			Name:    s[0],
 			Version: s[1],
+			Eco:     parser.PYPI,
 		})
 	}
 
