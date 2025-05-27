@@ -56,10 +56,6 @@ func (n *WorkflowNode) newRunnintCtx(handler *runningHandler, opt *WorkflowStart
 	}, nil
 }
 
-func DefaultOutputFileNameFn(w *WorkflowNode) string {
-	return w.Name + ".log"
-}
-
 type WorkflowStartOption struct {
 	OutputDir         string
 	OutputFileNameFn  func(w *WorkflowNode) string
@@ -71,17 +67,17 @@ type WorkflowStartOption struct {
 func (n *WorkflowNode) AllUpToDate() (bool, error) {
 	seq, err := caculateBuildSequence(n, false)
 	if err != nil {
-		return false, err
+		return true, err
 	}
 	if len(seq) == 0 {
 		return true, nil
 	}
 	for _, stepNodes := range seq {
 		for range stepNodes {
-			return true, nil
+			return false, nil
 		}
 	}
-	return false, nil
+	return true, nil
 }
 
 func (n *WorkflowNode) StartWorkflow(opt *WorkflowStartOption) (RunningHandler, error) {

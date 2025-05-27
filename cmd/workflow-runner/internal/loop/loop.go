@@ -1,6 +1,8 @@
 package loop
 
 import (
+	"fmt"
+	"path"
 	"sync"
 	"time"
 
@@ -49,6 +51,10 @@ func StopCurrentJob(kill bool) {
 	}
 }
 
+func outputFileNameFn(w *workflow.WorkflowNode) string {
+	return w.Name + ".log"
+}
+
 func Loop() {
 	var err error
 	var rnd int
@@ -83,10 +89,11 @@ func Loop() {
 		}
 
 		handler, err = target.StartWorkflow(&workflow.WorkflowStartOption{
-			OutputDir:         config.GetWorkflowHistoryDir(),
+			OutputDir:         path.Join(config.GetWorkflowHistoryDir(), fmt.Sprintf("round_%d", rnd)),
+			OutputFileNameFn:  outputFileNameFn,
 			ArgsGetter:        nil, // TODO: args
 			RoundID:           rnd,
-			NeedUpdateDefault: true,
+			NeedUpdateDefault: false,
 		})
 
 		if err != nil {

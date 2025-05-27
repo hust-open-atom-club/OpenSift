@@ -150,8 +150,11 @@ func GetRound(id int) (*rpc.RoundDTO, error) {
 			return nil, err
 		}
 		// split deps
-		task.Dependencies = lo.Map(strings.Split(deps, ","), func(dep string, _ int) string {
+		task.Dependencies = lo.Filter(lo.Map(strings.Split(deps, ","), func(dep string, _ int) string {
 			return dep
+		}), func(dep string, k int) bool {
+			// filter out empty or whitespace dependencies
+			return strings.TrimSpace(dep) != ""
 		})
 		// append task to round
 		round.Tasks = append(round.Tasks, task)
@@ -165,18 +168,21 @@ func GetRound(id int) (*rpc.RoundDTO, error) {
 }
 
 func GetMaxRoundID() (int, error) {
-	var maxID int
+	var maxID *int
 	err := db.QueryRow(`
 	SELECT MAX(id)
 	FROM round
 	`).Scan(&maxID)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return 0, nil // no rounds found
+			return -1, nil // no rounds found
 		}
 		return 0, err
 	}
-	return maxID, nil
+	if maxID == nil {
+		return -1, nil // no rounds found
+	}
+	return *maxID, nil
 }
 
 func GetTask(roundID int, taskName string) (*rpc.TaskDTO, error) {

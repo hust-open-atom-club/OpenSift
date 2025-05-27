@@ -69,7 +69,7 @@ func WorkflowRunBefore(ctx *workflow.RunningCtx) error {
 
 	err := db.UpdateTask(ctx.RoundID, &rpc.TaskDTO{
 		Name:      ctx.Node.Name,
-		Args:      argsStr,
+		Args:      lo.ToPtr(argsStr),
 		Status:    rpc.TaskStatusRunning,
 		StartTime: lo.ToPtr(time.Now()),
 	})

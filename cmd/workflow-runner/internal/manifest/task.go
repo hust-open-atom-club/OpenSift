@@ -59,6 +59,7 @@ func initTasks() {
 	}
 
 	/** update distribution **/
+	setNodeDefaults(&taskUpdateDistruibution)
 	taskUpdateDistruibution.Name = "update-distribution"
 	taskUpdateDistruibution.Title = "更新发行版本"
 	taskUpdateDistruibution.Description = "更新发行版本中的软件信息"
@@ -69,6 +70,7 @@ func initTasks() {
 	}
 
 	/** sync git metrics **/
+	setNodeDefaults(&taskSyncGitMetrics)
 	taskSyncGitMetrics.Name = "sync-git-metrics"
 	taskSyncGitMetrics.Title = "同步 Git 指标"
 	taskSyncGitMetrics.Description = "将所有来源的 GitLink 汇总到 all_gitlinks 表中"
@@ -79,6 +81,7 @@ func initTasks() {
 	}
 
 	/** enumerate platforms **/
+	setNodeDefaults(&taskEnumeratePlatforms)
 	taskEnumeratePlatforms.Name = "enumerate-platforms"
 	taskEnumeratePlatforms.Title = "枚举平台"
 	taskEnumeratePlatforms.Description = "枚举各大 git 平台，包括 GitHub， GitLab 等，获取最新的 GitLink 信息"
@@ -89,24 +92,28 @@ func initTasks() {
 }
 
 func initSources() {
+	setNodeDefaults(&srcDistributionNeedUpdate)
 	srcDistributionNeedUpdate.Name = "src-distribution-need-update"
 	srcDistributionNeedUpdate.Title = "发行版本已更新"
 	srcDistributionNeedUpdate.Type = "source"
 	srcDistributionNeedUpdate.Description = "事件：发行版本已更新"
-	srcDistributionNeedUpdate.NeedUpdate = NeedUpdateWrapper(&srcDistributionNeedUpdate, time.Hour*24)
+	srcDistributionNeedUpdate.NeedUpdate = NeedUpdateWrapper(&srcDistributionNeedUpdate, time.Minute*1)
 
+	setNodeDefaults(&srcGitlinkNeedUpdate)
 	srcGitlinkNeedUpdate.Name = "src-gitlink-need-update"
 	srcGitlinkNeedUpdate.Title = "GitLink 已更新"
 	srcGitlinkNeedUpdate.Type = "source"
 	srcGitlinkNeedUpdate.Description = "事件：GitLink 已手动更新，这通常指的是发行版本的 GitLink 的更新"
 	srcGitlinkNeedUpdate.NeedUpdate = NeedUpdateWrapper(&srcGitlinkNeedUpdate, time.Hour*24)
 
+	setNodeDefaults(&srcGitPlatformNeedUpdate)
 	srcGitPlatformNeedUpdate.Name = "src-git-platform-need-update"
 	srcGitPlatformNeedUpdate.Title = "Git 平台已更新"
 	srcGitPlatformNeedUpdate.Type = "source"
 	srcGitPlatformNeedUpdate.Description = "事件：Git 平台已更新"
 	srcGitPlatformNeedUpdate.NeedUpdate = NeedUpdateWrapper(&srcGitPlatformNeedUpdate, time.Hour*24)
 
+	setNodeDefaults(&srcAllGitMetricsNeedUpdate)
 	srcAllGitMetricsNeedUpdate.Name = "src-all-git-metrics-need-update"
 	srcAllGitMetricsNeedUpdate.Title = "所有 Git 指标已更新"
 	srcAllGitMetricsNeedUpdate.Type = "source"

@@ -23,7 +23,7 @@ type TaskDTO struct {
 	Name         string     `json:"name"`
 	Title        string     `json:"title"`
 	Description  string     `json:"description"`
-	Args         string     `json:"args"`
+	Args         *string    `json:"args"`
 	Status       TaskStatus `json:"status"`
 	Type         string     `json:"type"`
 	Dependencies []string   `json:"dependencies"`
@@ -32,10 +32,10 @@ type TaskDTO struct {
 }
 
 type RoundDTO struct {
-	ID        string    `json:"id"`
-	StartTime time.Time `json:"startTime"`
-	EndTime   time.Time `json:"endTime"`
-	Tasks     []TaskDTO `json:"tasks"`
+	ID        string     `json:"id"`
+	StartTime *time.Time `json:"startTime"`
+	EndTime   *time.Time `json:"endTime"`
+	Tasks     []TaskDTO  `json:"tasks"`
 }
 
 type StopRunningReq struct {
