@@ -1,10 +1,3 @@
-/*
- * @Author: 7erry
- * @Date: 2024-09-29 14:41:35
- * @LastEditTime: 2025-03-03 17:50:44
- * @Description: Collect Git Repositories - Download and Read by go-git
- */
-
 package collector
 
 import (
