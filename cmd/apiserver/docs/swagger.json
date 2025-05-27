@@ -482,6 +482,207 @@
                 }
             }
         },
+        "/admin/workflows/kill": {
+            "post": {
+                "description": "杀死当前运行中的 workflow 任务",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "workflow"
+                ],
+                "summary": "杀死 workflow 任务",
+                "parameters": [
+                    {
+                        "description": "kill 参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.KillWorkflowJobReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/workflows/maxRounds": {
+            "get": {
+                "description": "获取当前最大的 workflow 轮次 ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "workflow"
+                ],
+                "summary": "获取最大 workflow 轮次 ID",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/rpc.RoundResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/workflows/rounds/{id}": {
+            "get": {
+                "description": "根据轮次 ID 获取 workflow 详情",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "workflow"
+                ],
+                "summary": "获取指定 workflow 轮次详情",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "轮次ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/rpc.RoundDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/workflows/status": {
+            "post": {
+                "description": "启动或停止 workflow 运行状态",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "workflow"
+                ],
+                "summary": "启动或停止 workflow",
+                "parameters": [
+                    {
+                        "description": "workflow 状态参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.UpdateWorkflowStatusReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/workflows/{id}/logs/{name}": {
+            "get": {
+                "description": "获取指定轮次和名称的 workflow 日志文件",
+                "produces": [
+                    "application/octet-stream"
+                ],
+                "tags": [
+                    "workflow"
+                ],
+                "summary": "获取 workflow 日志",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "轮次ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "日志名称",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/histories": {
             "get": {
                 "description": "Get score histories by git link",
@@ -731,6 +932,18 @@
             "properties": {
                 "signal": {
                     "type": "integer"
+                }
+            }
+        },
+        "model.KillWorkflowJobReq": {
+            "type": "object",
+            "required": [
+                "type"
+            ],
+            "properties": {
+                "type": {
+                    "description": "\"stop\" or \"kill\"",
+                    "type": "string"
                 }
             }
         },
@@ -1084,6 +1297,17 @@
                 }
             }
         },
+        "model.UpdateWorkflowStatusReq": {
+            "type": "object",
+            "required": [
+                "running"
+            ],
+            "properties": {
+                "running": {
+                    "type": "boolean"
+                }
+            }
+        },
         "model.UserInfoResp": {
             "type": "object",
             "properties": {
@@ -1095,6 +1319,34 @@
                 },
                 "username": {
                     "type": "string"
+                }
+            }
+        },
+        "rpc.RoundDTO": {
+            "type": "object",
+            "properties": {
+                "endTime": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "startTime": {
+                    "type": "string"
+                },
+                "tasks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/rpc.TaskDTO"
+                    }
+                }
+            }
+        },
+        "rpc.RoundResp": {
+            "type": "object",
+            "properties": {
+                "currentRound": {
+                    "type": "integer"
                 }
             }
         },
@@ -1131,6 +1383,56 @@
                     }
                 }
             }
+        },
+        "rpc.TaskDTO": {
+            "type": "object",
+            "properties": {
+                "args": {
+                    "type": "string"
+                },
+                "dependencies": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "endTime": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "startTime": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/rpc.TaskStatus"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "rpc.TaskStatus": {
+            "type": "string",
+            "enum": [
+                "pending",
+                "running",
+                "success",
+                "failed"
+            ],
+            "x-enum-varnames": [
+                "TaskStatusPending",
+                "TaskStatusRunning",
+                "TaskStatusSuccess",
+                "TaskStatusFailed"
+            ]
         }
     }
 }

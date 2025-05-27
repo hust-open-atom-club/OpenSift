@@ -63,6 +63,14 @@ definitions:
     required:
     - signal
     type: object
+  model.KillWorkflowJobReq:
+    properties:
+      type:
+        description: '"stop" or "kill"'
+        type: string
+    required:
+    - type
+    type: object
   model.PageDTO-model_GitFileDTO:
     properties:
       count:
@@ -293,6 +301,13 @@ definitions:
       value:
         type: integer
     type: object
+  model.UpdateWorkflowStatusReq:
+    properties:
+      running:
+        type: boolean
+    required:
+    - running
+    type: object
   model.UserInfoResp:
     properties:
       policy:
@@ -301,6 +316,24 @@ definitions:
         type: array
       username:
         type: string
+    type: object
+  rpc.RoundDTO:
+    properties:
+      endTime:
+        type: string
+      id:
+        type: string
+      startTime:
+        type: string
+      tasks:
+        items:
+          $ref: '#/definitions/rpc.TaskDTO'
+        type: array
+    type: object
+  rpc.RoundResp:
+    properties:
+      currentRound:
+        type: integer
     type: object
   rpc.RunningTaskDTO:
     properties:
@@ -324,6 +357,41 @@ definitions:
           type: string
         type: array
     type: object
+  rpc.TaskDTO:
+    properties:
+      args:
+        type: string
+      dependencies:
+        items:
+          type: string
+        type: array
+      description:
+        type: string
+      endTime:
+        type: string
+      name:
+        type: string
+      startTime:
+        type: string
+      status:
+        $ref: '#/definitions/rpc.TaskStatus'
+      title:
+        type: string
+      type:
+        type: string
+    type: object
+  rpc.TaskStatus:
+    enum:
+    - pending
+    - running
+    - success
+    - failed
+    type: string
+    x-enum-varnames:
+    - TaskStatusPending
+    - TaskStatusRunning
+    - TaskStatusSuccess
+    - TaskStatusFailed
 info:
   contact: {}
 paths:
@@ -640,6 +708,138 @@ paths:
       summary: 获取工具列表
       tags:
       - toolset
+  /admin/workflows/{id}/logs/{name}:
+    get:
+      description: 获取指定轮次和名称的 workflow 日志文件
+      parameters:
+      - description: 轮次ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 日志名称
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: 获取 workflow 日志
+      tags:
+      - workflow
+  /admin/workflows/kill:
+    post:
+      consumes:
+      - application/json
+      description: 杀死当前运行中的 workflow 任务
+      parameters:
+      - description: kill 参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.KillWorkflowJobReq'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: 杀死 workflow 任务
+      tags:
+      - workflow
+  /admin/workflows/maxRounds:
+    get:
+      description: 获取当前最大的 workflow 轮次 ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rpc.RoundResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: 获取最大 workflow 轮次 ID
+      tags:
+      - workflow
+  /admin/workflows/rounds/{id}:
+    get:
+      description: 根据轮次 ID 获取 workflow 详情
+      parameters:
+      - description: 轮次ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rpc.RoundDTO'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: 获取指定 workflow 轮次详情
+      tags:
+      - workflow
+  /admin/workflows/status:
+    post:
+      consumes:
+      - application/json
+      description: 启动或停止 workflow 运行状态
+      parameters:
+      - description: workflow 状态参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateWorkflowStatusReq'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: 启动或停止 workflow
+      tags:
+      - workflow
   /histories:
     get:
       consumes:

@@ -151,6 +151,10 @@ func GetWebToolHistoryDir() string {
 	return viper.GetString("web.tool-history-dir")
 }
 
+func GetWebWorkflowHistoryDir() string {
+	return viper.GetString("web.workflow-history-dir")
+}
+
 func GetWorkflowHistoryDir() string {
 	return viper.GetString("workflow.history-dir")
 }
