@@ -1,8 +1,9 @@
 import { Button, Result } from "antd";
-import { TaskNode } from "../FlowView/Canvas";
 import { ReactElement, ReactNode, useEffect, useState } from "react";
 import { formatTime } from "@/utils/format";
 import { JsonEditor } from "json-edit-react";
+
+type TaskNode = API.TaskDTO
 
 type Props = {
   node?: TaskNode;
@@ -27,7 +28,7 @@ export default function ({
   const [args, setArgs] = useState<string>(node?.args || "");
   useEffect(() => {
     if (node) {
-      setArgs(node.args);
+      setArgs(node.args || "");
     }
   }, [node]);
 
@@ -47,6 +48,7 @@ export default function ({
       <div className="mt-4">
         <h3 className="text-lg font-semibold">{node.title}</h3>
         <p className="text-sm text-gray-500">{node.description}</p>
+        <Desc title="节点 ID">{node.name}</Desc>
 
         {node.startTime && <Desc title="开始时间">{formatTime(node.startTime)}</Desc>}
         {node.endTime && <Desc title="结束时间">{formatTime(node.endTime)}</Desc>}
@@ -57,8 +59,8 @@ export default function ({
 
         <Desc title="节点类型"> {node.type} </Desc>
 
-        <Desc title="依赖节点"> {node.dependencies.length > 0 ? <ul className="list-disc pl-4">
-          {node.dependencies.map((dep) => <li key={dep} className="text-sm text-gray-500">{dep}</li>)}
+        <Desc title="依赖节点"> {(node.dependencies?.length || 0) > 0 ? <ul className="list-disc pl-4">
+          {node.dependencies?.map((dep) => <li key={dep} className="text-sm text-gray-500">{dep}</li>)}
         </ul> : '无'} </Desc>
 
         <Desc title="参数配置">

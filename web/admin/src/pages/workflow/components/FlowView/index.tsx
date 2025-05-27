@@ -1,7 +1,8 @@
 import { Button } from "antd";
-import Canvas, { CanvasAction, TaskNode } from "./Canvas";
+import Canvas, { CanvasAction } from "./Canvas";
 import React from "react";
 
+type TaskNode = API.TaskDTO
 
 type Props = {
   data?: TaskNode[];

@@ -36,6 +36,18 @@ declare namespace API {
     take?: number;
   };
 
+  type getAdminWorkflowsIdLogsNameParams = {
+    /** 轮次ID */
+    id: number;
+    /** 日志名称 */
+    name: string;
+  };
+
+  type getAdminWorkflowsRoundsIdParams = {
+    /** 轮次ID */
+    id: number;
+  };
+
   type getHistoriesParams = {
     /** Git link */
     link: string;
@@ -108,6 +120,11 @@ declare namespace API {
 
   type KillToolInstanceReq = {
     signal: number;
+  };
+
+  type KillWorkflowJobReq = {
+    /** "stop" or "kill" */
+    type: string;
   };
 
   type PageDTOModelGitFileDTO = {
@@ -196,6 +213,17 @@ declare namespace API {
     updateTime?: string;
   };
 
+  type RoundDTO = {
+    endTime?: string;
+    id?: string;
+    startTime?: string;
+    tasks?: TaskDTO[];
+  };
+
+  type RoundResp = {
+    currentRound?: number;
+  };
+
   type RunningTaskDTO = {
     link?: string;
     progress?: string;
@@ -207,6 +235,20 @@ declare namespace API {
     isRunning?: boolean;
     pendingTasks?: string[];
   };
+
+  type TaskDTO = {
+    args?: string;
+    dependencies?: string[];
+    description?: string;
+    endTime?: string;
+    name?: string;
+    startTime?: string;
+    status?: TaskStatus;
+    title?: string;
+    type?: string;
+  };
+
+  type TaskStatus = 'pending' | 'running' | 'success' | 'failed';
 
   type ToolArgDTO = {
     default?: any;
@@ -248,6 +290,10 @@ declare namespace API {
     description?: string;
     name?: string;
     value?: number;
+  };
+
+  type UpdateWorkflowStatusReq = {
+    running: boolean;
   };
 
   type UserInfoResp = {

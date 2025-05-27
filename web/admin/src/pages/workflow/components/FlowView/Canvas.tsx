@@ -2,17 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { Graph, GraphData } from "@antv/g6";
 // import { useWhyDidYouUpdate } from "ahooks";
 
-export type TaskNode = {
-  name: string;
-  title: string;
-  description: string;
-  args: string;
-  status: 'pending' | 'running' | 'success' | 'failed';
-  type: string;
-  dependencies: string[];
-  startTime?: string;
-  endTime?: string;
-}
+type TaskNode = API.TaskDTO
 
 export type CanvasAction = {
   relayout: () => void;
@@ -42,8 +32,10 @@ function getNodeHTML(data?: TaskNode, active?: boolean) {
   //   <button class="px-4 py-1 text-xs font-normal bg-white border border-gray-300 rounded-md shadow-sm hover:text-blue-600 hover:border-blue-600 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20 transition-colors">输出</button>
   // </div>
 
+  const icon = data?.type === 'source' ? '⏱️' : '';
+
   return `<div class="w-48 h-16 border flex justify-center flex-col border-l-8 ${borderClass} rounded-md shadow-sm bg-white p-2">
-            <h3 class="text-sm font-bold">${data?.title}</h3>
+            <h3 class="text-sm font-bold">${icon} ${data?.title}</h3>
             <div class="text-xs">当前状态：${statusStr}</div>
           </div>`
 
@@ -80,10 +72,10 @@ export default React.forwardRef<CanvasAction, Props>((props, ref) => {
     const edges = data.map((item, index) => ({
       ss: item.dependencies,
       t: item.name
-    })).flatMap((item) => item.ss.map((s) => ({
+    })).flatMap((item) => item.ss?.map((s) => ({
       source: s,
       target: item.t,
-    }))) as GraphData['edges'];
+    }))).filter(x => x !== undefined) as GraphData['edges'];
 
     return {
       nodes,
@@ -92,10 +84,13 @@ export default React.forwardRef<CanvasAction, Props>((props, ref) => {
   }
 
   const handleOnClick = (e: any) => {
-    let selected = undefined;
-    if (e && e.targetType === 'node' && e.target?.id) {
-      selected = data?.find((item => item.name === e.target.id));
-    }
+    // let selected = undefined;
+    // if (e && e.targetType === 'node' && e.target?.id) {
+    //   selected = data?.find((item => item.name === e.target.id));
+    // }
+    const nodes = graphRef.current?.getNodeData()
+    const selected = nodes?.find(item=>item.states?.includes('active'))?.data
+
     onSelect?.(selected);
   };
 
@@ -105,7 +100,7 @@ export default React.forwardRef<CanvasAction, Props>((props, ref) => {
     if (!graphRef.current) return;
     const graph = graphRef.current;
     graph.clear();
-    graph.addData(dataToGraphData(data));
+    graph.setData(dataToGraphData(data));
     graph.render();
   }, [data]);
 

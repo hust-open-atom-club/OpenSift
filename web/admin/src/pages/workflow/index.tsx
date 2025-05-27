@@ -1,37 +1,68 @@
 import { PageContainer } from "@ant-design/pro-components";
-import { Button, Select, Space } from "antd";
+import { Button, Popconfirm, Select, Space } from "antd";
 import FlowView from "./components/FlowView";
 import NodeConfig from "./components/NodeConfig";
 import { useState } from "react";
-import { TaskNode } from "./components/FlowView/Canvas";
+import { useRequest } from "ahooks";
+import { getAdminWorkflowsMaxRounds, getAdminWorkflowsRoundsId, postAdminWorkflowsStatus } from "@/services/csapi/workflow";
+import { SyncOutlined } from "@ant-design/icons";
 
-const d: TaskNode[] = [
-  { name: "dist_updated_0", title: "发行版已更新", description: "指示上游发行版已经更新的事件", args: "", status: "success", type: "event", dependencies: [] },
-  { name: "update_manual", title: "手动更新", description: "手动更新", args: "", status: "pending", type: "event", dependencies: [] },
-  { name: "debian", title: "更新 Debian 软件数据", description: "Debian 发行版", args: "", status: "success", type: "dist", dependencies: ["dist_updated_0"] },
-  { name: "ubuntu", title: "更新 Ubuntu 软件数据", description: "Ubuntu 发行版", args: "", status: "success", type: "dist", dependencies: ["dist_updated_0"] },
-  { name: "github", title: "枚举 GitHub 链接", description: "GitHub 代码仓库", args: "", status: "success", type: "repo", dependencies: ["dist_updated_0"] },
-  { name: "gitlab", title: "枚举 GitLab 链接", description: "GitLab 代码仓库", args: "", status: "success", type: "repo", dependencies: ["dist_updated_0"] },
-  { name: "analyze_dep_deps", title: "分析依赖关系", description: "", args: "", status: "success", type: "", dependencies: ["debian", "ubuntu", "github", "gitlab"] },
-  { name: "analyze_dist_deps", title: "分析发行版依赖关系", description: "", args: "", status: "failed", type: "", dependencies: ["union"] },
-  { name: "calc_score", title: "计算分数", description: "", args: "", status: "pending", type: "", dependencies: ["analyze_dist_deps"] },
-  { name: 'union', title: "合并结果", description: "合并结果", args: "", status: "success", type: "", dependencies: ["analyze_dep_deps", "debian", "ubuntu", "github", "gitlab", "update_manual"] }
-]
-
+type TaskNode = API.TaskDTO;
 
 export default function () {
   const [selected, setSelected] = useState<TaskNode | undefined>(undefined);
 
+  const [currentRound, setCurrentRound] = useState<number | string>("");
+
+  const { data: maxRound, run: runMaxRound } = useRequest(async () => {
+    const res = await getAdminWorkflowsMaxRounds();
+    setCurrentRound(res.currentRound || -1);
+    return res.currentRound || -1;
+  });
+
+  const { data: d, run } = useRequest(async () => {
+    let c = currentRound;
+    if (c === -1) return undefined;
+    if (typeof c === 'string') {
+      if (c === "next") {
+        return //TODO:
+      }
+      else { return }
+    }
+
+    const res = await getAdminWorkflowsRoundsId({ id: c });
+    return res;
+  }, {
+    refreshDeps: [currentRound],
+  })
+
+
 
   return <PageContainer extra={
     <Space>
-      <Select options={[{
-        label: "第 1 轮",
-        value: 1
-      }]} style={{ width: 150 }} placeholder="选择轮次" />
-      <Button>到最新轮次</Button>
-      <Button type="primary">刷新</Button>
-      <Button danger>停止运行</Button>
+      <Button icon={<SyncOutlined />} onClick={runMaxRound} />
+      <Select options={maxRound !== undefined ? new Array(maxRound).fill(0).map((_, k) => ({
+        label: `第 ${k + 1} 轮`,
+        value: k + 1
+      })) : []} value={currentRound} onChange={setCurrentRound} style={{ width: 150 }} placeholder="选择轮次" />
+      <Button onClick={() => {
+        if (maxRound === undefined) return;
+        setCurrentRound(maxRound);
+      }}>到最新轮次</Button>
+      <Button type="primary" onClick={run}>刷新</Button>
+      <Button onClick={async () => {
+        await postAdminWorkflowsStatus({
+          running: true,
+        });
+      }}>开始运行</Button>
+
+      <Popconfirm title="确定要停止当前轮次的所有任务吗？" placement="bottomLeft" onConfirm={async () => {
+        await postAdminWorkflowsStatus({
+          running: false,
+        });
+      }}>
+        <Button danger>停止运行</Button>
+      </Popconfirm>
 
     </Space>
 
@@ -43,7 +74,7 @@ export default function () {
       <div className="h-full" style={{
         width: "calc(100% - 320px)",
       }}>
-        <FlowView data={d} onSelect={setSelected} />
+        <FlowView data={d?.tasks} onSelect={setSelected} />
       </div>
       <div className="w-[320px] h-full">
         <NodeConfig node={selected} />
