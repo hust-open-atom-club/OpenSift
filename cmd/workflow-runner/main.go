@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/HUSTSecLab/criticality_score/cmd/workflow-runner/internal/db"
 	"github.com/HUSTSecLab/criticality_score/cmd/workflow-runner/internal/loop"
 	"github.com/HUSTSecLab/criticality_score/cmd/workflow-runner/internal/manifest"
 	"github.com/HUSTSecLab/criticality_score/cmd/workflow-runner/internal/rpcserver"
@@ -26,6 +27,7 @@ func main() {
 	config.RegistRpcFlags(pflag.CommandLine, false, true)
 	config.ParseFlags(pflag.CommandLine)
 
+	db.OpenAndInitDB()
 	manifest.InitManifests()
 
 	go func() {

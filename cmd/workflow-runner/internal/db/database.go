@@ -18,10 +18,10 @@ var db *sql.DB
 
 func OpenAndInitDB() {
 	// create dir if not exists
-	os.MkdirAll(config.GetWebToolHistoryDir(), 0755)
+	os.MkdirAll(config.GetWorkflowHistoryDir(), 0755)
 
 	// get sqlite db path
-	dbPath := path.Join(config.GetWebToolHistoryDir(), "history.db")
+	dbPath := path.Join(config.GetWorkflowHistoryDir(), "history.db")
 	// open db
 	var err error
 	db, err = sql.Open("sqlite3", dbPath)
@@ -35,9 +35,8 @@ func OpenAndInitDB() {
 	CREATE TABLE IF NOT EXISTS round (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		startTime TIMESTAMP,
-		endTime TIMESTAMP,
-
-	)
+		endTime TIMESTAMP
+	);
 	CREATE TABLE IF NOT EXISTS workflow (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		roundId INTEGER,
@@ -50,12 +49,13 @@ func OpenAndInitDB() {
 		dependency TEXT,
 		startTime TIMESTAMP,
 		endTime TIMESTAMP,
-		FOREIGN KEY (roundId) REFERENCES round(id)
-	)
+		-- foreign key constraint
+		FOREIGN KEY (roundId) REFERENCES round(id) ON DELETE CASCADE
+	);
 	CREATE TABLE IF NOT EXISTS cfg (
 		key TEXT PRIMARY KEY,
 		value TEXT
-	)`)
+	);`)
 	if err != nil {
 		panic(err)
 	}
