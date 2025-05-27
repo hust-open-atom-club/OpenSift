@@ -96,7 +96,7 @@ func getWorkflowByID(c *gin.Context) {
 // @Success      200   {file}    file
 // @Failure      400   {object}  string
 // @Failure      500   {object}  string
-// @Router       /admin/workflows/{id}/logs/{name} [get]
+// @Router       /admin/workflows/rounds/{id}/logs/{name} [get]
 func getWorkflowLogs(c *gin.Context) {
 	type P struct {
 		ID   int    `uri:"id" binding:"required"`
@@ -107,13 +107,20 @@ func getWorkflowLogs(c *gin.Context) {
 		c.JSON(400, "Invalid request: "+err.Error())
 		return
 	}
-	dir := config.GetWebToolHistoryDir()
-	filename, err := filepath.Abs(filepath.Join(dir, fmt.Sprintf("round_%d", p.ID), p.Name+".log"))
+	dir, err := filepath.Abs(config.GetWebWorkflowHistoryDir())
+
 	if err != nil {
 		c.JSON(500, "Failed to get absolute path: "+err.Error())
 		return
 	}
-	// check if exceed dir boundary
+
+	filename, err := filepath.Abs(filepath.Join(dir, fmt.Sprintf("round_%d", p.ID), p.Name+".log"))
+
+	if err != nil {
+		c.JSON(500, "Failed to get absolute path: "+err.Error())
+		return
+	}
+
 	if !strings.HasPrefix(filename, dir) {
 		c.JSON(400, "Invalid request: log file is not in the history directory")
 		return
@@ -211,7 +218,7 @@ func registWorkflow(g gin.IRoutes) {
 	g.GET("/workflows/maxRounds", getMaxWorkflowID)
 	// g.GET("/workflows/next", getNextWorkflow)
 	g.GET("/workflows/rounds/:id", getWorkflowByID)
-	g.GET("/workflows/:id/logs/:name", getWorkflowLogs)
+	g.GET("/workflows/rounds/:id/logs/:name", getWorkflowLogs)
 
 	g.POST("/workflows/status", updateWorkflowStatus)
 	g.POST("/workflows/kill", killWorkflowJob)

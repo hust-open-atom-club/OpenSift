@@ -2,10 +2,12 @@ import { Button, Result } from "antd";
 import { ReactElement, ReactNode, useEffect, useState } from "react";
 import { formatTime } from "@/utils/format";
 import { JsonEditor } from "json-edit-react";
+import { getToken } from "@/bearer";
 
 type TaskNode = API.TaskDTO
 
 type Props = {
+  round?: number | string;
   node?: TaskNode;
 }
 
@@ -23,6 +25,7 @@ function Desc({ title, children }: {
 
 
 export default function ({
+  round,
   node
 }: Props) {
   const [args, setArgs] = useState<string>(node?.args || "");
@@ -31,6 +34,15 @@ export default function ({
       setArgs(node.args || "");
     }
   }, [node]);
+
+  const downloadLog = () => {
+    const downloadUrl = `/api/v1/admin/workflows/rounds/${round}/logs/${node?.name}?auth_token=${encodeURIComponent("Bearer " + getToken())}`;
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.download = `${node?.name}-${round}-log.txt`;
+    document.body.appendChild(link);
+    link.click();
+  }
 
 
   return <div className="border shadow-lg rounded-lg ml-4 p-4 h-full overflow-auto">
@@ -83,10 +95,10 @@ export default function ({
             <Button block className="mt-2">保存配置</Button>
           </>
         </Desc>
-        <Desc title="日志输出位置"> stdout </Desc>
+        {/* <Desc title="日志输出位置"> stdout </Desc> */}
         <Desc title="操作">
-          <Button type="primary" block className="mb-2">查看输出</Button>
-          <Button danger block>停止执行</Button>
+          <Button type="primary" block onClick={downloadLog} className="mb-2">下载输出</Button>
+          {/* <Button danger block>停止执行</Button> */}
         </Desc>
 
       </div>)

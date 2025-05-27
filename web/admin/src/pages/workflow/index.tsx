@@ -77,7 +77,7 @@ export default function () {
         <FlowView data={d?.tasks} onSelect={setSelected} />
       </div>
       <div className="w-[320px] h-full">
-        <NodeConfig node={selected} />
+        <NodeConfig node={selected} round={currentRound} />
       </div>
     </div>
 

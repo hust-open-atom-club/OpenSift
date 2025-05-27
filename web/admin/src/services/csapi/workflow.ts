@@ -2,20 +2,6 @@
 /* eslint-disable */
 import { request } from '@umijs/max';
 
-/** 获取 workflow 日志 获取指定轮次和名称的 workflow 日志文件 GET /admin/workflows/${param0}/logs/${param1} */
-export async function getAdminWorkflowsIdLogsName(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.getAdminWorkflowsIdLogsNameParams,
-  options?: { [key: string]: any },
-) {
-  const { id: param0, name: param1, ...queryParams } = params;
-  return request<string>(`/admin/workflows/${param0}/logs/${param1}`, {
-    method: 'GET',
-    params: { ...queryParams },
-    ...(options || {}),
-  });
-}
-
 /** 杀死 workflow 任务 杀死当前运行中的 workflow 任务 POST /admin/workflows/kill */
 export async function postAdminWorkflowsKill(
   body: API.KillWorkflowJobReq,
@@ -49,6 +35,20 @@ export async function getAdminWorkflowsRoundsId(
 ) {
   const { id: param0, ...queryParams } = params;
   return request<API.RoundDTO>(`/admin/workflows/rounds/${param0}`, {
+    method: 'GET',
+    params: { ...queryParams },
+    ...(options || {}),
+  });
+}
+
+/** 获取 workflow 日志 获取指定轮次和名称的 workflow 日志文件 GET /admin/workflows/rounds/${param0}/logs/${param1} */
+export async function getAdminWorkflowsRoundsIdLogsName(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getAdminWorkflowsRoundsIdLogsNameParams,
+  options?: { [key: string]: any },
+) {
+  const { id: param0, name: param1, ...queryParams } = params;
+  return request<string>(`/admin/workflows/rounds/${param0}/logs/${param1}`, {
     method: 'GET',
     params: { ...queryParams },
     ...(options || {}),

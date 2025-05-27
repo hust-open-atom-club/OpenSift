@@ -209,9 +209,12 @@ func GetInstanceHistories(running bool, skip, take int) ([]*ToolInstanceHistory,
 }
 
 func GetLog(id string, all bool) ([]byte, error) {
-	dir := config.GetWebToolHistoryDir()
+	dir, err := filepath.Abs(config.GetWebToolHistoryDir())
+	if err != nil {
+		return nil, err
+	}
 	logFileName := path.Join(dir, id+".log")
-	logFileName, err := filepath.Abs(logFileName)
+	logFileName, err = filepath.Abs(logFileName)
 	if err != nil {
 		return nil, err
 	}

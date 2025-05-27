@@ -36,7 +36,7 @@ declare namespace API {
     take?: number;
   };
 
-  type getAdminWorkflowsIdLogsNameParams = {
+  type getAdminWorkflowsRoundsIdLogsNameParams = {
     /** 轮次ID */
     id: number;
     /** 日志名称 */

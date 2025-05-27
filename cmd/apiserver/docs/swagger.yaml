@@ -708,38 +708,6 @@ paths:
       summary: 获取工具列表
       tags:
       - toolset
-  /admin/workflows/{id}/logs/{name}:
-    get:
-      description: 获取指定轮次和名称的 workflow 日志文件
-      parameters:
-      - description: 轮次ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: 日志名称
-        in: path
-        name: name
-        required: true
-        type: string
-      produces:
-      - application/octet-stream
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: file
-        "400":
-          description: Bad Request
-          schema:
-            type: string
-        "500":
-          description: Internal Server Error
-          schema:
-            type: string
-      summary: 获取 workflow 日志
-      tags:
-      - workflow
   /admin/workflows/kill:
     post:
       consumes:
@@ -810,6 +778,38 @@ paths:
           schema:
             type: string
       summary: 获取指定 workflow 轮次详情
+      tags:
+      - workflow
+  /admin/workflows/rounds/{id}/logs/{name}:
+    get:
+      description: 获取指定轮次和名称的 workflow 日志文件
+      parameters:
+      - description: 轮次ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 日志名称
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: 获取 workflow 日志
       tags:
       - workflow
   /admin/workflows/status:
