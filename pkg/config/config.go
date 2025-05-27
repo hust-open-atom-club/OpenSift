@@ -150,3 +150,7 @@ func GetWebGitHubOAuth() (clientID, clientSecret string) {
 func GetWebToolHistoryDir() string {
 	return viper.GetString("web.tool-history-dir")
 }
+
+func GetWorkflowHistoryDir() string {
+	return viper.GetString("workflow.history-dir")
+}

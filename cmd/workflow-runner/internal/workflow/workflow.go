@@ -3,23 +3,26 @@ package workflow
 import (
 	"fmt"
 	"os"
-	"time"
 
 	"github.com/HUSTSecLab/criticality_score/pkg/logger"
 )
 
+type WorkflowRunFunc func(ctx *RunningCtx, stop chan struct{}, kill chan struct{}) error
+
 type WorkflowNode struct {
 	Name         string
+	Title        string
 	Description  string
+	Type         string
+	DefaultArgs  any
 	NeedUpdate   func() bool
-	RunBeforeCmd func() error
-	Cmd          []string
-	RunAfterCmd  func() error
-	LogPrefix    string
+	RunBefore    func(ctx *RunningCtx) error
+	Run          WorkflowRunFunc
+	RunAfter     func(ctx *RunningCtx, result error) error
 	Dependencies []*WorkflowNode
 }
 
-func (n *WorkflowNode) newRunnintCtx(handler *runningHandler, opt *WorkflowStartOption) (*runningCtx, error) {
+func (n *WorkflowNode) newRunnintCtx(handler *runningHandler, opt *WorkflowStartOption) (*RunningCtx, error) {
 	// make sure the output dir exists
 	err := os.MkdirAll(opt.OutputDir, 0755)
 	if err != nil {
@@ -36,43 +39,66 @@ func (n *WorkflowNode) newRunnintCtx(handler *runningHandler, opt *WorkflowStart
 		return nil, err
 	}
 
-	logger.Infof("Running %s, log file will save at %s", n.Name, logFilename)
+	logger.Infof("Context created for %s, log file will save at %s", n.Name, logFilename)
 
-	return &runningCtx{
-		loggerFile:     logfile,
-		flow:           n,
+	args := n.DefaultArgs
+
+	if opt.ArgsGetter != nil {
+		args = opt.ArgsGetter(n)
+	}
+
+	return &RunningCtx{
+		LoggerFile:     logfile,
+		Node:           n,
+		RoundID:        opt.RoundID,
+		Args:           args,
 		runningHandler: handler,
 	}, nil
 }
 
-const (
-	DefaultOutputDir = "logs"
-)
-
 func DefaultOutputFileNameFn(w *WorkflowNode) string {
-	return w.Name + "_" + time.Now().Format("2006-01-02-15-04-05") + ".log"
+	return w.Name + ".log"
 }
 
 type WorkflowStartOption struct {
 	OutputDir         string
 	OutputFileNameFn  func(w *WorkflowNode) string
+	ArgsGetter        func(*WorkflowNode) any
+	RoundID           int
 	NeedUpdateDefault bool
 }
 
-func (n *WorkflowNode) StartWorkflow(opt *WorkflowStartOption) (RunningHandler, error) {
-	if opt == nil {
-		opt = &WorkflowStartOption{
-			OutputDir:         DefaultOutputDir,
-			OutputFileNameFn:  DefaultOutputFileNameFn,
-			NeedUpdateDefault: false,
+func (n *WorkflowNode) AllUpToDate() (bool, error) {
+	seq, err := caculateBuildSequence(n, false)
+	if err != nil {
+		return false, err
+	}
+	if len(seq) == 0 {
+		return true, nil
+	}
+	for _, stepNodes := range seq {
+		for range stepNodes {
+			return true, nil
 		}
 	}
-	if opt.OutputDir == "" {
-		opt.OutputDir = DefaultOutputDir
+	return false, nil
+}
+
+func (n *WorkflowNode) StartWorkflow(opt *WorkflowStartOption) (RunningHandler, error) {
+	if opt == nil || opt.OutputDir == "" || opt.OutputFileNameFn == nil {
+		return nil, fmt.Errorf("invalid workflow start option")
 	}
-	if opt.OutputFileNameFn == nil {
-		opt.OutputFileNameFn = DefaultOutputFileNameFn
-	}
+
+	// if opt == nil {
+	// 	opt = &WorkflowStartOption{
+	// 		OutputDir:         path.Join(config.GetWorkflowHistoryDir(), fmt.Sprintf("round_%d", opt.RoundID)),
+	// 		OutputFileNameFn:  DefaultOutputFileNameFn,
+	// 		NeedUpdateDefault: false,
+	// 	}
+	// }
+	// if opt.OutputFileNameFn == nil {
+	// 	opt.OutputFileNameFn = DefaultOutputFileNameFn
+	// }
 
 	handler := newRunningHandler()
 
@@ -98,7 +124,7 @@ func (n *WorkflowNode) StartWorkflow(opt *WorkflowStartOption) (RunningHandler, 
 
 			// TODO: run in parallel
 			for _, node := range stepNodes {
-				if node.RunBeforeCmd == nil && node.RunAfterCmd == nil && node.Cmd == nil {
+				if node.RunBefore == nil && node.RunAfter == nil && node.Run == nil {
 					logger.Infof("Skip %s", node.Name)
 					continue
 				}
@@ -110,6 +136,16 @@ func (n *WorkflowNode) StartWorkflow(opt *WorkflowStartOption) (RunningHandler, 
 					return
 				}
 				err = ctx.Run()
+				select {
+				case <-handler.stop:
+					logger.Infof("Stopping workflow `%s` at node %s", n.Name, node.Name)
+					return
+				case <-handler.kill:
+					logger.Infof("Killing workflow `%s` at node %s", n.Name, node.Name)
+					return
+				default:
+				}
+
 				if err != nil {
 					logger.Errorf("Failed to run %s %v", node.Name, err)
 					handler.finish <- err
@@ -143,7 +179,7 @@ func caculateBuildSequence(node *WorkflowNode, defaultNeedUpdate bool) ([][]*Wor
 	for len(graph) > 0 {
 		// nodes with out degree 0 in this round
 		roundWorkflows := make([]*WorkflowNode, 0)
-		for node, _ := range graph {
+		for node := range graph {
 			if indegree[node] == 0 {
 				roundWorkflows = append(roundWorkflows, node)
 			}

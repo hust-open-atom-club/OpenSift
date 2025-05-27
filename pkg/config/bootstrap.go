@@ -102,6 +102,11 @@ func RegistWebFlags(flag *pflag.FlagSet) {
 	viper.BindPFlag("web.tool-history-dir", flag.Lookup("web-tool-history-dir"))
 }
 
+func RegistWorkflowRunnerFlags(flag *pflag.FlagSet) {
+	flag.String("workflow-runner-history-dir", "./workflow_history", "workflow history dir")
+	viper.BindPFlag("workflow.history-dir", flag.Lookup("workflow-runner-history-dir"))
+}
+
 // include config file, database, log
 func RegistCommonFlags(flag *pflag.FlagSet) {
 	RegistConfigFileFlags(flag)
