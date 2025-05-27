@@ -251,7 +251,11 @@ func ParseRepo(r *git.Repository) (*Repo, error) {
 
 	repo.URL = u
 
-	uu := url.ParseURL(u)
+	uu, err := url.ParseURL(u)
+	if err != nil {
+		logger.Errorf("Failed to Parse RepoURL for %v", err)
+		return nil, fmt.Errorf("failed to parse repo URL: %w", err)
+	}
 
 	if uu.Pathname == "" || uu.Resource == "" {
 		return nil, errPathNameNotFound

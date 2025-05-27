@@ -23,7 +23,7 @@ func TestGetURL(t *testing.T) {
 	}
 	for n, test := range tests {
 		t.Run(strconv.Itoa(n), func(t *testing.T) {
-			u := url.ParseURL(test.url)
+			u, _ := url.ParseURL(test.url)
 			r, err := collector.EzCollect(&u)
 			if err != nil {
 				t.Fatal(err)

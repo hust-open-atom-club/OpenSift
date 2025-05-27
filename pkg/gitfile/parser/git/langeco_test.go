@@ -37,7 +37,7 @@ func TestEco(t *testing.T) {
 	}
 	for n, test := range tests {
 		t.Run(strconv.Itoa(n), func(t *testing.T) {
-			u := url.ParseURL(test.input)
+			u, _ := url.ParseURL(test.input)
 			r, err := collector.EzCollect(&u)
 			if err != nil {
 				t.Fatal(err)
