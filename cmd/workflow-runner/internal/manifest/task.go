@@ -12,10 +12,9 @@ var (
 	taskSyncGitMetrics      workflow.WorkflowNode
 	taskEnumeratePlatforms  workflow.WorkflowNode
 
-	srcDistributionNeedUpdate  workflow.WorkflowNode
-	srcGitlinkNeedUpdate       workflow.WorkflowNode // triggered manually
-	srcGitPlatformNeedUpdate   workflow.WorkflowNode
-	srcAllGitMetricsNeedUpdate workflow.WorkflowNode
+	srcDistributionNeedUpdate workflow.WorkflowNode
+	srcGitlinkNeedUpdate      workflow.WorkflowNode // triggered manually
+	srcGitPlatformNeedUpdate  workflow.WorkflowNode
 )
 
 var tasks []*workflow.WorkflowNode = []*workflow.WorkflowNode{
@@ -26,7 +25,6 @@ var tasks []*workflow.WorkflowNode = []*workflow.WorkflowNode{
 	&srcDistributionNeedUpdate,
 	&srcGitlinkNeedUpdate,
 	&srcGitPlatformNeedUpdate,
-	&srcAllGitMetricsNeedUpdate,
 }
 
 func GetAllTasks() []*workflow.WorkflowNode {
@@ -97,7 +95,7 @@ func initSources() {
 	srcDistributionNeedUpdate.Title = "发行版本已更新"
 	srcDistributionNeedUpdate.Type = "source"
 	srcDistributionNeedUpdate.Description = "事件：发行版本已更新"
-	srcDistributionNeedUpdate.NeedUpdate = NeedUpdateWrapper(&srcDistributionNeedUpdate, time.Minute*1)
+	srcDistributionNeedUpdate.NeedUpdate = NeedUpdateWrapper(&srcDistributionNeedUpdate, time.Hour*24)
 
 	setNodeDefaults(&srcGitlinkNeedUpdate)
 	srcGitlinkNeedUpdate.Name = "src-gitlink-need-update"
@@ -112,13 +110,6 @@ func initSources() {
 	srcGitPlatformNeedUpdate.Type = "source"
 	srcGitPlatformNeedUpdate.Description = "事件：Git 平台已更新"
 	srcGitPlatformNeedUpdate.NeedUpdate = NeedUpdateWrapper(&srcGitPlatformNeedUpdate, time.Hour*24)
-
-	setNodeDefaults(&srcAllGitMetricsNeedUpdate)
-	srcAllGitMetricsNeedUpdate.Name = "src-all-git-metrics-need-update"
-	srcAllGitMetricsNeedUpdate.Title = "所有 Git 指标已更新"
-	srcAllGitMetricsNeedUpdate.Type = "source"
-	srcAllGitMetricsNeedUpdate.Description = "事件：所有 Git 指标已更新"
-	srcAllGitMetricsNeedUpdate.NeedUpdate = NeedUpdateWrapper(&srcAllGitMetricsNeedUpdate, time.Hour*24)
 
 }
 
