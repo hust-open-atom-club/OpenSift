@@ -55,6 +55,21 @@ const routes: IBestAFSRoute[] = [
     access: "canViewGitFile"
   },
   {
+    name: "数据标注",
+    path: "/label",
+    routes: [
+      {
+        path: "/label",
+        redirect: "/label/gitlink",
+      },
+      {
+        name: "发行版本链接",
+        path: "/label/gitlink",
+        component: "label/gitlink",
+      }
+    ]
+  },
+  {
     name: "工作流",
     path: "/workflow",
     component: "workflow",
@@ -78,8 +93,7 @@ const routes: IBestAFSRoute[] = [
         component: "toolset/attach",
       }
     ]
-
-  }
+  },
 ];
 
 export default routes;

@@ -147,6 +147,143 @@
                 }
             }
         },
+        "/admin/label/distributions": {
+            "get": {
+                "description": "根据发行版、链接、置信度等条件分页查询包列表",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "label"
+                ],
+                "summary": "查询发行版包列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "发行版名称",
+                        "name": "distribution",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "跳过数量",
+                        "name": "skip",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "返回数量",
+                        "name": "take",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "链接过滤",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "置信度过滤（0:全部, 1:已标注, 2:未标注）",
+                        "name": "confidence",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.PageDTO-model_DistributionPackageDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/label/distributions/all": {
+            "get": {
+                "description": "获取所有支持的发行版包前缀列表",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "label"
+                ],
+                "summary": "获取所有发行版包的前缀",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/label/distributions/gitlink": {
+            "put": {
+                "description": "更新指定发行版包的 Git 仓库链接和置信度",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "label"
+                ],
+                "summary": "更新发行版包的 Git 链接",
+                "parameters": [
+                    {
+                        "description": "Git 链接参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.UpdateDistributionGitLinkReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/admin/session/github/callback": {
             "get": {
                 "description": "Handles the GitHub OAuth callback and returns JWT token if user is authorized",
@@ -846,6 +983,29 @@
             "type": "object",
             "additionalProperties": {}
         },
+        "model.DistributionPackageDTO": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "gitLink": {
+                    "type": "string"
+                },
+                "homePage": {
+                    "type": "string"
+                },
+                "linkConfidence": {
+                    "type": "number"
+                },
+                "package": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
         "model.GitFileAppendManualReq": {
             "type": "object",
             "properties": {
@@ -950,6 +1110,26 @@
                 "type": {
                     "description": "\"stop\" or \"kill\"",
                     "type": "string"
+                }
+            }
+        },
+        "model.PageDTO-model_DistributionPackageDTO": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.DistributionPackageDTO"
+                    }
+                },
+                "start": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
                 }
             }
         },
@@ -1300,6 +1480,27 @@
                 },
                 "value": {
                     "type": "integer"
+                }
+            }
+        },
+        "model.UpdateDistributionGitLinkReq": {
+            "type": "object",
+            "required": [
+                "distribution",
+                "packageName"
+            ],
+            "properties": {
+                "confidence": {
+                    "type": "number"
+                },
+                "distribution": {
+                    "type": "string"
+                },
+                "link": {
+                    "type": "string"
+                },
+                "packageName": {
+                    "type": "string"
                 }
             }
         },

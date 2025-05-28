@@ -1,5 +1,5 @@
 import { PageContainer } from "@ant-design/pro-components";
-import { Button, Popconfirm, Select, Space } from "antd";
+import { Alert, Button, Popconfirm, Select, Space } from "antd";
 import FlowView from "./components/FlowView";
 import NodeConfig from "./components/NodeConfig";
 import { useState } from "react";
@@ -14,7 +14,7 @@ export default function () {
 
   const [currentRound, setCurrentRound] = useState<number | string>("");
 
-  const { data: maxRound, run: runMaxRound } = useRequest(async () => {
+  const { data: maxRound, run: runMaxRound, error } = useRequest(async () => {
     const res = await getAdminWorkflowsMaxRounds();
     setCurrentRound(res.currentRound || -1);
     return res.currentRound || -1;
@@ -40,10 +40,13 @@ export default function () {
 
   return <PageContainer extra={
     <Space>
+      {
+        error && <Alert message="获取轮次失败，可能是执行器离线" className="!py-1" type="error" showIcon />
+      }
       <Button icon={<SyncOutlined />} onClick={runMaxRound} />
-      <Select options={maxRound !== undefined ? new Array(maxRound).fill(0).map((_, k) => ({
-        label: `第 ${k + 1} 轮`,
-        value: k + 1
+      <Select virtual options={maxRound !== undefined ? new Array(maxRound).fill(0).map((_, k) => ({
+        label: `第 ${maxRound - k} 轮`,
+        value: maxRound - k,
       })) : []} value={currentRound} onChange={setCurrentRound} style={{ width: 150 }} placeholder="选择轮次" />
       <Button onClick={() => {
         if (maxRound === undefined) return;

@@ -105,4 +105,5 @@ func Regist(e gin.IRouter) {
 	registGitFile(w)
 	registToolset(w)
 	registWorkflow(w)
+	registLabel(w)
 }

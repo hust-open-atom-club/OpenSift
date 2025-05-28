@@ -1,4 +1,13 @@
 declare namespace API {
+  type DistributionPackageDTO = {
+    description?: string;
+    gitLink?: string;
+    homePage?: string;
+    linkConfidence?: number;
+    package?: string;
+    version?: string;
+  };
+
   type getAdminGitfilesParams = {
     /** Git link */
     link?: string;
@@ -8,6 +17,19 @@ declare namespace API {
     skip?: number;
     /** Take count */
     take?: number;
+  };
+
+  type getAdminLabelDistributionsParams = {
+    /** 发行版名称 */
+    distribution: string;
+    /** 跳过数量 */
+    skip?: number;
+    /** 返回数量 */
+    take?: number;
+    /** 链接过滤 */
+    search?: string;
+    /** 置信度过滤（0:全部, 1:已标注, 2:未标注） */
+    confidence?: number;
   };
 
   type getAdminSessionGithubCallbackParams = {
@@ -125,6 +147,13 @@ declare namespace API {
   type KillWorkflowJobReq = {
     /** "stop" or "kill" */
     type: string;
+  };
+
+  type PageDTOModelDistributionPackageDTO = {
+    count?: number;
+    items?: DistributionPackageDTO[];
+    start?: number;
+    total?: number;
   };
 
   type PageDTOModelGitFileDTO = {
@@ -290,6 +319,13 @@ declare namespace API {
     description?: string;
     name?: string;
     value?: number;
+  };
+
+  type UpdateDistributionGitLinkReq = {
+    confidence?: number;
+    distribution: string;
+    link?: string;
+    packageName: string;
   };
 
   type UpdateWorkflowStatusReq = {

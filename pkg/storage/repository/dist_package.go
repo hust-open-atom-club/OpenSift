@@ -2,6 +2,8 @@ package repository
 
 import (
 	"iter"
+	"strconv"
+	"strings"
 
 	"github.com/HUSTSecLab/criticality_score/pkg/storage"
 	"github.com/HUSTSecLab/criticality_score/pkg/storage/sqlutil"
@@ -11,6 +13,7 @@ type DistPackageRepository interface {
 	/** QUERY **/
 
 	Query() (iter.Seq[*DistPackage], error)
+	QueryWithFilter(confidenceFilter int, linkFilter string, skip, take int) (iter.Seq[*DistPackage], int, error)
 	GetByName(name string) (*DistPackage, error)
 	GetByGitLink(gitLink string) (iter.Seq[*DistPackage], error)
 
@@ -24,8 +27,7 @@ type DistPackageRepository interface {
 	// NOTE: git_link will be ignored
 	Update(packageInfos *DistPackage) error
 
-	UpdateGitLink(name, gitLink string) error
-
+	UpdateGitLink(name string, gitLink *string, confidence *float32) error
 	/** DELETE **/
 	Delete(name string) error
 	DeleteAll() error
@@ -50,12 +52,13 @@ const (
 )
 
 type DistPackage struct {
-	Downloads_3m *int
-	Package      *string `pk:"true"`
-	HomePage     *string `column:"homepage"`
-	Description  *string
-	Version      *string
-	GitLink      *string
+	Downloads_3m   *int
+	Package        *string `pk:"true"`
+	HomePage       *string `column:"homepage"`
+	Description    *string
+	Version        *string
+	GitLink        *string
+	LinkConfidence **float32
 }
 
 type distPackageRepository struct {
@@ -127,7 +130,45 @@ func (d *distPackageRepository) Update(packageInfos *DistPackage) error {
 }
 
 // UpdateGitLink implements DistPackageRepository.
-func (d *distPackageRepository) UpdateGitLink(name string, gitLink string) error {
-	_, err := d.ctx.Exec("UPDATE "+string(d.prefix)+DistPackageTableNameAppendix+" SET git_link = $1 WHERE package = $2", gitLink, name)
+func (d *distPackageRepository) UpdateGitLink(name string, gitLink *string, confidence *float32) error {
+	_, err := d.ctx.Exec("UPDATE "+string(d.prefix)+DistPackageTableNameAppendix+" SET git_link = $1, link_confidence = $2 WHERE package = $3", gitLink, confidence, name)
 	return err
+}
+
+func (d *distPackageRepository) QueryWithFilter(confidenceFilter int, linkFilter string, skip, take int) (iter.Seq[*DistPackage], int, error) {
+	query := "SELECT * FROM " + string(d.prefix) + DistPackageTableNameAppendix
+	cntQuery := "SELECT COUNT(*) FROM " + string(d.prefix) + DistPackageTableNameAppendix
+	whereClauses := []string{}
+	args := []any{}
+	placeHolder := 1
+
+	if confidenceFilter == 1 {
+		whereClauses = append(whereClauses, "link_confidence <> 1")
+	} else if confidenceFilter == 2 {
+		whereClauses = append(whereClauses, "link_confidence = 1")
+	}
+
+	if linkFilter != "" {
+		whereClauses = append(whereClauses, "git_link LIKE '%' || $"+strconv.Itoa(placeHolder)+" || '%'")
+		placeHolder++
+		args = append(args, linkFilter)
+	}
+
+	if len(whereClauses) > 0 {
+		query += " WHERE " + strings.Join(whereClauses, " AND ")
+		cntQuery += " WHERE " + strings.Join(whereClauses, " AND ")
+	}
+	var cnt int
+	err := d.ctx.QueryRow(cntQuery, args...).Scan(&cnt)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	query += " ORDER BY package LIMIT $" + strconv.Itoa(placeHolder) + " OFFSET $" + strconv.Itoa(placeHolder+1)
+	args = append(args, take, skip)
+	placeHolder += 2
+
+	res, err := sqlutil.Query[DistPackage](d.ctx, query, args...)
+
+	return res, cnt, err
 }

@@ -2,6 +2,21 @@ definitions:
   gin.H:
     additionalProperties: {}
     type: object
+  model.DistributionPackageDTO:
+    properties:
+      description:
+        type: string
+      gitLink:
+        type: string
+      homePage:
+        type: string
+      linkConfidence:
+        type: number
+      package:
+        type: string
+      version:
+        type: string
+    type: object
   model.GitFileAppendManualReq:
     properties:
       gitLink:
@@ -70,6 +85,19 @@ definitions:
         type: string
     required:
     - type
+    type: object
+  model.PageDTO-model_DistributionPackageDTO:
+    properties:
+      count:
+        type: integer
+      items:
+        items:
+          $ref: '#/definitions/model.DistributionPackageDTO'
+        type: array
+      start:
+        type: integer
+      total:
+        type: integer
     type: object
   model.PageDTO-model_GitFileDTO:
     properties:
@@ -301,6 +329,20 @@ definitions:
       value:
         type: integer
     type: object
+  model.UpdateDistributionGitLinkReq:
+    properties:
+      confidence:
+        type: number
+      distribution:
+        type: string
+      link:
+        type: string
+      packageName:
+        type: string
+    required:
+    - distribution
+    - packageName
+    type: object
   model.UpdateWorkflowStatusReq:
     properties:
       running:
@@ -483,6 +525,96 @@ paths:
           schema:
             type: string
       summary: Stop Git File Collector
+  /admin/label/distributions:
+    get:
+      description: 根据发行版、链接、置信度等条件分页查询包列表
+      parameters:
+      - description: 发行版名称
+        in: query
+        name: distribution
+        required: true
+        type: string
+      - description: 跳过数量
+        in: query
+        name: skip
+        type: integer
+      - description: 返回数量
+        in: query
+        name: take
+        type: integer
+      - description: 链接过滤
+        in: query
+        name: search
+        type: string
+      - description: 置信度过滤（0:全部, 1:已标注, 2:未标注）
+        in: query
+        name: confidence
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.PageDTO-model_DistributionPackageDTO'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: 查询发行版包列表
+      tags:
+      - label
+  /admin/label/distributions/all:
+    get:
+      description: 获取所有支持的发行版包前缀列表
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: 获取所有发行版包的前缀
+      tags:
+      - label
+  /admin/label/distributions/gitlink:
+    put:
+      consumes:
+      - application/json
+      description: 更新指定发行版包的 Git 仓库链接和置信度
+      parameters:
+      - description: Git 链接参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateDistributionGitLinkReq'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: 更新发行版包的 Git 链接
+      tags:
+      - label
   /admin/session/github/callback:
     get:
       description: Handles the GitHub OAuth callback and returns JWT token if user
