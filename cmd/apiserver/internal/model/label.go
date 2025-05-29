@@ -18,6 +18,13 @@ type DistributionPackageDTO struct {
 	LinkConfidence *float32 `json:"linkConfidence"`
 }
 
+type GitLinkAICompletionReq struct {
+	Distribution string `json:"distribution" binding:"required"`
+	PackageName  string `json:"packageName" binding:"required"`
+	Description  string `json:"description"`
+	HomePage     string `json:"homePage"`
+}
+
 func ToDistributionPackageDTO(pkg *repository.DistPackage) *DistributionPackageDTO {
 	if pkg == nil {
 		return nil

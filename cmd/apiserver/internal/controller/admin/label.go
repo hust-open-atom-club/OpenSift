@@ -1,9 +1,12 @@
 package admin
 
 import (
+	"encoding/json"
+	"fmt"
 	"slices"
 
 	"github.com/HUSTSecLab/criticality_score/cmd/apiserver/internal/model"
+	"github.com/HUSTSecLab/criticality_score/pkg/llm"
 	"github.com/HUSTSecLab/criticality_score/pkg/storage"
 	"github.com/HUSTSecLab/criticality_score/pkg/storage/repository"
 	"github.com/gin-gonic/gin"
@@ -129,8 +132,82 @@ func getDistributionPackagesPrefixes(c *gin.Context) {
 	c.JSON(200, prefixes)
 }
 
+// getDistributionAICompletion godoc
+// @Summary      AI 补全发行版包 Git 链接
+// @Description  使用 AI 补全指定发行版包的 Git 仓库链接，返回 JSON 流
+// @Tags         label
+// @Accept       json
+// @Produce      json
+// @Param        data  body      model.GitLinkAICompletionReq  true  "AI 补全参数"
+// @Success      200   {object}  object  "JSON 流，每行为一个结果"
+// @Failure      400   {object}  string
+// @Failure      500   {object}  string
+// @Router       /admin/label/distributions/ai-completion [post]
+func getDistributionAICompletion(c *gin.Context) {
+	var req model.GitLinkAICompletionReq
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, gin.H{"error": "Invalid request body: " + err.Error()})
+		return
+	}
+
+	if req.Distribution == "" || req.PackageName == "" {
+		c.JSON(400, gin.H{"error": "Distribution and package name are required"})
+		return
+	}
+
+	if lo.IndexOf(allowedTables, repository.DistPackageTablePrefix(req.Distribution)) == -1 {
+		c.JSON(400, gin.H{"error": "Invalid distribution: " + req.Distribution})
+		return
+	}
+
+	res, err := llm.AskGitLinkPrompt(req.Distribution, req.PackageName, req.Description, req.HomePage)
+
+	if err != nil {
+		c.JSON(500, gin.H{"error": "Failed to get AI completion: " + err.Error()})
+		return
+	}
+
+	// Disable gzipping for SSE
+	c.Writer.Header().Del("Content-Encoding")
+
+	// et proper headers for SSE
+	c.Writer.Header().Set("Content-Type", "text/event-stream")
+	c.Writer.Header().Set("Cache-Control", "no-cache")
+	c.Writer.Header().Set("Connection", "keep-alive")
+	c.Writer.Header().Set("X-Accel-Buffering", "no") // Disable nginx buffering if using nginx
+	c.Status(200)
+
+	// Ensure the client buffer is flushed immediately
+	c.Writer.Flush()
+
+	// Set client-gone detection
+	clientGone := c.Writer.CloseNotify()
+
+	for r, err := range res {
+		// Check if client disconnected
+		select {
+		case <-clientGone:
+			return
+		default:
+		}
+
+		if err != nil {
+			msg, _ := json.Marshal(gin.H{"error": "Failed to get AI completion: " + err.Error()})
+			fmt.Fprintf(c.Writer, "data: %s\n\n", string(msg))
+			c.Writer.Flush()
+			continue
+		}
+
+		p, _ := r.MarshalJSON()
+		fmt.Fprintf(c.Writer, "data: %s\n\n", string(p))
+		c.Writer.Flush()
+	}
+}
+
 func registLabel(g gin.IRoutes) {
 	g.GET("/label/distributions/all", getDistributionPackagesPrefixes)
 	g.PUT("/label/distributions/gitlink", updateDistributionGitLink)
 	g.GET("/label/distributions", getDistributionPackages)
+	g.POST("/label/distributions/ai-completion", getDistributionAICompletion)
 }

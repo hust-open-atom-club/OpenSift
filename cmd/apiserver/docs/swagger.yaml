@@ -71,6 +71,20 @@ definitions:
       clientId:
         type: string
     type: object
+  model.GitLinkAICompletionReq:
+    properties:
+      description:
+        type: string
+      distribution:
+        type: string
+      homePage:
+        type: string
+      packageName:
+        type: string
+    required:
+    - distribution
+    - packageName
+    type: object
   model.KillToolInstanceReq:
     properties:
       signal:
@@ -566,6 +580,36 @@ paths:
           schema:
             type: string
       summary: 查询发行版包列表
+      tags:
+      - label
+  /admin/label/distributions/ai-completion:
+    post:
+      consumes:
+      - application/json
+      description: 使用 AI 补全指定发行版包的 Git 仓库链接，返回 JSON 流
+      parameters:
+      - description: AI 补全参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.GitLinkAICompletionReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: JSON 流，每行为一个结果
+          schema:
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: AI 补全发行版包 Git 链接
       tags:
       - label
   /admin/label/distributions/all:

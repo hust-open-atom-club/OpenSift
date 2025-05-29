@@ -217,6 +217,52 @@ const docTemplate = `{
                 }
             }
         },
+        "/admin/label/distributions/ai-completion": {
+            "post": {
+                "description": "使用 AI 补全指定发行版包的 Git 仓库链接，返回 JSON 流",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "label"
+                ],
+                "summary": "AI 补全发行版包 Git 链接",
+                "parameters": [
+                    {
+                        "description": "AI 补全参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.GitLinkAICompletionReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "JSON 流，每行为一个结果",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/admin/label/distributions/all": {
             "get": {
                 "description": "获取所有支持的发行版包前缀列表",
@@ -1091,6 +1137,27 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "clientId": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.GitLinkAICompletionReq": {
+            "type": "object",
+            "required": [
+                "distribution",
+                "packageName"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "distribution": {
+                    "type": "string"
+                },
+                "homePage": {
+                    "type": "string"
+                },
+                "packageName": {
                     "type": "string"
                 }
             }
