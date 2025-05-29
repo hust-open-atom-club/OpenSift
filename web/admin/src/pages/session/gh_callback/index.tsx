@@ -4,6 +4,7 @@ import { useModel, useParams, useRequest, useRoutes, useSearchParams } from "@um
 import { Button, Spin } from "antd";
 import { history } from "@umijs/max";
 import { setToken } from "@/bearer";
+import useBaseURL from "@/utils/useBaseURL";
 
 export default function Login() {
   const [search] = useSearchParams();
@@ -11,6 +12,7 @@ export default function Login() {
   const ret_uri = search.get("ret_uri");
   const { refresh } = useModel("@@initialState");
 
+  const baseURL = useBaseURL();
 
   const { loading, error } = useRequest(async () => {
     if (!code) {
@@ -22,8 +24,10 @@ export default function Login() {
     token && setToken(token);
     await refresh();
     setTimeout(() => {
+      let u = ret_uri;
+      if (baseURL) u = u?.slice(baseURL.length) || null;
       // redirect to github login page
-      history.push(ret_uri || "/");
+      history.push(u || "/");
     }, 0);
   });
 

@@ -20,6 +20,24 @@ export async function getAdminLabelDistributions(
   );
 }
 
+/** AI 补全发行版包 Git 链接 使用 AI 补全指定发行版包的 Git 仓库链接，返回 JSON 流 POST /admin/label/distributions/ai-completion */
+export async function postAdminLabelDistributionsAiCompletion(
+  body: API.GitLinkAICompletionReq,
+  options?: { [key: string]: any },
+) {
+  return request<Record<string, any>>(
+    '/admin/label/distributions/ai-completion',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      data: body,
+      ...(options || {}),
+    },
+  );
+}
+
 /** 获取所有发行版包的前缀 获取所有支持的发行版包前缀列表 GET /admin/label/distributions/all */
 export async function getAdminLabelDistributionsAll(options?: {
   [key: string]: any;

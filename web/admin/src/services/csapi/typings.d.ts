@@ -138,6 +138,13 @@ declare namespace API {
     clientId?: string;
   };
 
+  type GitLinkAICompletionReq = {
+    description?: string;
+    distribution: string;
+    homePage?: string;
+    packageName: string;
+  };
+
   type H = true;
 
   type KillToolInstanceReq = {

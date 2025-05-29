@@ -1,9 +1,10 @@
 import { getAdminSessionGithubClientid } from "@/services/csapi/admin";
 import { GithubFilled } from "@ant-design/icons";
-import { useModel, useRequest, useSearchParams } from "@umijs/max";
+import { useAppData, useModel, useRequest, useSearchParams } from "@umijs/max";
 import { App, Button } from "antd";
 import { history } from "@umijs/max";
 import { getToken } from "@/bearer";
+import useBaseURL from "@/utils/useBaseURL";
 
 export default function Login() {
   const { message } = App.useApp();
@@ -16,6 +17,7 @@ export default function Login() {
     history.push(retUri);
   }
 
+  const baseURL = useBaseURL();
 
   const {
     run: gotoGitHub,
@@ -32,7 +34,7 @@ export default function Login() {
       message.error("获取配置信息失败，请稍后再试。");
       return;
     }
-    const redirectURL = `${window.location.origin}/session/gh_callback?ret_uri=${encodeURIComponent(retUri)}`;
+    const redirectURL = `${window.location.origin}${baseURL}/session/gh_callback?ret_uri=${encodeURIComponent(retUri)}`;
     const githubURL = `https://github.com/login/oauth/authorize?client_id=${clientid}&redirect_uri=${encodeURIComponent(redirectURL)}&scope=read:user`;
 
     setTimeout(() => {

@@ -21,7 +21,8 @@
     "@xterm/xterm": "^5.5.0",
     "antd": "^5.4.0",
     "json-edit-react": "^1.26.2",
-    "papaparse": "^5.5.3"
+    "papaparse": "^5.5.3",
+    "react-markdown": "^10.1.0"
   },
   "devDependencies": {
     "@types/react": "^18.0.33",

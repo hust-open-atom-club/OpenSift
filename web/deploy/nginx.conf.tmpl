@@ -1,0 +1,79 @@
+user root;
+worker_processes auto;
+daemon off;
+pid /run/nginx.pid;
+
+events {
+	worker_connections 768;
+}
+
+http {
+
+	sendfile on;
+	tcp_nopush on;
+	types_hash_max_size 2048;
+
+	include /etc/nginx/mime.types;
+	default_type application/octet-stream;
+
+	ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3; # Dropping SSLv3, ref: POODLE
+	ssl_prefer_server_ciphers on;
+
+	access_log /var/log/nginx/access.log;
+	error_log /var/log/nginx/error.log;
+
+	gzip on;
+
+	# gzip_vary on;
+	# gzip_proxied any;
+	# gzip_comp_level 6;
+	# gzip_buffers 16 8k;
+	# gzip_http_version 1.1;
+	# gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+
+	##
+	# Virtual Host Configs
+	##
+
+    server {
+        listen 80;
+        server_name _ default_server;
+        absolute_redirect off;
+
+        # proxy pass to localhost:3000
+        location / {
+            proxy_pass http://localhost:3000;
+            proxy_set_header Host $host;
+        }
+
+        # admin use history mode 
+        location /admin {
+            alias /app/admin;
+            index index.html;
+            try_files $uri /admin/index.html;
+        }
+
+        # api proxy
+        location /api {
+            proxy_pass {{API_ENDPOINT_URL}} ;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header X-Forwarded-Host $host;
+            proxy_set_header X-Forwarded-Port $server_port;
+            proxy_set_header X-Forwarded-Prefix /api;
+            proxy_redirect off;
+            proxy_read_timeout 90;
+            proxy_send_timeout 90;
+            proxy_buffering off;
+            proxy_cache off;
+            proxy_intercept_errors on;
+        }
+    }
+
+}
+

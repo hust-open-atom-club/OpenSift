@@ -1,6 +1,6 @@
 // 运行时配置
 
-import { history, RequestConfig, RuntimeConfig } from "@umijs/max";
+import { history, RequestConfig, RuntimeConfig, useAppData } from "@umijs/max";
 import { App } from "antd";
 import { getAdminSessionUserinfo } from "./services/csapi/admin";
 import { getToken } from "./bearer";
@@ -17,7 +17,7 @@ export async function getInitialState(): Promise<InitialState> {
   try {
     user = await getAdminSessionUserinfo();
   } catch (e) {
-    if (!history.location.pathname.startsWith("/session")) {
+    if (!history.location.pathname.startsWith(`/admin/session`)) {
       history.push("/session?ret_uri=" + encodeURIComponent(history.location.pathname + history.location.search));
     }
   }

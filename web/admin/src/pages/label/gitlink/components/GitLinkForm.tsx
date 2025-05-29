@@ -2,6 +2,7 @@ import { putAdminLabelDistributionsGitlink } from '@/services/csapi/label';
 import { ProForm, ProFormItem, ProFormSlider, ProFormText, ProFormTextArea } from '@ant-design/pro-components';
 import { App, Button, Form, Result, Slider, Space } from 'antd';
 import React, { useEffect } from 'react';
+import AICompletion from './AICompletion';
 
 type Props = {
   distribution?: string;
@@ -86,6 +87,7 @@ export default function GitLinkForm({ distribution, data, onCancel, onRefresh, o
     layout="vertical"
     grid={true}
   >
+    <AICompletion data={data} distribution={distribution} />
     {/* <ProFormText name="distribution" label="发行版本" width="md" readonly /> */}
     <ProFormText name="package" label="包名" width="md" readonly />
     <ProFormTextArea name="description" label="描述" width="md" readonly />

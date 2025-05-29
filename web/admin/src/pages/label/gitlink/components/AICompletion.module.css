@@ -1,0 +1,59 @@
+.completion {
+    /* break all */
+    margin: 1rem 0;
+    background: #f8f8f8;
+    padding: 1rem;
+    border-radius: 1rem;
+}
+
+.markdown-body code {
+    /* break any */
+    word-break: break-all;
+}
+
+.markdown-body pre {
+    white-space: pre-wrap;
+    word-break: break-all;
+    background: #eee;
+    margin: 1rem 0;
+    padding: 1rem;
+    border-radius: 1rem;
+}
+
+.markdown-body pre code {
+    background: transparent;
+    padding: 0;
+}
+
+.markdown-body code {
+    background: #eee;
+    padding: 0.2em 0.4em;
+    border-radius: 4px;
+}
+
+.gound-links h3,
+.search-queries h3 {
+    margin: 0.5rem 0;
+    font-size: 1.2rem;
+    color: #333;
+}
+
+.gound-links ol {
+    margin: 0.5rem 0;
+    padding-left: 1.5rem;
+    /* show label */
+    list-style: decimal;
+    
+}
+
+.links :global(.carousel) {
+    white-space: inherit;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+
+}
+
+.links :global(.container) {
+    align-items: baseline;
+}

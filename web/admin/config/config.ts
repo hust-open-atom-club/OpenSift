@@ -14,6 +14,8 @@ export default defineConfig({
   },
   routes,
   npmClient: "yarn",
+  base: "/admin",
+  publicPath: "/admin/",
   tailwindcss: {},
   proxy: {
     '/api': {
@@ -28,4 +30,5 @@ export default defineConfig({
     projectName: 'csapi',
     mock: false,
   },
+  esbuildMinifyIIFE: true
 });
