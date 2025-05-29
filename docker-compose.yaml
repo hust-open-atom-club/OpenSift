@@ -50,13 +50,10 @@ services:
   web:
     build:
       context: web
-      args:
-        - BACKEND=http://apiserver:5000
     environment:
-      - NEXT_PUBLIC_BACKEND=http://apiserver:5000
       - BACKEND=http://apiserver:5000
     ports:
-      - "${WEB_HOST_PORT}:3000"
+      - "${WEB_HOST_PORT}:80"
   
   pgweb:
     container_name: pgweb
