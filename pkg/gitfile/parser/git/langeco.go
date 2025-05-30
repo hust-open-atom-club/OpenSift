@@ -1,6 +1,7 @@
 package git
 
 import (
+	"fmt"
 	"path/filepath"
 
 	parser "github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser"
@@ -11,8 +12,10 @@ import (
 	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco/go/sum"
 	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco/java/maven"
 	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco/nodejs/npm"
+	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco/nodejs/packagejson"
 	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco/python/pypi/pyproject"
 	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco/python/pypi/requirements"
+	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco/python/pypi/setup"
 	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco/rust/cargo"
 	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco/rust/lock"
 	"github.com/HUSTSecLab/criticality_score/pkg/logger"
@@ -38,7 +41,7 @@ func NewLangEcoDeps(r *Repo) LangEcoDeps {
 		ecosystems:   map[string]int64{},
 		dependencies: map[*langeco.Package]*langeco.Dependencies{},
 		config: LangEcoConfig{
-			defaultName:    r.Source + r.Owner + r.Name,
+			defaultName:    fmt.Sprintf("%s/%s/%s", r.Source, r.Owner, r.Name),
 			defaultVersion: " ",
 			eco:            langeco.SUPPORTED_ECOS,
 		},
@@ -93,6 +96,10 @@ func (led *LangEcoDeps) getDependencies(file *object.File) {
 	deps := &langeco.Dependencies{}
 
 	switch filename {
+	case langeco.PY_SETUP:
+		pkg, deps, err = setup.Parse(content)
+	case langeco.NODEJS_PACKAGE_JSON:
+		pkg, deps, err = packagejson.Parse(content)
 	case langeco.GO_MOD:
 		pkg, deps, err = mod.Parse(content)
 	case langeco.GO_SUM:
@@ -130,8 +137,10 @@ func (led *LangEcoDeps) getDependencies(file *object.File) {
 			pkg.Version = led.config.defaultVersion
 		}
 		led.dependencies[pkg] = deps
-		if v, ok := langeco.TRUSTED_FILES[eco]; ok && filename == v {
-			led.config.eco[eco] = false
-		}
+		/*
+			if v, ok := langeco.TRUSTED_FILES[eco]; ok && filename == v {
+				led.config.eco[eco] = false
+			}
+		*/
 	}
 }

@@ -14,6 +14,7 @@ var (
 		parser.NUGET: true,
 	}
 
+/*
 	TRUSTED_FILES = map[string]string{
 		parser.NPM:   NPM_PACKAGE_LOCK,
 		parser.GO:    GO_MOD,
@@ -22,6 +23,7 @@ var (
 		parser.PYPI:  PY_PROJECT,
 		parser.NUGET: NUGET_CONFIG, //* NUGET_PROPS
 	}
+*/
 )
 
 const (
@@ -37,6 +39,7 @@ const (
 	DOT_NET             = "deps.json"
 	PY_PROJECT          = "pyproject.toml"
 	PY_REQUIREMENTS     = "requirements.txt"
+	PY_SETUP            = "setup.py"
 )
 
 type Package struct {

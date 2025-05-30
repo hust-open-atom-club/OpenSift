@@ -8,7 +8,7 @@ import (
 )
 
 func TestParse(t *testing.T) {
-	file, _ := os.Open("")
+	file, _ := os.Open("packages.config")
 	defer file.Close()
 	data, _ := io.ReadAll(file)
 	t.Run("Parse NuGet", func(t *testing.T) {

@@ -1,4 +1,4 @@
-package requirements
+package setup
 
 import (
 	"fmt"
@@ -8,17 +8,19 @@ import (
 )
 
 func TestParse(t *testing.T) {
-	file, _ := os.Open("")
+	file, _ := os.Open("setup.py")
 	defer file.Close()
 	data, _ := io.ReadAll(file)
-	t.Run("Parse requirements.txt", func(t *testing.T) {
+	t.Run("Parse setup.py", func(t *testing.T) {
 		pkg, deps, err := Parse(string(data))
 		if err != nil {
 			t.Fatal(err)
 		}
 		fmt.Println(*pkg)
-		for index, dep := range *deps {
-			fmt.Println(index, dep)
+		if deps != nil {
+			for index, dep := range *deps {
+				fmt.Println(index, dep)
+			}
 		}
 	})
 }

@@ -23,7 +23,7 @@ func TestEco(t *testing.T) {
 			expected: Repo{},
 		},
 		{
-			input:    "https://github.com/pallets/flask.git", //* PyPI dependency type not totally solved
+			input:    "https://github.com/pallets/flask.git", //* PyPI dependency
 			expected: Repo{},
 		},
 		{

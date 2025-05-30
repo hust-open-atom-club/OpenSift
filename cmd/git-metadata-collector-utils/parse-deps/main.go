@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"strings"
@@ -12,75 +13,124 @@ import (
 	"github.com/bytedance/gopkg/util/gopool"
 )
 
-func saveResults(pkgInfo, pkgRelationship []string) {
-	flag := os.O_WRONLY | os.O_CREATE | os.O_APPEND
+const (
+	BATCH       = 1024
+	BUFFER_SIZE = 1024
+	POOL_SIZE   = 256
+)
 
-	infoFile, err := os.OpenFile("info.csv", flag, 0644)
+func main() {
+	ch := make(chan *git.Repo, BUFFER_SIZE)
+	wg := sync.WaitGroup{}
+	gopool.SetCap(POOL_SIZE)
+
+	inputFile, err := os.OpenFile("input.txt", os.O_RDONLY, 0)
+	if err != nil {
+		logger.Fatal(err)
+	}
+	defer inputFile.Close()
+
+	FLAG := os.O_WRONLY | os.O_CREATE | os.O_APPEND
+
+	infoFile, err := os.OpenFile("info.csv", FLAG, 0644)
 	if err != nil {
 		logger.Fatal(err)
 	}
 	defer infoFile.Close()
 
-	relationshipFile, err := os.OpenFile("relationship.csv", flag, 0644)
+	relationshipFile, err := os.OpenFile("relationship.csv", FLAG, 0644)
 	if err != nil {
 		logger.Fatal(err)
 	}
 	defer relationshipFile.Close()
 
-	joined := strings.Join(pkgInfo, "\n")
-	if _, err := infoFile.WriteString(joined); err != nil {
-		logger.Fatal(err)
-	}
+	reader := bufio.NewReader(inputFile)
+	//infoWriter := bufio.NewWriter(infoFile)
+	relationshipWriter := bufio.NewWriter(relationshipFile)
 
-	joined = strings.Join(pkgRelationship, "\n")
-	if _, err := relationshipFile.WriteString(joined); err != nil {
-		logger.Fatal(err)
-	}
-}
-
-func readPaths() []string {
-	return []string{}
-}
-
-func main() {
-	paths := readPaths()
-	ch := make(chan *git.Repo)
-	wg := sync.WaitGroup{}
-	wg.Add(len(paths))
 	gopool.Go(func() {
 		pkgInfo := []string{}
 		pkgRelationship := []string{}
+
 		for repo := range ch {
+			if len(repo.Ecosystems) == 0 {
+				continue
+			}
+
 			for pkg, deps := range repo.EcoDeps {
-				pkgInfo = append(pkgInfo,
-					fmt.Sprintf("%s, %s, %s, %s", repo.URL, pkg.Name, pkg.Version, pkg.Eco),
-				)
+				info := fmt.Sprintf("%v, %v, %v, %v", repo.URL, pkg.Name, pkg.Version, pkg.Eco)
+				pkgInfo = append(pkgInfo, info)
+				if deps == nil {
+					continue
+				}
 				for _, dep := range *deps {
-					pkgRelationship = append(pkgRelationship,
-						fmt.Sprintf("%s, %s, %s, %s, %s", pkg.Name, pkg.Version, dep.Name, dep.Version, pkg.Eco),
-					)
+					relation := fmt.Sprintf("%v, %v, %v, %v, %v", pkg.Name, pkg.Version, dep.Name, dep.Version, pkg.Eco)
+					pkgRelationship = append(pkgRelationship, relation)
 				}
 			}
+			if len(pkgInfo) > BATCH {
+				logger.Info("Save pkg Info")
+				joined := strings.Join(pkgInfo, "\n")
+				if _, err := infoFile.WriteString(joined); err != nil {
+					logger.Fatal(err)
+				}
+				pkgInfo = []string{}
+			}
+			if len(pkgRelationship) > BATCH {
+				logger.Info("Save pkg Relationship")
+				joined := strings.Join(pkgRelationship, "\n")
+				if _, err := relationshipWriter.WriteString(joined); err != nil {
+					logger.Fatal(err)
+				}
+				pkgRelationship = []string{}
+			}
 		}
-		saveResults(pkgInfo, pkgRelationship)
+		if len(pkgInfo) >= 0 {
+			logger.Info("Save pkg Info")
+
+			joined := strings.Join(pkgInfo, "\n")
+			if _, err := infoFile.WriteString(joined); err != nil {
+				logger.Fatal(err)
+			}
+		}
+		if len(pkgRelationship) > 0 {
+			logger.Info("Save pkg Relationship")
+
+			joined := strings.Join(pkgRelationship, "\n")
+			if _, err := relationshipWriter.WriteString(joined); err != nil {
+				logger.Fatal(err)
+			}
+		}
 		wg.Done()
 	})
-	for _, path := range paths {
+
+	for {
+		var path string
+		if lineData, err := reader.ReadString('\n'); err != nil {
+			break
+		} else {
+			wg.Add(1)
+			path = strings.TrimRight(lineData, "\n")
+		}
+
 		gopool.Go(func() {
 			r, err := collector.Open(path)
 			if err != nil {
-				logger.Fatal(path, err)
+				return
+				// logger.Fatal(path, err)
 			}
 
 			repo, err := git.ParseRepo(r)
 			if err != nil {
-				logger.Fatal(path, err)
+				return
+				// logger.Fatal(path, err)
 			}
 
 			ch <- repo
 			wg.Done()
 		})
 	}
+
 	wg.Wait()
 	close(ch)
 	wg.Add(1)

@@ -7,6 +7,7 @@ import (
 	"github.com/BurntSushi/toml"
 	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser"
 	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco"
+	"github.com/HUSTSecLab/criticality_score/pkg/logger"
 )
 
 var (
@@ -39,9 +40,16 @@ func Parse(contents string) (*langeco.Package, *langeco.Dependencies, error) {
 	for _, pkg := range lockfile.Packages {
 		if pkg.Source == "" && pkg.Dependencies != nil {
 			if rootPkg != nil {
-				return nil, nil, ErrMultiRootPkg
+				logger.Debug(ErrMultiRootPkg)
+				//* return nil, nil, ErrMultiRootPkg
+				rootPkg.Dependencies = append(rootPkg.Dependencies, pkg.Dependencies...)
+				if len(rootPkg.Name) > len(pkg.Name) {
+					rootPkg.Name = pkg.Name
+					rootPkg.Version = pkg.Version
+				}
+			} else {
+				rootPkg = &pkg
 			}
-			rootPkg = &pkg
 		}
 	}
 

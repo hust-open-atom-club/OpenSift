@@ -1,6 +1,7 @@
 package git
 
 import (
+	"fmt"
 	"strconv"
 	"testing"
 
@@ -41,4 +42,41 @@ func TestParseGitRepo(t *testing.T) {
 			//require.Equal(t, test.expected, *repo)
 		})
 	}
+}
+
+func TestParseLocalRepo(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected Repo
+	}{
+		{
+			input:    "",
+			expected: Repo{},
+		},
+	}
+	for n, test := range tests {
+		t.Run(strconv.Itoa(n), func(t *testing.T) {
+			r, err := collector.Open(test.input)
+			if err != nil {
+				t.Fatal(err)
+			}
+			repo, err := ParseRepo(r)
+			if err != nil {
+				t.Fatal(err)
+			}
+			//* repo.Show()
+			for k, _ := range repo.EcoDeps {
+				if k != nil {
+					fmt.Println(*k)
+				}
+				//if v != nil {
+				//	for _, dep := range *v {
+				//		fmt.Println(dep)
+				//	}
+				//}
+			}
+			//require.Equal(t, test.expected, *repo)
+		})
+	}
+
 }
