@@ -6,6 +6,8 @@ import (
 	"testing"
 
 	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/collector"
+	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser"
+	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco"
 	url "github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/url"
 )
 
@@ -62,4 +64,86 @@ func TestEco(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestMerge(t *testing.T) {
+	r := NewRepo()
+	pkgs := []langeco.Package{
+		{
+			Name:    "test1",
+			Version: "123",
+			Eco:     parser.NPM,
+		},
+		{
+			Name:    "test1",
+			Version: "123",
+			Eco:     parser.NPM,
+		},
+		{
+			Name:    "test2",
+			Version: "123",
+			Eco:     parser.NPM,
+		},
+	}
+	deps := []langeco.Dependencies{
+		{
+			{
+				Name:    "deps1",
+				Version: "123",
+				Eco:     parser.NPM,
+			},
+			{
+				Name:    "deps2",
+				Version: "123",
+				Eco:     parser.NPM,
+			},
+			{
+				Name:    "deps3",
+				Version: "123",
+				Eco:     parser.NPM,
+			},
+		},
+		{
+			{
+				Name:    "deps4",
+				Version: "123",
+				Eco:     parser.NPM,
+			},
+			{
+				Name:    "deps5",
+				Version: "123",
+				Eco:     parser.NPM,
+			},
+			{
+				Name:    "deps6",
+				Version: "123",
+				Eco:     parser.NPM,
+			},
+		},
+		{
+			{
+				Name:    "deps1",
+				Version: "123",
+				Eco:     parser.NPM,
+			},
+			{
+				Name:    "deps1",
+				Version: "123",
+				Eco:     parser.NPM,
+			},
+		},
+	}
+
+	r.EcoDeps[&pkgs[0]] = &deps[0]
+	r.EcoDeps[&pkgs[1]] = &deps[1]
+	r.EcoDeps[&pkgs[2]] = &deps[2]
+
+	led := LangEcoDeps{
+		languages: map[string]int64{
+			parser.NPM: 0,
+		},
+	}
+	fmt.Printf("%+v", r.EcoDeps)
+	led.Merge(&r)
+	fmt.Printf("%+v", r.EcoDeps)
 }

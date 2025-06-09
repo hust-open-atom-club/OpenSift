@@ -144,3 +144,52 @@ func (led *LangEcoDeps) getDependencies(file *object.File) {
 		*/
 	}
 }
+
+func (led *LangEcoDeps) Merge(r *Repo) {
+	depsMap := make(map[langeco.Package]langeco.Dependencies)
+	for pkg, deps := range r.EcoDeps {
+		if existingDeps, exists := depsMap[*pkg]; exists {
+			depsMap[*pkg] = led.mergeDependencyLists(existingDeps, *deps)
+		} else {
+			depsMap[*pkg] = *deps
+		}
+	}
+
+	result := make(map[*langeco.Package]*langeco.Dependencies)
+
+	for pkgVal, deps := range depsMap {
+		/*
+		newPkg := &langeco.Package{
+			Name:    pkgVal.Name,
+			Version: pkgVal.Version,
+			Eco:     pkgVal.Eco,
+		}
+		*/
+
+		result[&newPkg] = &deps
+	}
+
+	r.EcoDeps = result
+
+}
+
+func (led *LangEcoDeps) mergeDependencyLists(a, b langeco.Dependencies) langeco.Dependencies {
+	seen := make(map[langeco.Package]bool)
+	merged := make(langeco.Dependencies, 0)
+
+	for _, dep := range a {
+		if !seen[dep] {
+			seen[dep] = true
+			merged = append(merged, dep)
+		}
+	}
+
+	for _, dep := range b {
+		if !seen[dep] {
+			seen[dep] = true
+			merged = append(merged, dep)
+		}
+	}
+
+	return merged
+}

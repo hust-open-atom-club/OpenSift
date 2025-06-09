@@ -30,7 +30,7 @@ type task struct {
 }
 
 func getDir(outputDir, gitLink string) (string, error) {
-	u := url.ParseURL(gitLink)
+	u, _ := url.ParseURL(gitLink)
 
 	var pathName string
 	splitItems := strings.Split(u.Pathname, "/")

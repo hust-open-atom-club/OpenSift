@@ -26,7 +26,7 @@ func fix(ctx storage.AppDatabaseContext, link string) {
 	logger.WithFields(map[string]any{
 		"link": link,
 	}).Infof("Fixing language of %s", link)
-	u := url.ParseURL(link)
+	u, _ := url.ParseURL(link)
 	path := util.GetGitRepositoryPath(config.GetGitStoragePath(), &u)
 	r, err := collector.Open(path)
 
