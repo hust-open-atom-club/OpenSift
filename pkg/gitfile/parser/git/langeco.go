@@ -166,7 +166,7 @@ func (led *LangEcoDeps) Merge(r *Repo) {
 		}
 		*/
 
-		result[&newPkg] = &deps
+		result[&pkgVal] = &deps
 	}
 
 	r.EcoDeps = result
