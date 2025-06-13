@@ -14,11 +14,6 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
-var (
-	// Temporary whitelist of allowed GitHub usernames
-	allowedUsers = []string{"jxlpzqc"} // TODO: Replace with database
-)
-
 // SessionController handles session-related operations
 // @Summary Get github client id
 // @Description Get github client id
@@ -64,13 +59,14 @@ func githubCallback(ctx *gin.Context) {
 	}
 
 	// Check if user is allowed
-	if !isUserAllowed(username) {
+	policy, ok := getUserPolicy(username)
+	if !ok {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "User not authorized"})
 		return
 	}
 
 	// Generate JWT token
-	token, err := generateJWT(username)
+	token, err := generateJWT(username, policy)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
 		return
@@ -144,21 +140,24 @@ func getGithubUsername(accessToken string) (string, error) {
 	return result.Login, nil
 }
 
-func isUserAllowed(username string) bool {
+func getUserPolicy(username string) ([]string, bool) {
+	// TODO: Add additional database check
+	allowedUsers := config.GetWebPredefinedSuperAdmins()
+
 	for _, user := range allowedUsers {
 		if user == username {
-			return true
+			return []string{"all"}, true
 		}
 	}
-	return false
+	return nil, false
 }
 
-func generateJWT(username string) (string, error) {
+func generateJWT(username string, policy []string) (string, error) {
 	_, githubClientSecret := config.GetWebGitHubOAuth()
 	jwtSecret := []byte(githubClientSecret)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"username": username,
-		"policy":   []string{"gitfile"},
+		"policy":   policy,
 		"exp":      time.Now().Add(time.Hour * 24).Unix(),
 	})
 

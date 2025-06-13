@@ -155,6 +155,14 @@ func GetWebWorkflowHistoryDir() string {
 	return viper.GetString("web.workflow-history-dir")
 }
 
+func GetWebPredefinedSuperAdmins() []string {
+	superAdmins := viper.GetStringSlice("web.superadmin")
+	if len(superAdmins) == 0 {
+		return []string{}
+	}
+	return superAdmins
+}
+
 func GetWorkflowHistoryDir() string {
 	return viper.GetString("workflow.history-dir")
 }

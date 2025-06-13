@@ -98,10 +98,12 @@ func RegistWebFlags(flag *pflag.FlagSet) {
 	flag.String("web-github-oauth-client-secret", "", "github oauth client secret")
 	flag.String("web-workflow-history-dir", "./workflow_history", "workflow history dir")
 	flag.String("web-tool-history-dir", "./tool_history", "tool history dir")
+	flag.StringArray("web-superadmin", []string{}, "super admin users")
 	viper.BindPFlag("web.github-oauth-client", flag.Lookup("web-github-oauth-client-id"))
 	viper.BindPFlag("web.github-oauth-secret", flag.Lookup("web-github-oauth-client-secret"))
 	viper.BindPFlag("web.tool-history-dir", flag.Lookup("web-tool-history-dir"))
 	viper.BindPFlag("web.workflow-history-dir", flag.Lookup("web-workflow-history-dir"))
+	viper.BindPFlag("web.superadmin", flag.Lookup("web-superadmin"))
 }
 
 func RegistWorkflowRunnerFlags(flag *pflag.FlagSet) {
