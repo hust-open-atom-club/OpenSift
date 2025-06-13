@@ -440,7 +440,7 @@ func Parse(content string) (*langeco.Package, *langeco.Dependencies, error) {
 	}
 
 	pkg := langeco.Package{
-		Name:    fmt.Sprintf("%s/%s", pom.GroupId, pom.ArtifactId),
+		Name:    fmt.Sprintf("%s.%s", pom.GroupId, pom.ArtifactId),
 		Version: pom.Version,
 		Eco:     parser.MAVEN,
 	}
@@ -452,7 +452,7 @@ func Parse(content string) (*langeco.Package, *langeco.Dependencies, error) {
 		groupId := checkMacro(&pom.Properties, dep.GroupId)
 		artifactId := checkMacro(&pom.Properties, dep.ArtifactId)
 		deps = append(deps, langeco.Package{
-			Name:    fmt.Sprintf("%s/%s", groupId, artifactId),
+			Name:    fmt.Sprintf("%s.%s", groupId, artifactId),
 			Version: version,
 			Eco:     parser.MAVEN,
 		})

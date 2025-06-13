@@ -158,14 +158,6 @@ func (led *LangEcoDeps) Merge(r *Repo) {
 	result := make(map[*langeco.Package]*langeco.Dependencies)
 
 	for pkgVal, deps := range depsMap {
-		/*
-		newPkg := &langeco.Package{
-			Name:    pkgVal.Name,
-			Version: pkgVal.Version,
-			Eco:     pkgVal.Eco,
-		}
-		*/
-
 		result[&pkgVal] = &deps
 	}
 

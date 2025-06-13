@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/collector"
-	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser"
 	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco"
 	url "github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/url"
 )
@@ -37,6 +36,8 @@ func TestEco(t *testing.T) {
 			expected: Repo{},
 		},
 	}
+	rTest := NewRepo()
+	rTest.EcoDeps = make(map[*langeco.Package]*langeco.Dependencies)
 	for n, test := range tests {
 		t.Run(strconv.Itoa(n), func(t *testing.T) {
 			u, _ := url.ParseURL(test.input)
@@ -57,6 +58,8 @@ func TestEco(t *testing.T) {
 					fmt.Println(*k)
 				}
 				if v != nil {
+					rTest.EcoDeps[k] = v
+
 					for _, dep := range *v {
 						fmt.Println(dep)
 					}
@@ -64,86 +67,108 @@ func TestEco(t *testing.T) {
 			}
 		})
 	}
+	led := LangEcoDeps{}
+	led.Merge(&rTest)
+	for k, v := range rTest.EcoDeps {
+		if k != nil {
+			fmt.Println(*k)
+		}
+		if v != nil {
+
+			for _, dep := range *v {
+				fmt.Println(dep)
+			}
+		}
+	}
 }
 
 func TestMerge(t *testing.T) {
-	r := NewRepo()
-	pkgs := []langeco.Package{
+	tests := []struct {
+		input    string
+		expected Repo
+	}{
 		{
-			Name:    "test1",
-			Version: "123",
-			Eco:     parser.NPM,
+			input:    "https://github.com/gin-gonic/gin.git", //* Go
+			expected: Repo{},
 		},
 		{
-			Name:    "test1",
-			Version: "123",
-			Eco:     parser.NPM,
+			input:    "https://github.com/jquery/jquery.git", //* NPM
+			expected: Repo{},
 		},
 		{
-			Name:    "test2",
-			Version: "123",
-			Eco:     parser.NPM,
+			input:    "https://github.com/pallets/flask.git", //* PyPI dependency
+			expected: Repo{},
+		},
+		{
+			input:    "https://github.com/serde-rs/json.git", //* Cargo
+			expected: Repo{},
+		},
+		{
+			input:    "https://github.com/junit-team/junit4.git", //* Maven
+			expected: Repo{},
 		},
 	}
-	deps := []langeco.Dependencies{
-		{
-			{
-				Name:    "deps1",
-				Version: "123",
-				Eco:     parser.NPM,
-			},
-			{
-				Name:    "deps2",
-				Version: "123",
-				Eco:     parser.NPM,
-			},
-			{
-				Name:    "deps3",
-				Version: "123",
-				Eco:     parser.NPM,
-			},
-		},
-		{
-			{
-				Name:    "deps4",
-				Version: "123",
-				Eco:     parser.NPM,
-			},
-			{
-				Name:    "deps5",
-				Version: "123",
-				Eco:     parser.NPM,
-			},
-			{
-				Name:    "deps6",
-				Version: "123",
-				Eco:     parser.NPM,
-			},
-		},
-		{
-			{
-				Name:    "deps1",
-				Version: "123",
-				Eco:     parser.NPM,
-			},
-			{
-				Name:    "deps1",
-				Version: "123",
-				Eco:     parser.NPM,
-			},
-		},
+	for n, test := range tests {
+		t.Run(strconv.Itoa(n), func(t *testing.T) {
+			u, _ := url.ParseURL(test.input)
+			rTest := NewRepo()
+			rTest.EcoDeps = make(map[*langeco.Package]*langeco.Dependencies)
+			led := NewLangEcoDeps(&rTest)
+
+			r, err := collector.EzCollect(&u)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			r1, err := ParseRepo(r)
+			if err != nil {
+				t.Fatal(err)
+			}
+			r2, err := ParseRepo(r)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			for k, v := range r1.EcoDeps {
+				rTest.EcoDeps[k] = v
+			}
+			fmt.Println("Original")
+			for k, v := range r2.EcoDeps {
+				if k != nil {
+					fmt.Println(*k)
+				}
+				if v != nil {
+					rTest.EcoDeps[k] = v
+
+					for _, dep := range *v {
+						fmt.Println(dep)
+					}
+				}
+			}
+			fmt.Println("Doubled")
+			for k, v := range rTest.EcoDeps {
+				if k != nil {
+					fmt.Println(*k)
+				}
+				if v != nil {
+					for _, dep := range *v {
+						fmt.Println(dep)
+					}
+				}
+			}
+			led.Merge(&rTest)
+			fmt.Println("Merged")
+			for k, v := range rTest.EcoDeps {
+				if k != nil {
+					fmt.Println(*k)
+				}
+				if v != nil {
+					for _, dep := range *v {
+						fmt.Println(dep)
+					}
+				}
+			}
+		})
 	}
 
-	r.EcoDeps[&pkgs[0]] = &deps[0]
-	r.EcoDeps[&pkgs[1]] = &deps[1]
-	r.EcoDeps[&pkgs[2]] = &deps[2]
-
-	led := LangEcoDeps{
-		languages: map[string]int64{
-			parser.NPM: 0,
-		},
-	}
-	fmt.Printf("%+v", r.EcoDeps)
-	led.Merge(&r)
-	fmt.Printf("%+v", r.EcoDeps)
 }
