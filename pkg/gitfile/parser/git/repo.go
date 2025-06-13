@@ -206,7 +206,7 @@ func (repo *Repo) WalkRepo(r *git.Repository) error {
 	repo.Languages = getTopNKeys(led.languages)
 	repo.Ecosystems = getTopNKeys(led.ecosystems)
 	repo.EcoDeps = led.dependencies
-
+	led.Merge(repo)
 	return nil
 }
 

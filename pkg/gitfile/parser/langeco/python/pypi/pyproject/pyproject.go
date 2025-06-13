@@ -84,8 +84,10 @@ func Parse(content string) (*langeco.Package, *langeco.Dependencies, error) {
 			deps = append(deps, parseDeps(value))
 		case []string:
 			deps = append(deps, parseDeps(value[0]))
+		//* case map[string]string:
+		//* for k
 		default:
-			logger.Info(value)
+			logger.Warn("PyProject Optional Dependencies for ", value, " not parsed")
 		}
 	}
 	for name, element := range proj.Tool.Poetry.Dependencies {

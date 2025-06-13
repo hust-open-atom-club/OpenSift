@@ -97,29 +97,29 @@ func (led *LangEcoDeps) getDependencies(file *object.File) {
 
 	switch filename {
 	case langeco.PY_SETUP:
-		pkg, deps, err = setup.Parse(content)
+		pkg, deps, err = setup.Parse(content) //* pip
 	case langeco.NODEJS_PACKAGE_JSON:
-		pkg, deps, err = packagejson.Parse(content)
+		pkg, deps, err = packagejson.Parse(content) //* npm
 	case langeco.GO_MOD:
-		pkg, deps, err = mod.Parse(content)
+		pkg, deps, err = mod.Parse(content) //* go
 	case langeco.GO_SUM:
-		pkg, deps, err = sum.Parse(content)
+		pkg, deps, err = sum.Parse(content) //* go
 	case langeco.NPM_PACKAGE_LOCK:
-		pkg, deps, err = npm.Parse(content)
+		pkg, deps, err = npm.Parse(content) //* npm
 	case langeco.CARGO_TOML:
-		pkg, deps, err = cargo.Parse(content)
+		pkg, deps, err = cargo.Parse(content) //* cargo
 	case langeco.CARGO_LOCK:
-		pkg, deps, err = lock.Parse(content)
+		pkg, deps, err = lock.Parse(content) //* cargo
 	case langeco.PY_PROJECT:
-		pkg, deps, err = pyproject.Parse(content)
+		pkg, deps, err = pyproject.Parse(content) //* pip
 	case langeco.MAVEN_POM:
-		pkg, deps, err = maven.Parse(content)
+		pkg, deps, err = maven.Parse(content) //* maven
 	case langeco.PY_REQUIREMENTS:
-		pkg, deps, err = requirements.Parse(content)
+		pkg, deps, err = requirements.Parse(content) //* pip
 	case langeco.DOT_NET:
-		pkg, deps, err = dotnet.Parse(content)
+		pkg, deps, err = dotnet.Parse(content) //* .NET
 	case langeco.NUGET_CONFIG:
-		pkg, deps, err = nuget.Parse(content)
+		pkg, deps, err = nuget.Parse(content) //* NuGet
 	default:
 		return
 	}
@@ -146,23 +146,35 @@ func (led *LangEcoDeps) getDependencies(file *object.File) {
 }
 
 func (led *LangEcoDeps) Merge(r *Repo) {
+	if r.EcoDeps == nil {
+		return
+	}
 	depsMap := make(map[langeco.Package]langeco.Dependencies)
 	for pkg, deps := range r.EcoDeps {
 		if existingDeps, exists := depsMap[*pkg]; exists {
-			depsMap[*pkg] = led.mergeDependencyLists(existingDeps, *deps)
+			if deps != nil {
+				depsMap[*pkg] = led.mergeDependencyLists(existingDeps, *deps)
+			}
 		} else {
-			depsMap[*pkg] = *deps
+			if deps != nil {
+				depsMap[*pkg] = *deps
+			} else {
+				depsMap[*pkg] = langeco.Dependencies{}
+			}
 		}
 	}
 
 	result := make(map[*langeco.Package]*langeco.Dependencies)
 
 	for pkgVal, deps := range depsMap {
-		result[&pkgVal] = &deps
+		if deps != nil {
+			result[&pkgVal] = &deps
+		} else {
+			result[&pkgVal] = nil
+		}
 	}
 
 	r.EcoDeps = result
-
 }
 
 func (led *LangEcoDeps) mergeDependencyLists(a, b langeco.Dependencies) langeco.Dependencies {
