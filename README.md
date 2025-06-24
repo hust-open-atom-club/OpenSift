@@ -1,6 +1,8 @@
-# Criticality Score
+# OpenSift
 
-English | [简体中文](./README.zh_CN.md) 
+An intelligent filtering engine to mine the most critical open source projects from massive repositories.
+
+[简体中文](./README.zh_CN.md) 
 
 ## Description
 

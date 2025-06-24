@@ -1,6 +1,8 @@
-# Criticality Score
+# OpenSift
 
-[English](./README.md) | 简体中文
+用智能筛选引擎从海量开源仓库中挖掘最关键开源项目
+
+[English](./README.md)
 
 ## 简介
 
