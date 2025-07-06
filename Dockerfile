@@ -2,6 +2,9 @@ FROM golang:1.23 AS builder
 
 ENV GO111MODULE=on
 
+# 设置 Go 模块代理为 goproxy.cn（中国大陆加速），加快依赖下载速度
+ENV GOPROXY=https://goproxy.cn,direct
+
 # predownload go modules to speed up incremental builds
 RUN mkdir -p /build
 WORKDIR /build
