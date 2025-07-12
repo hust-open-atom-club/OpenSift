@@ -7,10 +7,15 @@ FROM base AS pub_deps
 
 WORKDIR /app
 
+
+# 设置 yarn 源为国内镜像，并增加超时时间
+RUN yarn config set registry https://registry.npmmirror.com
+RUN yarn config set network-timeout 600000 -g
+
 # Install dependencies based on the preferred package manager
 COPY public/package.json public/yarn.lock* public/package-lock.json* public/pnpm-lock.yaml* public/.npmrc* ./
 RUN \
-  if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
+if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
   elif [ -f package-lock.json ]; then npm ci; \
   elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i --frozen-lockfile; \
   else echo "Lockfile not found." && exit 1; \
@@ -18,6 +23,11 @@ RUN \
 
 FROM base AS admin_deps
 WORKDIR /app
+
+
+# 设置 yarn 源为国内镜像，并增加超时时间
+RUN yarn config set registry https://registry.npmmirror.com
+RUN yarn config set network-timeout 600000 -g
 
 # Install dependencies based on the preferred package manager
 COPY admin/package.json admin/yarn.lock* admin/package-lock.json* admin/pnpm-lock.yaml* admin/.npmrc* ./
