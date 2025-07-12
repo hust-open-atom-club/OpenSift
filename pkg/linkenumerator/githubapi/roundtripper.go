@@ -26,8 +26,8 @@ import (
 
 	"github.com/google/go-github/v47/github"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/linkenumerator/retry"
-	"github.com/HUSTSecLab/criticality_score/pkg/logger"
+	"github.com/HUSTSecLab/OpenSift/pkg/linkenumerator/retry"
+	"github.com/HUSTSecLab/OpenSift/pkg/logger"
 )
 
 const (

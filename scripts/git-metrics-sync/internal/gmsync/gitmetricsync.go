@@ -6,7 +6,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/storage"
+	"github.com/HUSTSecLab/OpenSift/pkg/storage"
 	_ "github.com/lib/pq"
 )
 

@@ -6,9 +6,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/logger"
-	"github.com/HUSTSecLab/criticality_score/pkg/storage"
-	"github.com/HUSTSecLab/criticality_score/pkg/storage/repository"
+	"github.com/HUSTSecLab/OpenSift/pkg/logger"
+	"github.com/HUSTSecLab/OpenSift/pkg/storage"
+	"github.com/HUSTSecLab/OpenSift/pkg/storage/repository"
 )
 
 var FetchSize = 200

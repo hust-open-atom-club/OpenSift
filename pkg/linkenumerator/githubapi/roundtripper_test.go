@@ -27,8 +27,8 @@ import (
 	"testing/iotest"
 	"time"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/linkenumerator/retry"
-	"github.com/HUSTSecLab/criticality_score/pkg/logger"
+	"github.com/HUSTSecLab/OpenSift/pkg/linkenumerator/retry"
+	"github.com/HUSTSecLab/OpenSift/pkg/logger"
 )
 
 const (

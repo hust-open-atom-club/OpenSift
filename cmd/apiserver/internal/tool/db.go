@@ -5,7 +5,7 @@ import (
 	"os"
 	"path"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/config"
+	"github.com/HUSTSecLab/OpenSift/pkg/config"
 	_ "github.com/mattn/go-sqlite3"
 )
 

@@ -3,8 +3,8 @@ package setup
 import (
 	"strings"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser"
-	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco"
+	"github.com/HUSTSecLab/OpenSift/pkg/gitfile/parser"
+	"github.com/HUSTSecLab/OpenSift/pkg/gitfile/parser/langeco"
 )
 
 func Parse(content string) (*langeco.Package, *langeco.Dependencies, error) {

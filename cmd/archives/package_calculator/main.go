@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/HUSTSecLab/criticality_score/cmd/archives/package_calculator/internal/package_calculator"
-	"github.com/HUSTSecLab/criticality_score/pkg/config"
-	"github.com/HUSTSecLab/criticality_score/pkg/storage"
+	"github.com/HUSTSecLab/OpenSift/cmd/archives/package_calculator/internal/package_calculator"
+	"github.com/HUSTSecLab/OpenSift/pkg/config"
+	"github.com/HUSTSecLab/OpenSift/pkg/storage"
 	"github.com/spf13/pflag"
 )
 

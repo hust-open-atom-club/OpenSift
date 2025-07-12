@@ -3,12 +3,12 @@ package admin
 import (
 	"slices"
 
-	"github.com/HUSTSecLab/criticality_score/cmd/apiserver/internal/model"
-	"github.com/HUSTSecLab/criticality_score/cmd/git-metadata-collector/rpc"
-	"github.com/HUSTSecLab/criticality_score/pkg/config"
-	"github.com/HUSTSecLab/criticality_score/pkg/logger"
-	"github.com/HUSTSecLab/criticality_score/pkg/storage"
-	"github.com/HUSTSecLab/criticality_score/pkg/storage/repository"
+	"github.com/HUSTSecLab/OpenSift/cmd/apiserver/internal/model"
+	"github.com/HUSTSecLab/OpenSift/cmd/git-metadata-collector/rpc"
+	"github.com/HUSTSecLab/OpenSift/pkg/config"
+	"github.com/HUSTSecLab/OpenSift/pkg/logger"
+	"github.com/HUSTSecLab/OpenSift/pkg/storage"
+	"github.com/HUSTSecLab/OpenSift/pkg/storage/repository"
 	"github.com/gin-gonic/gin"
 	"github.com/samber/lo"
 )

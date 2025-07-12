@@ -9,7 +9,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/storage"
+	"github.com/HUSTSecLab/OpenSift/pkg/storage"
 )
 
 func camelToSnake(s string) string {

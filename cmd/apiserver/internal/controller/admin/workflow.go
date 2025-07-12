@@ -5,9 +5,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/HUSTSecLab/criticality_score/cmd/apiserver/internal/model"
-	"github.com/HUSTSecLab/criticality_score/cmd/workflow-runner/rpc"
-	"github.com/HUSTSecLab/criticality_score/pkg/config"
+	"github.com/HUSTSecLab/OpenSift/cmd/apiserver/internal/model"
+	"github.com/HUSTSecLab/OpenSift/cmd/workflow-runner/rpc"
+	"github.com/HUSTSecLab/OpenSift/pkg/config"
 	"github.com/gin-gonic/gin"
 )
 

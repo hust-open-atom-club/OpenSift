@@ -18,7 +18,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/logger"
+	"github.com/HUSTSecLab/OpenSift/pkg/logger"
 	"github.com/hasura/go-graphql-client"
 )
 

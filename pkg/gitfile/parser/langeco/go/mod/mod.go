@@ -3,8 +3,8 @@ package mod
 import (
 	"errors"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser"
-	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco"
+	"github.com/HUSTSecLab/OpenSift/pkg/gitfile/parser"
+	"github.com/HUSTSecLab/OpenSift/pkg/gitfile/parser/langeco"
 	"golang.org/x/mod/modfile"
 )
 
