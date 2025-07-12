@@ -3,7 +3,7 @@ package enumerator
 import (
 	"time"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/linkenumerator/writer"
+	"github.com/HUSTSecLab/OpenSift/pkg/linkenumerator/writer"
 	"github.com/imroc/req/v3"
 	"github.com/sirupsen/logrus"
 )

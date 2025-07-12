@@ -5,9 +5,9 @@ import (
 	"net/rpc"
 	"strconv"
 
-	"github.com/HUSTSecLab/criticality_score/cmd/workflow-runner/internal/db"
-	"github.com/HUSTSecLab/criticality_score/cmd/workflow-runner/internal/loop"
-	rpcproto "github.com/HUSTSecLab/criticality_score/cmd/workflow-runner/rpc"
+	"github.com/HUSTSecLab/OpenSift/cmd/workflow-runner/internal/db"
+	"github.com/HUSTSecLab/OpenSift/cmd/workflow-runner/internal/loop"
+	rpcproto "github.com/HUSTSecLab/OpenSift/cmd/workflow-runner/rpc"
 )
 
 type RpcServiceServer struct{}

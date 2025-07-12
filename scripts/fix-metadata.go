@@ -7,15 +7,15 @@ import (
 	"os"
 	"sync"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/config"
-	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/collector"
-	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/git"
-	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/url"
-	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/util"
-	"github.com/HUSTSecLab/criticality_score/pkg/logger"
-	"github.com/HUSTSecLab/criticality_score/pkg/storage"
-	"github.com/HUSTSecLab/criticality_score/pkg/storage/repository"
-	"github.com/HUSTSecLab/criticality_score/pkg/storage/sqlutil"
+	"github.com/HUSTSecLab/OpenSift/pkg/config"
+	"github.com/HUSTSecLab/OpenSift/pkg/gitfile/collector"
+	"github.com/HUSTSecLab/OpenSift/pkg/gitfile/parser/git"
+	"github.com/HUSTSecLab/OpenSift/pkg/gitfile/parser/url"
+	"github.com/HUSTSecLab/OpenSift/pkg/gitfile/util"
+	"github.com/HUSTSecLab/OpenSift/pkg/logger"
+	"github.com/HUSTSecLab/OpenSift/pkg/storage"
+	"github.com/HUSTSecLab/OpenSift/pkg/storage/repository"
+	"github.com/HUSTSecLab/OpenSift/pkg/storage/sqlutil"
 	"github.com/bytedance/gopkg/util/gopool"
 	"github.com/lib/pq"
 	"github.com/spf13/pflag"
@@ -27,7 +27,7 @@ func fix(ctx storage.AppDatabaseContext, link string) {
 		"link": link,
 	}).Infof("Fixing language of %s", link)
 	u, _ := url.ParseURL(link)
-	path := util.GetGitRepositoryPath(config.GetGitStoragePath(), &u)
+	path, _ := util.GetGitRepositoryPath(config.GetGitStoragePath(), &u)
 	r, err := collector.Open(path)
 
 	if err != nil {

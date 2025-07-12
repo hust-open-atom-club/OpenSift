@@ -3,7 +3,7 @@ package pipenv
 import (
 	"errors"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco"
+	"github.com/HUSTSecLab/OpenSift/pkg/gitfile/parser/langeco"
 	"github.com/liamg/jfather"
 )
 

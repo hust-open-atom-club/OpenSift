@@ -3,7 +3,7 @@ package manifest
 import (
 	"time"
 
-	"github.com/HUSTSecLab/criticality_score/cmd/workflow-runner/internal/workflow"
+	"github.com/HUSTSecLab/OpenSift/cmd/workflow-runner/internal/workflow"
 )
 
 var (

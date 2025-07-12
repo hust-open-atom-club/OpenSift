@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/collector"
-	url "github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/url"
+	"github.com/HUSTSecLab/OpenSift/pkg/gitfile/collector"
+	url "github.com/HUSTSecLab/OpenSift/pkg/gitfile/parser/url"
 	"github.com/stretchr/testify/require"
 )
 

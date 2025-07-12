@@ -3,8 +3,8 @@ package model
 import (
 	"time"
 
-	"github.com/HUSTSecLab/criticality_score/cmd/git-metadata-collector/rpc"
-	"github.com/HUSTSecLab/criticality_score/pkg/storage/repository"
+	"github.com/HUSTSecLab/OpenSift/cmd/git-metadata-collector/rpc"
+	"github.com/HUSTSecLab/OpenSift/pkg/storage/repository"
 )
 
 type GitFileStatusResp struct {

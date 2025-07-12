@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/HUSTSecLab/criticality_score/cmd/git-metrics-sync/internal/gmsync"
-	"github.com/HUSTSecLab/criticality_score/pkg/config"
+	"github.com/HUSTSecLab/OpenSift/pkg/config"
+	"github.com/HUSTSecLab/OpenSift/scripts/git-metrics-sync/internal/gmsync"
 	"github.com/spf13/pflag"
 )
 

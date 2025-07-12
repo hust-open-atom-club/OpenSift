@@ -6,8 +6,8 @@ import (
 	"io"
 	"strings"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser"
-	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco"
+	"github.com/HUSTSecLab/OpenSift/pkg/gitfile/parser"
+	"github.com/HUSTSecLab/OpenSift/pkg/gitfile/parser/langeco"
 )
 
 type Pom struct {

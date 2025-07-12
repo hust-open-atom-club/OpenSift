@@ -3,15 +3,15 @@ package main
 import (
 	"fmt"
 
-	"github.com/HUSTSecLab/criticality_score/cmd/apiserver/docs"
-	"github.com/HUSTSecLab/criticality_score/cmd/apiserver/internal/controller"
-	"github.com/HUSTSecLab/criticality_score/cmd/apiserver/internal/server"
-	"github.com/HUSTSecLab/criticality_score/cmd/apiserver/internal/tool"
+	"github.com/HUSTSecLab/OpenSift/cmd/apiserver/docs"
+	"github.com/HUSTSecLab/OpenSift/cmd/apiserver/internal/controller"
+	"github.com/HUSTSecLab/OpenSift/cmd/apiserver/internal/server"
+	"github.com/HUSTSecLab/OpenSift/cmd/apiserver/internal/tool"
 
 	// regist all tool implementations
-	_ "github.com/HUSTSecLab/criticality_score/cmd/apiserver/internal/toolimpl"
-	"github.com/HUSTSecLab/criticality_score/pkg/config"
-	"github.com/HUSTSecLab/criticality_score/pkg/logger"
+	_ "github.com/HUSTSecLab/OpenSift/cmd/apiserver/internal/toolimpl"
+	"github.com/HUSTSecLab/OpenSift/pkg/config"
+	"github.com/HUSTSecLab/OpenSift/pkg/logger"
 	"github.com/spf13/pflag"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"

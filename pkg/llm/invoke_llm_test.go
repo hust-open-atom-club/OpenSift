@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/HUSTSecLab/criticality_score/pkg/llm"
+	"github.com/HUSTSecLab/OpenSift/pkg/llm"
 )
 
 func TestUpdateBatch(t *testing.T) {

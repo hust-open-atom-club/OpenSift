@@ -5,9 +5,9 @@ import (
 	"regexp"
 	"strings"
 
-	collector "github.com/HUSTSecLab/criticality_score/pkg/collector/internal"
-	"github.com/HUSTSecLab/criticality_score/pkg/storage"
-	"github.com/HUSTSecLab/criticality_score/pkg/storage/repository"
+	collector "github.com/HUSTSecLab/OpenSift/pkg/collector/internal"
+	"github.com/HUSTSecLab/OpenSift/pkg/storage"
+	"github.com/HUSTSecLab/OpenSift/pkg/storage/repository"
 )
 
 type DeepinCollector struct {

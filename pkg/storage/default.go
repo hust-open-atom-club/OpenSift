@@ -3,7 +3,7 @@ package storage
 import (
 	"fmt"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/logger"
+	"github.com/HUSTSecLab/OpenSift/pkg/logger"
 )
 
 const (

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/logger"
+	"github.com/HUSTSecLab/OpenSift/pkg/logger"
 	"github.com/bytedance/gopkg/util/gopool"
 )
 
