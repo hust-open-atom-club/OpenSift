@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/stretchr/testify/require"
 	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser"
 	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco"
 )
@@ -119,33 +120,22 @@ func TestParse(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			input := readTestData(t, tt.filename)
-			gotPkg, gotDeps, err := Parse(input)
+	t.Run(tt.name, func(t *testing.T) {
+		input := readTestData(t, tt.filename)
+		gotPkg, gotDeps, err := Parse(input)
 
-			if (err != nil) != tt.wantErr {
-				t.Errorf("Parse() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if tt.wantErr {
-				return
-			}
+		if tt.wantErr {
+			require.Error(t, err, "预期应该返回错误")
+			return
+		}
+		require.NoError(t, err)
 
-			if *gotPkg != *tt.wantPkg {
-				t.Errorf("主包不匹配\n期望: %+v\n实际: %+v", tt.wantPkg, gotPkg)
-			}
+		require.Equal(t, *tt.wantPkg, *gotPkg, "主包不匹配")
+		require.Len(t, *gotDeps, len(*tt.wantDeps), "依赖数量不匹配")
 
-			if len(*gotDeps) != len(*tt.wantDeps) {
-				t.Fatalf("依赖数量不匹配\n期望: %d\n实际: %d",
-					len(*tt.wantDeps), len(*gotDeps))
-			}
-
-			for i := range *tt.wantDeps {
-				if (*gotDeps)[i] != (*tt.wantDeps)[i] {
-					t.Errorf("依赖项[%d]不匹配\n期望: %+v\n实际: %+v",
-						i, (*tt.wantDeps)[i], (*gotDeps)[i])
-				}
-			}
-		})
-	}
+		for i := range *tt.wantDeps {
+			require.Equal(t, (*tt.wantDeps)[i], (*gotDeps)[i], "依赖项[%d]不匹配", i)
+		}
+	})
+}
 }
