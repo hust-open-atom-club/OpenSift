@@ -1,21 +1,151 @@
 package mod
 
 import (
-	"fmt"
-	"io"
 	"os"
+	"path/filepath"
 	"testing"
+
+	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser"
+	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco"
 )
 
+func readTestData(t *testing.T, filename string) string {
+	t.Helper()
+	path := filepath.Join("TestData", filename)
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("读取测试文件 %s 失败: %v", path, err)
+	}
+	return string(data)
+}
+
 func TestParse(t *testing.T) {
-	file, _ := os.Open("go.mod")
-	defer file.Close()
-	data, _ := io.ReadAll(file)
-	t.Run("Parse Go Mod", func(t *testing.T) {
-		pkg, deps, _ := Parse(string(data))
-		fmt.Println(*pkg)
-		for index, dep := range *deps {
-			fmt.Println(index, dep)
-		}
-	})
+	tests := []struct {
+		name     string
+		filename string
+		wantPkg  *langeco.Package
+		wantDeps *langeco.Dependencies
+		wantErr  bool
+	}{
+		{
+			name:     "Standard go.mod",
+			filename: "standard.mod",
+			wantPkg: &langeco.Package{
+				Name:    "github.com/gin-gonic/gin",
+				Version: "",
+				Eco:     parser.GO,
+			},
+			wantDeps: &langeco.Dependencies{
+				{
+					Name:    "github.com/bytedance/sonic",
+					Version: "v1.13.2",
+					Eco:     parser.GO,
+				},
+				{
+					Name:    "github.com/gin-contrib/sse",
+					Version: "v1.1.0",
+					Eco:     parser.GO,
+				},
+				{
+					Name:    "github.com/go-playground/validator/v10",
+					Version: "v10.26.0",
+					Eco:     parser.GO,
+				},
+				{
+					Name:    "github.com/goccy/go-json",
+					Version: "v0.10.2",
+					Eco:     parser.GO,
+				},
+				{
+					Name:    "github.com/goccy/go-yaml",
+					Version: "v1.18.0",
+					Eco:     parser.GO,
+				},
+				{
+					Name:    "github.com/json-iterator/go",
+					Version: "v1.1.12",
+					Eco:     parser.GO,
+				},
+				{
+					Name:    "github.com/mattn/go-isatty",
+					Version: "v0.0.20",
+					Eco:     parser.GO,
+				},
+				{
+					Name:    "github.com/modern-go/reflect2",
+					Version: "v1.0.2",
+					Eco:     parser.GO,
+				},
+				{
+					Name:    "github.com/pelletier/go-toml/v2",
+					Version: "v2.2.4",
+					Eco:     parser.GO,
+				},
+				{
+					Name:    "github.com/quic-go/quic-go",
+					Version: "v0.52.0",
+					Eco:     parser.GO,
+				},
+				{
+					Name:    "github.com/stretchr/testify",
+					Version: "v1.10.0",
+					Eco:     parser.GO,
+				},
+				{
+					Name:    "github.com/ugorji/go/codec",
+					Version: "v1.2.12",
+					Eco:     parser.GO,
+				},
+				{
+					Name:    "golang.org/x/net",
+					Version: "v0.41.0",
+					Eco:     parser.GO,
+				},
+				{
+					Name:    "google.golang.org/protobuf",
+					Version: "v1.36.6",
+					Eco:     parser.GO,
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name:     "Invalid go.mod (预期失败)",
+			filename: "invalid.mod",
+			wantPkg:  nil,
+			wantDeps: nil,
+			wantErr:  true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			input := readTestData(t, tt.filename)
+			gotPkg, gotDeps, err := Parse(input)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Parse() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if tt.wantErr {
+				return
+			}
+
+			if *gotPkg != *tt.wantPkg {
+				t.Errorf("主包不匹配\n期望: %+v\n实际: %+v", tt.wantPkg, gotPkg)
+			}
+
+			if len(*gotDeps) != len(*tt.wantDeps) {
+				t.Fatalf("依赖数量不匹配\n期望: %d\n实际: %d",
+					len(*tt.wantDeps), len(*gotDeps))
+			}
+
+			for i := range *tt.wantDeps {
+				if (*gotDeps)[i] != (*tt.wantDeps)[i] {
+					t.Errorf("依赖项[%d]不匹配\n期望: %+v\n实际: %+v",
+						i, (*tt.wantDeps)[i], (*gotDeps)[i])
+				}
+			}
+		})
+	}
 }
