@@ -10,16 +10,6 @@ import (
 	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco"
 )
 
-func readTestData(t *testing.T, filename string) string {
-	t.Helper()
-	path := filepath.Join("TestData", filename)
-	data, err := os.ReadFile(path)
-	if err != nil {
-		t.Fatalf("读取测试文件 %s 失败: %v", path, err)
-	}
-	return string(data)
-}
-
 func TestParse(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -111,7 +101,7 @@ func TestParse(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name:     "Invalid go.mod (预期失败)",
+			name:     "Invalid go.mod",
 			filename: "invalid.mod",
 			wantPkg:  nil,
 			wantDeps: nil,
@@ -120,22 +110,28 @@ func TestParse(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-	t.Run(tt.name, func(t *testing.T) {
-		input := readTestData(t, tt.filename)
-		gotPkg, gotDeps, err := Parse(input)
+		t.Run(tt.name, func(t *testing.T) {
+			path := filepath.Join("TestData", tt.filename)
+			data, err := os.ReadFile(path)
+			if err != nil {
+				t.Fatalf("Failed to read test file %s: %v", path, err)
+			}
+			input := string(data)
 
-		if tt.wantErr {
-			require.Error(t, err, "预期应该返回错误")
-			return
-		}
-		require.NoError(t, err)
+			gotPkg, gotDeps, err := Parse(input)
 
-		require.Equal(t, *tt.wantPkg, *gotPkg, "主包不匹配")
-		require.Len(t, *gotDeps, len(*tt.wantDeps), "依赖数量不匹配")
+			if tt.wantErr {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
 
-		for i := range *tt.wantDeps {
-			require.Equal(t, (*tt.wantDeps)[i], (*gotDeps)[i], "依赖项[%d]不匹配", i)
-		}
-	})
-}
+			require.Equal(t, *tt.wantPkg, *gotPkg)
+			require.Len(t, *gotDeps, len(*tt.wantDeps))
+
+			for i := range *tt.wantDeps {
+				require.Equal(t, (*tt.wantDeps)[i], (*gotDeps)[i])
+			}
+		})
+	}
 }
