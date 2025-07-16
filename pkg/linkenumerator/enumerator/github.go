@@ -14,9 +14,9 @@ import (
 	"github.com/ossf/scorecard/v4/clients/githubrepo/roundtripper"
 	"github.com/ossf/scorecard/v4/log"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/linkenumerator/githubapi"
-	"github.com/HUSTSecLab/criticality_score/pkg/linkenumerator/githubsearch"
-	"github.com/HUSTSecLab/criticality_score/pkg/logger"
+	"github.com/HUSTSecLab/OpenSift/pkg/linkenumerator/githubapi"
+	"github.com/HUSTSecLab/OpenSift/pkg/linkenumerator/githubsearch"
+	"github.com/HUSTSecLab/OpenSift/pkg/logger"
 )
 
 const (

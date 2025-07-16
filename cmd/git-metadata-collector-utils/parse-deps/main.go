@@ -7,9 +7,9 @@ import (
 	"strings"
 	"sync"
 
-	collector "github.com/HUSTSecLab/criticality_score/pkg/gitfile/collector"
-	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/git"
-	"github.com/HUSTSecLab/criticality_score/pkg/logger"
+	collector "github.com/HUSTSecLab/OpenSift/pkg/gitfile/collector"
+	"github.com/HUSTSecLab/OpenSift/pkg/gitfile/parser/git"
+	"github.com/HUSTSecLab/OpenSift/pkg/logger"
 	"github.com/bytedance/gopkg/util/gopool"
 )
 

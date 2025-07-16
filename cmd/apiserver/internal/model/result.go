@@ -3,7 +3,7 @@ package model
 import (
 	"time"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/storage/repository"
+	"github.com/HUSTSecLab/OpenSift/pkg/storage/repository"
 )
 
 type ResultGitMetadataDTO struct {

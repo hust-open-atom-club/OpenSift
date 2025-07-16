@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/config"
-	"github.com/HUSTSecLab/criticality_score/pkg/logger"
+	"github.com/HUSTSecLab/OpenSift/pkg/config"
+	"github.com/HUSTSecLab/OpenSift/pkg/logger"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 )

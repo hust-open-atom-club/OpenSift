@@ -4,11 +4,11 @@ import (
 	"math"
 	"time"
 
-	log "github.com/HUSTSecLab/criticality_score/pkg/logger"
+	log "github.com/HUSTSecLab/OpenSift/pkg/logger"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/storage"
-	"github.com/HUSTSecLab/criticality_score/pkg/storage/repository"
-	"github.com/HUSTSecLab/criticality_score/pkg/storage/sqlutil"
+	"github.com/HUSTSecLab/OpenSift/pkg/storage"
+	"github.com/HUSTSecLab/OpenSift/pkg/storage/repository"
+	"github.com/HUSTSecLab/OpenSift/pkg/storage/sqlutil"
 )
 
 type LinkScore struct {

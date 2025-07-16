@@ -7,9 +7,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/config"
-	"github.com/HUSTSecLab/criticality_score/pkg/storage"
-	"github.com/HUSTSecLab/criticality_score/pkg/storage/repository"
+	"github.com/HUSTSecLab/OpenSift/pkg/config"
+	"github.com/HUSTSecLab/OpenSift/pkg/storage"
+	"github.com/HUSTSecLab/OpenSift/pkg/storage/repository"
 	"github.com/samber/lo"
 	"github.com/spf13/pflag"
 )

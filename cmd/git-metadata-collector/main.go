@@ -4,11 +4,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/HUSTSecLab/criticality_score/cmd/git-metadata-collector/internal/rpcserver"
-	"github.com/HUSTSecLab/criticality_score/cmd/git-metadata-collector/internal/schedule"
-	"github.com/HUSTSecLab/criticality_score/cmd/git-metadata-collector/internal/task"
-	"github.com/HUSTSecLab/criticality_score/pkg/config"
-	"github.com/HUSTSecLab/criticality_score/pkg/logger"
+	"github.com/HUSTSecLab/OpenSift/cmd/git-metadata-collector/internal/rpcserver"
+	"github.com/HUSTSecLab/OpenSift/cmd/git-metadata-collector/internal/schedule"
+	"github.com/HUSTSecLab/OpenSift/cmd/git-metadata-collector/internal/task"
+	"github.com/HUSTSecLab/OpenSift/pkg/config"
+	"github.com/HUSTSecLab/OpenSift/pkg/logger"
 	"github.com/spf13/pflag"
 )
 

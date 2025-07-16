@@ -3,8 +3,8 @@ package enumerator
 import (
 	"strings"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/linkenumerator/api"
-	"github.com/HUSTSecLab/criticality_score/pkg/linkenumerator/api/bitbucket"
+	"github.com/HUSTSecLab/OpenSift/pkg/linkenumerator/api"
+	"github.com/HUSTSecLab/OpenSift/pkg/linkenumerator/api/bitbucket"
 	"github.com/sirupsen/logrus"
 )
 

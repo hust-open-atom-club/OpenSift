@@ -1,7 +1,7 @@
 package bundler
 
 import (
-	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco"
+	"github.com/HUSTSecLab/OpenSift/pkg/gitfile/parser/langeco"
 )
 
 func Parse(content string) (*langeco.Package, *langeco.Dependencies, error) {

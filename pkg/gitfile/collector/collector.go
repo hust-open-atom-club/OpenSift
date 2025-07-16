@@ -6,10 +6,10 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/config"
-	parser "github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser"
-	url "github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/url"
-	"github.com/HUSTSecLab/criticality_score/pkg/logger"
+	"github.com/HUSTSecLab/OpenSift/pkg/config"
+	parser "github.com/HUSTSecLab/OpenSift/pkg/gitfile/parser"
+	url "github.com/HUSTSecLab/OpenSift/pkg/gitfile/parser/url"
+	"github.com/HUSTSecLab/OpenSift/pkg/logger"
 
 	gogit "github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/storage/memory"

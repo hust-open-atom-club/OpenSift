@@ -5,9 +5,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/linkenumerator/api"
-	"github.com/HUSTSecLab/criticality_score/pkg/linkenumerator/api/cargo"
-	"github.com/HUSTSecLab/criticality_score/pkg/logger"
+	"github.com/HUSTSecLab/OpenSift/pkg/linkenumerator/api"
+	"github.com/HUSTSecLab/OpenSift/pkg/linkenumerator/api/cargo"
+	"github.com/HUSTSecLab/OpenSift/pkg/logger"
 	"github.com/bytedance/gopkg/util/gopool"
 )
 

@@ -7,10 +7,10 @@ import (
 	"os/exec"
 	"time"
 
-	"github.com/HUSTSecLab/criticality_score/cmd/workflow-runner/internal/db"
-	"github.com/HUSTSecLab/criticality_score/cmd/workflow-runner/internal/workflow"
-	"github.com/HUSTSecLab/criticality_score/cmd/workflow-runner/rpc"
-	"github.com/HUSTSecLab/criticality_score/pkg/logger"
+	"github.com/HUSTSecLab/OpenSift/cmd/workflow-runner/internal/db"
+	"github.com/HUSTSecLab/OpenSift/cmd/workflow-runner/internal/workflow"
+	"github.com/HUSTSecLab/OpenSift/cmd/workflow-runner/rpc"
+	"github.com/HUSTSecLab/OpenSift/pkg/logger"
 	"github.com/samber/lo"
 )
 

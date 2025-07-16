@@ -3,7 +3,7 @@ package repository
 import (
 	"iter"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/storage"
+	"github.com/HUSTSecLab/OpenSift/pkg/storage"
 )
 
 type AllGitLinkRepository interface {

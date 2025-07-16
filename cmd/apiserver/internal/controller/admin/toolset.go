@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/HUSTSecLab/criticality_score/cmd/apiserver/internal/model"
-	"github.com/HUSTSecLab/criticality_score/cmd/apiserver/internal/tool"
+	"github.com/HUSTSecLab/OpenSift/cmd/apiserver/internal/model"
+	"github.com/HUSTSecLab/OpenSift/cmd/apiserver/internal/tool"
 	"github.com/gin-gonic/gin"
 	"github.com/samber/lo"
 

@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/logger"
-	"github.com/HUSTSecLab/criticality_score/pkg/storage"
+	"github.com/HUSTSecLab/OpenSift/pkg/logger"
+	"github.com/HUSTSecLab/OpenSift/pkg/storage"
 	"github.com/spf13/viper"
 )
 
