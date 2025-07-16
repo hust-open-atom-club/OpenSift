@@ -23,6 +23,7 @@ func (fc *FedoraCollector) Collect(outputPath string) {
 	fc.GetDep()
 	fc.PageRank(0.85, 20)
 	fc.GetDepCount()
+	fc.UpdateRelationships(adc)
 	fc.UpdateDistRepoCount(adc)
 	fc.CalculateDistImpact()
 	fc.UpdateOrInsertDatabase(adc)

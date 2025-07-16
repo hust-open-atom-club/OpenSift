@@ -23,6 +23,7 @@ func (cc *OpenEulerCollector) Collect(outputPath string) {
 	cc.GetDep()
 	cc.PageRank(0.85, 20)
 	cc.GetDepCount()
+	cc.UpdateRelationships(adc)
 	cc.UpdateDistRepoCount(adc)
 	cc.CalculateDistImpact()
 	cc.UpdateOrInsertDatabase(adc)

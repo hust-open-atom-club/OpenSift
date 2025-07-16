@@ -21,6 +21,7 @@ func (dc *UbuntuCollector) Collect(outputPath string) {
 	dc.GetDep()
 	dc.PageRank(0.85, 20)
 	dc.GetDepCount()
+	dc.UpdateRelationships(adc)
 	dc.UpdateDistRepoCount(adc)
 	dc.CalculateDistImpact()
 	dc.UpdateOrInsertDatabase(adc)

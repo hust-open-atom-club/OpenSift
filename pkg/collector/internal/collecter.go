@@ -31,6 +31,7 @@ type CollecterInterface interface {
 	GetPkgInfo(pkgName string) *PackageInfo
 	CalculateDistImpact()
 	UpdateDistRepoCount(ac storage.AppDatabaseContext)
+	UpdateRelationships(ac storage.AppDatabaseContext)
 }
 
 type Collecter struct {
@@ -346,4 +347,18 @@ func (cl *Collecter) UpdateDistRepoCount(ac storage.AppDatabaseContext) {
 	}
 
 	cl.DistRepoCount = count
+}
+
+func (cl *Collecter) UpdateRelationships(ac storage.AppDatabaseContext) {
+	repo := repository.NewDistDependencyRepository(ac)
+	relationships := make(map[string][]string)
+	for pkgName, pkgInfo := range cl.PkgInfoMap {
+		relationships[pkgName] = pkgInfo.IndirectDepends
+	}
+	err := repo.InsertRelationships(cl.Type, relationships)
+	if err != nil {
+		fmt.Printf("Error inserting relationships for %s: %v\n", cl.Type, err)
+	} else {
+		fmt.Printf("Successfully inserted relationships for %s.\n", cl.Type)
+	}
 }

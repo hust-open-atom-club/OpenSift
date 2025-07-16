@@ -20,6 +20,7 @@ func (ac *AlpineCollector) Collect(outputPath string) {
 	ac.GetDep()
 	ac.PageRank(0.85, 20)
 	ac.GetDepCount()
+	ac.UpdateRelationships(adc)
 	ac.UpdateDistRepoCount(adc)
 	ac.CalculateDistImpact()
 	ac.UpdateOrInsertDatabase(adc)

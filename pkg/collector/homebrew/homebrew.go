@@ -30,6 +30,7 @@ func (hc *HomebrewCollector) Collect(outputPath string, downloadDir string) {
 	hc.GetDep()
 	hc.PageRank(0.85, 20)
 	hc.GetDepCount()
+	hc.UpdateRelationships(adc)
 	hc.UpdateDistRepoCount(adc)
 	hc.CalculateDistImpact()
 	hc.UpdateOrInsertDatabase(adc)

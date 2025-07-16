@@ -1,7 +1,9 @@
 package repository
 
 import (
+	"fmt"
 	"iter"
+	"strings"
 	"time"
 
 	"github.com/HUSTSecLab/criticality_score/pkg/storage"
@@ -22,6 +24,7 @@ type DistDependencyRepository interface {
 	/** INSERT/UPDATE **/
 	// update_time will be updated automatically
 	InsertOrUpdate(packageInfo *DistDependency) error
+	InsertRelationships(distType DistType, relationships map[string][]string) error
 }
 
 type distLinkRepository struct {
@@ -140,4 +143,75 @@ func (r *distLinkRepository) InsertOrUpdate(packageInfo *DistDependency) error {
 func (r *distLinkRepository) QueryByType(distType int) (iter.Seq[*DistDependency], error) {
 	return sqlutil.QueryCommon[DistDependency](r.ctx, DistDependencyTableName,
 		"where type = $1", distType)
+}
+
+func (r *distLinkRepository) InsertRelationships(distType DistType, relationships map[string][]string) error {
+	var tableName string
+	switch distType {
+	case Debian:
+		tableName = "debian_relationships"
+	case Arch:
+		tableName = "arch_relationships"
+	case Homebrew:
+		tableName = "homebrew_relationships"
+	case Nix:
+		tableName = "nix_relationships"
+	case Alpine:
+		tableName = "alpine_relationships"
+	case Centos:
+		tableName = "centos_relationships"
+	case Aur:
+		tableName = "aur_relationships"
+	case Deepin:
+		tableName = "deepin_relationships"
+	case Fedora:
+		tableName = "fedora_relationships"
+	case Gentoo:
+		tableName = "gentoo_relationships"
+	case Ubuntu:
+		tableName = "ubuntu_relationships"
+	case OpenEuler:
+		tableName = "openeuler_relationships"
+	case OpenKylin:
+		tableName = "openkylin_relationships"
+	default:
+		return ErrInvalidInput
+	}
+	batchSize := 1000
+	valueStrings := make([]string, 0, batchSize)
+	valueArgs := make([]interface{}, 0, batchSize*2)
+	i := 0
+	for fromPackage, toPackages := range relationships {
+		for _, toPackage := range toPackages {
+			valueStrings = append(valueStrings, fmt.Sprintf("($%d, $%d)", i*2+1, i*2+2))
+			valueArgs = append(valueArgs, fromPackage, toPackage)
+			i++
+			if i >= batchSize {
+				stmt := fmt.Sprintf(`
+INSERT INTO %s (frompackage, topackage) VALUES %s
+ON CONFLICT (frompackage, topackage) DO UPDATE
+SET frompackage = EXCLUDED.frompackage;
+`, tableName, strings.Join(valueStrings, ","))
+				_, err := r.ctx.Exec(stmt, valueArgs...)
+				if err != nil {
+					return fmt.Errorf("failed to insert/update batch: %w", err)
+				}
+				valueStrings = make([]string, 0, batchSize)
+				valueArgs = make([]interface{}, 0, batchSize*2)
+				i = 0
+			}
+		}
+	}
+	if len(valueStrings) > 0 {
+		stmt := fmt.Sprintf(`
+INSERT INTO %s (frompackage, topackage) VALUES %s
+ON CONFLICT (frompackage, topackage) DO UPDATE
+SET frompackage = EXCLUDED.frompackage;
+`, tableName, strings.Join(valueStrings, ","))
+		_, err := r.ctx.Exec(stmt, valueArgs...)
+		if err != nil {
+			return fmt.Errorf("failed to insert/update remaining batch: %w", err)
+		}
+	}
+	return nil
 }

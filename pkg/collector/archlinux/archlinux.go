@@ -20,6 +20,7 @@ func (al *ArchLinuxCollector) Collect(outputPath string) {
 	al.GetDep()
 	al.PageRank(0.85, 20)
 	al.GetDepCount()
+	al.UpdateRelationships(adc)
 	al.UpdateDistRepoCount(adc)
 	al.CalculateDistImpact()
 	al.UpdateOrInsertDatabase(adc)

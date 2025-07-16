@@ -30,6 +30,7 @@ func (nc *NixCollector) Collect(workerCount int, batchSize int, outputPath strin
 	nc.GetDep()
 	nc.PageRank(0.85, 20)
 	nc.GetDepCount()
+	nc.UpdateRelationships(adc)
 	nc.UpdateDistRepoCount(adc)
 	nc.CalculateDistImpact()
 	nc.UpdateOrInsertDatabase(adc)
