@@ -1,0 +1,8 @@
+github.com/multi/pkg v1.0.0 h1:abc123=
+github.com/multi/pkg v1.0.0/go.mod h1:abc123=
+github.com/multi/pkg v1.1.0 h1:def456=
+github.com/multi/pkg v1.1.0/go.mod h1:def456=
+golang.org/x/net v0.41.0 h1:Q5QP5M6Rh3Jk/LvaLJh3J6jJ6Lf3Qy9M0V0J6J6J6J6=
+golang.org/x/net v0.41.0/go.mod h1:Q5QP5M6Rh3Jk/LvaLJh3J6jJ6Lf3Qy9M0V0J6J6J6J6=
+golang.org/x/net v0.41.2 h1:Q5QP5M6Rh3Jk/LvaLJh3J6jJ6Lf3Qy9M0V0J6J6J6J6=
+golang.org/x/net v0.41.2/go.mod h1:Q5QP5M6Rh3Jk/LvaLJh3J6jJ6Lf3Qy9M0V0J6J6J6J6=
