@@ -3,9 +3,9 @@ package main
 import (
 	"log"
 
-	"github.com/HUSTSecLab/OpenSift/cmd/git-relationship-generator/internal/pkgdep2git"
 	"github.com/HUSTSecLab/OpenSift/pkg/config"
 	"github.com/HUSTSecLab/OpenSift/pkg/storage"
+	"github.com/HUSTSecLab/OpenSift/scripts/git-relationship-generator/internal/pkgdep2git"
 	"github.com/spf13/pflag"
 )
 
