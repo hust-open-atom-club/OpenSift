@@ -5,9 +5,9 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/collector"
-	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco"
-	url "github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/url"
+	"github.com/HUSTSecLab/OpenSift/pkg/gitfile/collector"
+	"github.com/HUSTSecLab/OpenSift/pkg/gitfile/parser/langeco"
+	url "github.com/HUSTSecLab/OpenSift/pkg/gitfile/parser/url"
 )
 
 func TestEco(t *testing.T) {

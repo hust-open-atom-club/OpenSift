@@ -3,9 +3,9 @@ package main
 import (
 	"strings"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/config"
-	"github.com/HUSTSecLab/criticality_score/pkg/llm"
-	"github.com/HUSTSecLab/criticality_score/pkg/storage"
+	"github.com/HUSTSecLab/OpenSift/pkg/config"
+	"github.com/HUSTSecLab/OpenSift/pkg/llm"
+	"github.com/HUSTSecLab/OpenSift/pkg/storage"
 	"github.com/spf13/pflag"
 )
 

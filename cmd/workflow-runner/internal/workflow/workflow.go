@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/logger"
+	"github.com/HUSTSecLab/OpenSift/pkg/logger"
 )
 
 type WorkflowRunFunc func(ctx *RunningCtx, stop chan struct{}, kill chan struct{}) error

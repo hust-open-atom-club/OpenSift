@@ -3,7 +3,7 @@ package enumerator
 import (
 	"testing"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/linkenumerator/writer"
+	"github.com/HUSTSecLab/OpenSift/pkg/linkenumerator/writer"
 )
 
 func Test_enumerateBitbucket(t *testing.T) {

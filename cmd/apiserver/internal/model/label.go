@@ -1,6 +1,6 @@
 package model
 
-import "github.com/HUSTSecLab/criticality_score/pkg/storage/repository"
+import "github.com/HUSTSecLab/OpenSift/pkg/storage/repository"
 
 type UpdateDistributionGitLinkReq struct {
 	Distribution string   `json:"distribution" binding:"required"`

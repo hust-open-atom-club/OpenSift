@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/url"
+	"github.com/HUSTSecLab/OpenSift/pkg/gitfile/parser/url"
 )
 
 func GetCSVInput(path string) ([][]string, error) {

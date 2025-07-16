@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/llm"
+	"github.com/HUSTSecLab/OpenSift/pkg/llm"
 )
 
 func TestAskGitLink(t *testing.T) {

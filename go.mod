@@ -1,4 +1,4 @@
-module github.com/HUSTSecLab/criticality_score
+module github.com/HUSTSecLab/OpenSift
 
 go 1.23.0
 

@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/linkenumerator/githubapi/pagination"
+	"github.com/HUSTSecLab/OpenSift/pkg/linkenumerator/githubapi/pagination"
 	"github.com/hasura/go-graphql-client"
 )
 

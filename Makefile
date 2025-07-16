@@ -22,7 +22,7 @@ all: $(APPS)
 
 # all app targets
 $(APPS): %:
-	$(GOBUILD) -o $(BIN_DIR)/$@ github.com/HUSTSecLab/criticality_score/cmd/$@
+	$(GOBUILD) -o $(BIN_DIR)/$@ github.com/HUSTSecLab/OpenSift/cmd/$@
 
 # # all binaries
 # $(BIN_DIR)/%: cmd/%

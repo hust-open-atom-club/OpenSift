@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/HUSTSecLab/criticality_score/pkg/config"
-	"github.com/HUSTSecLab/criticality_score/pkg/depsdev"
+	"github.com/HUSTSecLab/OpenSift/pkg/config"
+	"github.com/HUSTSecLab/OpenSift/pkg/depsdev"
 	"github.com/spf13/pflag"
 )
 

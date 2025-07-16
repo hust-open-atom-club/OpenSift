@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	url "github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/url"
-	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/util"
-	"github.com/HUSTSecLab/criticality_score/pkg/logger"
+	url "github.com/HUSTSecLab/OpenSift/pkg/gitfile/parser/url"
+	"github.com/HUSTSecLab/OpenSift/pkg/gitfile/util"
+	"github.com/HUSTSecLab/OpenSift/pkg/logger"
 	"github.com/spf13/pflag"
 
 	"github.com/go-git/go-git/v5"

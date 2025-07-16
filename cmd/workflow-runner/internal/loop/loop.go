@@ -6,11 +6,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/HUSTSecLab/criticality_score/cmd/workflow-runner/internal/db"
-	"github.com/HUSTSecLab/criticality_score/cmd/workflow-runner/internal/manifest"
-	"github.com/HUSTSecLab/criticality_score/cmd/workflow-runner/internal/workflow"
-	"github.com/HUSTSecLab/criticality_score/pkg/config"
-	"github.com/HUSTSecLab/criticality_score/pkg/logger"
+	"github.com/HUSTSecLab/OpenSift/cmd/workflow-runner/internal/db"
+	"github.com/HUSTSecLab/OpenSift/cmd/workflow-runner/internal/manifest"
+	"github.com/HUSTSecLab/OpenSift/cmd/workflow-runner/internal/workflow"
+	"github.com/HUSTSecLab/OpenSift/pkg/config"
+	"github.com/HUSTSecLab/OpenSift/pkg/logger"
 )
 
 var handler workflow.RunningHandler

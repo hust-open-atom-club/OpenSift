@@ -13,7 +13,7 @@ fi
 about() {
     echo "Criticality Score Setup tool"
     echo "============================"
-    echo "Homepage: https://github.com/HUSTSeclab/criticality_score"
+    echo "Homepage: https://github.com/HUSTSecLab/OpenSift"
     echo "Version :" "$(git rev-parse HEAD)" "$GIT_STATUS"
     echo
 }
