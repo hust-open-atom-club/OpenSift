@@ -44,6 +44,8 @@ const (
 	Fedora
 	Gentoo
 	Ubuntu
+	OpenEuler
+	OpenKylin
 	Other
 )
 
@@ -64,7 +66,7 @@ func NewDistDependencyRepository(appDb storage.AppDatabaseContext) DistDependenc
 
 // Query implements DistributionDependencyRepository.
 func (r *distLinkRepository) Query() (iter.Seq[*DistDependency], error) {
-	return sqlutil.Query[DistDependency](r.ctx, `SELECT DISTINCT ON (git_link, "type") id, git_link, type, dep_impact, dep_count, page_rank, update_time FROM distribution_dependencies ORDER BY git_link, "type", id DESC`)
+	return sqlutil.Query[DistDependency](r.ctx, `SELECT DISTINCT ON (git_link, "type") id, git_link, type, dep_impact, dep_count, page_rank, update_time, downloads_3m FROM distribution_dependencies ORDER BY git_link, "type", id DESC`)
 }
 
 // QueryDistCountByType implements DistributionDependencyRepository.
@@ -93,6 +95,10 @@ func (r *distLinkRepository) QueryDistCountByType(distType DistType) (int, error
 		tableName = "gentoo_packages"
 	case Ubuntu:
 		tableName = "ubuntu_packages"
+	case OpenEuler:
+		tableName = "openeuler_packages"
+	case OpenKylin:
+		tableName = "openkylin_packages"
 	default:
 		return 0, ErrInvalidInput
 	}

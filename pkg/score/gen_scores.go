@@ -37,11 +37,12 @@ type GitMetadataScore struct {
 }
 
 type DistMetadata struct {
-	Id        int64
-	DepImpact float64
-	DepCount  int
-	PageRank  float64
-	Type      repository.DistType
+	Id           int64
+	DepImpact    float64
+	DepCount     int
+	PageRank     float64
+	downloads_3m int
+	Type         repository.DistType
 }
 
 type LangEcoMetadata struct {
@@ -55,6 +56,7 @@ type LangEcoMetadata struct {
 type DistScore struct {
 	DistDependencies []*repository.DistDependency
 	DistImpact       float64
+	downloads_3m     int
 	DistPageRank     float64
 	DistScore        float64
 }
@@ -81,6 +83,7 @@ var weights = map[string]map[string]float64{
 	"distScore": {
 		"dist_impact":   1,
 		"dist_pagerank": 1,
+		"downloads_3m":  0.5,
 		"distScore":     0.5,
 	},
 	"langEcoScore": {
@@ -123,6 +126,7 @@ var thresholds = map[string]map[string]map[string]float64{
 		"distScore": {
 			"dist_impact":   6,
 			"dist_pagerank": 0.5,
+			"downloads_3m":  1700000,
 			"distScore":     1.5,
 		},
 		"langEcoScore": {
@@ -148,11 +152,11 @@ var PackageList = map[repository.DistType]int{
 }
 
 var PackageWeight = map[repository.LangEcosystemType]float64{
-	repository.Npm:   1.5,
-	repository.Go:    1.4,
-	repository.Maven: 1.3,
-	repository.Pypi:  1.2,
-	repository.NuGet: 1.1,
+	repository.Npm:   1,
+	repository.Go:    1,
+	repository.Maven: 1,
+	repository.Pypi:  1,
+	repository.NuGet: 1,
 	repository.Cargo: 1,
 }
 
@@ -169,6 +173,7 @@ func (distMetadata *DistMetadata) PraseDistMetadata(distLink *repository.DistDep
 	distMetadata.DepCount = *distLink.DepCount
 	distMetadata.DepImpact = *distLink.DepImpact
 	distMetadata.PageRank = *distLink.PageRank
+	distMetadata.downloads_3m = *distLink.Downloads_3m
 	distMetadata.Type = *distLink.Type
 }
 
@@ -343,9 +348,10 @@ func FetchDistMetadata(ac storage.AppDatabaseContext) map[string]*DistScore {
 		if exists, ok := distMap[*link.GitLink]; ok && exists != nil {
 			distMap[*link.GitLink].DistDependencies = append(distMap[*link.GitLink].DistDependencies, link)
 			distMap[*link.GitLink].DistImpact += float64(coefficient) * distMetadata.DepImpact
+			distMap[*link.GitLink].downloads_3m += distMetadata.downloads_3m
 			distMap[*link.GitLink].DistPageRank += float64(coefficient) * distMetadata.PageRank
 		} else {
-			distMap[*link.GitLink] = &DistScore{DistDependencies: []*repository.DistDependency{link}, DistImpact: float64(coefficient) * distMetadata.DepImpact, DistPageRank: float64(coefficient) * distMetadata.PageRank}
+			distMap[*link.GitLink] = &DistScore{DistDependencies: []*repository.DistDependency{link}, DistImpact: float64(coefficient) * distMetadata.DepImpact, DistPageRank: float64(coefficient) * distMetadata.PageRank, downloads_3m: distMetadata.downloads_3m}
 		}
 	}
 	return distMap
@@ -418,8 +424,9 @@ func FetchDistMetadataSingle(ac storage.AppDatabaseContext, link string) map[str
 			distMap[*link.GitLink].DistDependencies = append(distMap[*link.GitLink].DistDependencies, link)
 			distMap[*link.GitLink].DistImpact += float64(coefficient) * distMetadata.DepImpact
 			distMap[*link.GitLink].DistPageRank += float64(coefficient) * distMetadata.PageRank
+			distMap[*link.GitLink].downloads_3m += distMetadata.downloads_3m
 		} else {
-			distMap[*link.GitLink] = &DistScore{DistDependencies: []*repository.DistDependency{link}, DistImpact: float64(coefficient) * distMetadata.DepImpact, DistPageRank: float64(coefficient) * distMetadata.PageRank}
+			distMap[*link.GitLink] = &DistScore{DistDependencies: []*repository.DistDependency{link}, DistImpact: float64(coefficient) * distMetadata.DepImpact, DistPageRank: float64(coefficient) * distMetadata.PageRank, downloads_3m: distMetadata.downloads_3m}
 		}
 	}
 	return distMap

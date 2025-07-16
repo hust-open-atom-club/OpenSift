@@ -13,6 +13,7 @@ import (
 
 	"github.com/HUSTSecLab/criticality_score/pkg/storage"
 	"github.com/HUSTSecLab/criticality_score/pkg/storage/repository"
+	"github.com/klauspost/compress/zstd"
 	"github.com/samber/lo"
 )
 
@@ -223,7 +224,27 @@ func (cl *Collecter) GetPackageInfo(urls PackageURL) string {
 				}
 			}
 			result += body.String()
-
+		case strings.HasSuffix(url, ".zst"):
+			zstdReader, err := zstd.NewReader(resp.Body)
+			if err != nil {
+				fmt.Println("Error creating zstd reader:", err)
+				continue
+			}
+			defer zstdReader.Close()
+			reader := bufio.NewReader(zstdReader)
+			var body strings.Builder
+			for {
+				line, err := reader.ReadString('\n')
+				body.WriteString(line)
+				if err == io.EOF {
+					break
+				}
+				if err != nil {
+					fmt.Println("Error reading response body:", err)
+					break
+				}
+			}
+			result += body.String()
 		default:
 			fmt.Println("Unsupported file type:", url)
 			continue

@@ -80,6 +80,12 @@ var (
 	DeepinURL = PackageURL{
 		"https://mirrors.hust.edu.cn/deepin/beige/dists/beige/main/binary-amd64/Packages.gz",
 	}
+	OpenEulerURL = PackageURL{
+		"https://mirrors.hust.edu.cn/openeuler/openEuler-25.03/source/repodata/d2c8439b5d4ef77caf0aba57453b255c955625b95b5231266c0f668223524800-primary.xml.zst",
+	}
+	OpenKylinURL = PackageURL{
+		"https://mirrors.hust.edu.cn/openkylin/dists/huanghe/main/binary-amd64/Packages.gz",
+	}
 )
 
 func NewPackageInfo() PackageInfoInterface {
@@ -87,10 +93,11 @@ func NewPackageInfo() PackageInfoInterface {
 }
 func (pkg *PackageInfo) ParseDistPackage() *repository.DistPackage {
 	return &repository.DistPackage{
-		Package:     &pkg.Name,
-		Description: &pkg.Description,
-		HomePage:    &pkg.Homepage,
-		Version:     &pkg.Version,
+		Package:      &pkg.Name,
+		Description:  &pkg.Description,
+		HomePage:     &pkg.Homepage,
+		Version:      &pkg.Version,
+		DependsCount: &pkg.DependsCount,
 	}
 }
 

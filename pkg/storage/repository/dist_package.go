@@ -49,6 +49,8 @@ const (
 	DistLinkTablePrefixHomebrew                         = "homebrew"
 	DistLinkTablePrefixNix                              = "nix"
 	DistLinkTablePrefixUbuntu                           = "ubuntu"
+	DistLinkTablePrefixOpenEuler                        = "openeuler"
+	DistLinkTablePrefixOpenKylin                        = "openkylin"
 )
 
 type DistPackage struct {
@@ -58,6 +60,7 @@ type DistPackage struct {
 	Description    *string
 	Version        *string
 	GitLink        *string
+	DependsCount   *int
 	LinkConfidence **float32
 }
 

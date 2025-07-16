@@ -14,6 +14,8 @@ import (
 	"github.com/HUSTSecLab/criticality_score/pkg/collector/homebrew"
 	"github.com/HUSTSecLab/criticality_score/pkg/collector/nix"
 	"github.com/HUSTSecLab/criticality_score/pkg/collector/ubuntu"
+	"github.com/HUSTSecLab/criticality_score/pkg/collector/openeuler"
+	"github.com/HUSTSecLab/criticality_score/pkg/collector/openkylin"
 	"github.com/HUSTSecLab/criticality_score/pkg/config"
 	"github.com/spf13/pflag"
 )
@@ -78,6 +80,14 @@ func main() {
 			defer wg.Done()
 			aur.NewAurCollector().Collect(*flagGenDot)
 		}()
+		go func() {
+			defer wg.Done()
+			openeuler.NewOpenEulerCollector().Collect(*flagGenDot)
+		}()
+		go func() {
+			defer wg.Done()
+			openkylin.NewOpenKylinCollector().Collect(*flagGenDot)
+		}()
 
 		wg.Wait()
 	} else {
@@ -104,6 +114,10 @@ func main() {
 			alpine.NewAlpineCollector().Collect(*flagGenDot)
 		case "aur":
 			aur.NewAurCollector().Collect(*flagGenDot)
+		case "openeuler":
+			openeuler.NewOpenEulerCollector().Collect(*flagGenDot)
+		case "openkylin":
+			openkylin.NewOpenKylinCollector().Collect(*flagGenDot)
 		}
 	}
 }
