@@ -14,8 +14,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/config"
-	"github.com/HUSTSecLab/criticality_score/pkg/storage"
+	"github.com/HUSTSecLab/OpenSift/pkg/config"
+	"github.com/HUSTSecLab/OpenSift/pkg/storage"
 	"github.com/PuerkitoBio/goquery"
 )
 

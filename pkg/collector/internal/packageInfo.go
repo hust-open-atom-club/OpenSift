@@ -3,8 +3,8 @@ package collector
 import (
 	"log"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/storage"
-	"github.com/HUSTSecLab/criticality_score/pkg/storage/repository"
+	"github.com/HUSTSecLab/OpenSift/pkg/storage"
+	"github.com/HUSTSecLab/OpenSift/pkg/storage/repository"
 )
 
 type PackageInfoInterface interface {

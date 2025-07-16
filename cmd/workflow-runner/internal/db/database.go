@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/HUSTSecLab/criticality_score/cmd/workflow-runner/internal/workflow"
-	"github.com/HUSTSecLab/criticality_score/cmd/workflow-runner/rpc"
-	"github.com/HUSTSecLab/criticality_score/pkg/config"
+	"github.com/HUSTSecLab/OpenSift/cmd/workflow-runner/internal/workflow"
+	"github.com/HUSTSecLab/OpenSift/cmd/workflow-runner/rpc"
+	"github.com/HUSTSecLab/OpenSift/pkg/config"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/samber/lo"
 )

@@ -3,10 +3,10 @@ package main
 import (
 	"log"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/config"
-	"github.com/HUSTSecLab/criticality_score/pkg/logger"
-	scores "github.com/HUSTSecLab/criticality_score/pkg/score"
-	"github.com/HUSTSecLab/criticality_score/pkg/storage"
+	"github.com/HUSTSecLab/OpenSift/pkg/config"
+	"github.com/HUSTSecLab/OpenSift/pkg/logger"
+	scores "github.com/HUSTSecLab/OpenSift/pkg/score"
+	"github.com/HUSTSecLab/OpenSift/pkg/storage"
 	_ "github.com/lib/pq"
 	"github.com/spf13/pflag"
 )

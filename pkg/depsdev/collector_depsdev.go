@@ -14,8 +14,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/storage"
-	"github.com/HUSTSecLab/criticality_score/pkg/storage/repository"
+	"github.com/HUSTSecLab/OpenSift/pkg/storage"
+	"github.com/HUSTSecLab/OpenSift/pkg/storage/repository"
 	"github.com/go-redis/redis/v8"
 	_ "github.com/lib/pq"
 	"github.com/samber/lo"

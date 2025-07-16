@@ -7,9 +7,9 @@ import (
 	"sort"
 	"time"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/config"
-	"github.com/HUSTSecLab/criticality_score/pkg/logger"
-	"github.com/HUSTSecLab/criticality_score/pkg/storage"
+	"github.com/HUSTSecLab/OpenSift/pkg/config"
+	"github.com/HUSTSecLab/OpenSift/pkg/logger"
+	"github.com/HUSTSecLab/OpenSift/pkg/storage"
 	"github.com/spf13/pflag"
 )
 

@@ -3,7 +3,7 @@ package model
 import (
 	"time"
 
-	"github.com/HUSTSecLab/criticality_score/cmd/apiserver/internal/tool"
+	"github.com/HUSTSecLab/OpenSift/cmd/apiserver/internal/tool"
 	"github.com/samber/lo"
 )
 

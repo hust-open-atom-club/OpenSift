@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/linkenumerator/api"
+	"github.com/HUSTSecLab/OpenSift/pkg/linkenumerator/api"
 	"github.com/bytedance/gopkg/util/gopool"
 	"github.com/sirupsen/logrus"
 )

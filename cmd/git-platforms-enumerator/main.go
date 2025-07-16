@@ -4,10 +4,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/config"
-	"github.com/HUSTSecLab/criticality_score/pkg/linkenumerator/enumerator"
-	"github.com/HUSTSecLab/criticality_score/pkg/linkenumerator/writer"
-	"github.com/HUSTSecLab/criticality_score/pkg/storage"
+	"github.com/HUSTSecLab/OpenSift/pkg/config"
+	"github.com/HUSTSecLab/OpenSift/pkg/linkenumerator/enumerator"
+	"github.com/HUSTSecLab/OpenSift/pkg/linkenumerator/writer"
+	"github.com/HUSTSecLab/OpenSift/pkg/storage"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
 )

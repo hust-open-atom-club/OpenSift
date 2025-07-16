@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/storage"
-	"github.com/HUSTSecLab/criticality_score/pkg/storage/sqlutil"
+	"github.com/HUSTSecLab/OpenSift/pkg/storage"
+	"github.com/HUSTSecLab/OpenSift/pkg/storage/sqlutil"
 )
 
 type DistPackageRepository interface {

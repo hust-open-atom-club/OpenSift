@@ -3,7 +3,7 @@ package enumerator
 import (
 	"encoding/json"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/logger"
+	"github.com/HUSTSecLab/OpenSift/pkg/logger"
 )
 
 type npmEnumerator struct {

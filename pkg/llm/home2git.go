@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/storage"
+	"github.com/HUSTSecLab/OpenSift/pkg/storage"
 )
 
 var visitedLinks = make(map[string]bool)

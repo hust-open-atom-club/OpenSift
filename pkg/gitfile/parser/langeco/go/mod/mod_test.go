@@ -5,9 +5,9 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/HUSTSecLab/OpenSift/pkg/gitfile/parser"
+	"github.com/HUSTSecLab/OpenSift/pkg/gitfile/parser/langeco"
 	"github.com/stretchr/testify/require"
-	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser"
-	"github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser/langeco"
 )
 
 func TestParse(t *testing.T) {

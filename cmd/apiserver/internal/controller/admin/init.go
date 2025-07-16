@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/HUSTSecLab/criticality_score/pkg/config"
-	"github.com/HUSTSecLab/criticality_score/pkg/logger"
+	"github.com/HUSTSecLab/OpenSift/pkg/config"
+	"github.com/HUSTSecLab/OpenSift/pkg/logger"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 )

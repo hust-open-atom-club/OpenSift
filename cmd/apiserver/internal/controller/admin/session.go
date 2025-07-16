@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/HUSTSecLab/criticality_score/cmd/apiserver/internal/model"
-	"github.com/HUSTSecLab/criticality_score/pkg/config"
+	"github.com/HUSTSecLab/OpenSift/cmd/apiserver/internal/model"
+	"github.com/HUSTSecLab/OpenSift/pkg/config"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 )

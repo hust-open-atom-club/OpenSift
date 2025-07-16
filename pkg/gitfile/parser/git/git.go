@@ -1,8 +1,8 @@
 package git
 
 import (
-	parser "github.com/HUSTSecLab/criticality_score/pkg/gitfile/parser"
-	"github.com/HUSTSecLab/criticality_score/pkg/logger"
+	parser "github.com/HUSTSecLab/OpenSift/pkg/gitfile/parser"
+	"github.com/HUSTSecLab/OpenSift/pkg/logger"
 	gitconfig "github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing"
 

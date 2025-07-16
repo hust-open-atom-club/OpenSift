@@ -5,7 +5,7 @@
 1. Clone this repository:
 
    ```
-   git clone https://github.com/HUSTSecLab/criticality_score.git
+   git clone https://github.com/HUSTSecLab/OpenSift.git
    cd criticality_score
    ```
 

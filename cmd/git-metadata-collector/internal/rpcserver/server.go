@@ -5,11 +5,11 @@ import (
 	"net/rpc"
 	"strconv"
 
-	"github.com/HUSTSecLab/criticality_score/cmd/git-metadata-collector/internal/schedule"
+	"github.com/HUSTSecLab/OpenSift/cmd/git-metadata-collector/internal/schedule"
 
-	"github.com/HUSTSecLab/criticality_score/cmd/git-metadata-collector/internal/task"
-	rpcproto "github.com/HUSTSecLab/criticality_score/cmd/git-metadata-collector/rpc"
-	"github.com/HUSTSecLab/criticality_score/pkg/logger"
+	"github.com/HUSTSecLab/OpenSift/cmd/git-metadata-collector/internal/task"
+	rpcproto "github.com/HUSTSecLab/OpenSift/cmd/git-metadata-collector/rpc"
+	"github.com/HUSTSecLab/OpenSift/pkg/logger"
 )
 
 type RpcServiceServer struct{}
