@@ -1,0 +1,7 @@
+{
+  "name": "matplotlib",
+  "version": "3.5.1",
+  "license": "PSF",
+  "license_family": "PSF",
+  "summary": "Python plotting package"
+}
