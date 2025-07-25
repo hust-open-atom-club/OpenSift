@@ -1,0 +1,7 @@
+{
+  "build": "py38_0",
+  "channel": "conda-forge",
+  "url": "https://repo.anaconda.com/pkgs/main/linux-64/package-1.0.0-py38_0.tar.bz2",
+  "license": "GPL-3.0",
+  "depends": ["python >=3.8"]
+}
