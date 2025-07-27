@@ -1,51 +1,108 @@
+// Cargo enumerator for crates.io packages
 package enumerator
 
 import (
 	"fmt"
+	"strings"
 	"sync"
-	"time"
 
 	"github.com/HUSTSecLab/OpenSift/pkg/linkenumerator/api"
 	"github.com/HUSTSecLab/OpenSift/pkg/linkenumerator/api/cargo"
-	"github.com/HUSTSecLab/OpenSift/pkg/logger"
-	"github.com/bytedance/gopkg/util/gopool"
+	"github.com/sirupsen/logrus"
 )
 
-// Todo Use channel to receive and write data
-func (c *enumeratorBase) EnumerateCargo() {
-	api_url := api.CRATES_IO_ENUMERATE_API_URL
+type CargoEnumerator struct {
+	enumeratorBase
+	take int
+}
+
+func NewCargoEnumerator(take int) *CargoEnumerator {
+	return &CargoEnumerator{
+		enumeratorBase: newEnumeratorBase(),
+		take:           take,
+	}
+}
+
+// Get the best URL for a crate
+func getBestCargoUrl(crate *cargo.Crate) string {
+	if crate.Homepage != nil && *crate.Homepage != "" {
+		return *crate.Homepage
+	}
+	if crate.Repository != "" {
+		return crate.Repository
+	}
+	return ""
+}
+
+// Main enumerate logic with concurrency and pagination
+func (c *CargoEnumerator) Enumerate() error {
+	// Open writer and initialize variables
+	if err := c.writer.Open(); err != nil {
+		logrus.Panic("Open writer", err)
+		return err
+	}
+	defer c.writer.Close()
+
+	u := api.CRATES_IO_ENUMERATE_API_URL + "?sort=downloads&per_page=100&page=1"
+	collected := 0
+	maxConcurrency := 8
+	sem := make(chan struct{}, maxConcurrency)
 	var wg sync.WaitGroup
-	ch := make(chan []cargo.Crate)
-	crates := []cargo.Crate{}
-	// ToDo Set Wait Group
-	wg.Add(1)
-	gopool.Go(func() {
-		defer wg.Done()
-		for crate := range ch {
-			crates = append(crates, crate...)
-		}
-	})
-	for page := 1; page <= 1; page++ {
-		time.Sleep(api.TIME_INTERVAL * time.Second)
-		gopool.Go(func() {
+	var mu sync.Mutex
+	stop := false
+
+	// Loop through pages with concurrency
+	for !stop {
+		sem <- struct{}{}
+		wg.Add(1)
+		pageURL := u
+		go func(url string) {
 			defer wg.Done()
-			u := fmt.Sprintf(
-				"%s?%s=%s&%s=%d&%s=%d",
-				api_url,
-				"sort", "downloads",
-				"per_page", api.PER_PAGE,
-				"page", page,
-			)
-			res, err := c.fetch(u)
+			defer func() { <-sem }()
+			res, err := c.fetch(url)
 			if err != nil {
-				logger.Panic("Cargo", err)
+				logrus.Warnf("Cargo fetch error: %v", err)
+				return
 			}
-			resp := cargo.Response{}
-			if err = res.UnmarshalJson(&resp); err != nil {
-				logger.Panic("Cargo", err)
+			resp, err := api.FromCargo(res)
+			if err != nil {
+				logrus.Warnf("Cargo unmarshal error: %v", err)
+				return
 			}
-			ch <- resp.Crates
-		})
+
+			mu.Lock()
+			defer mu.Unlock()
+			// Write crate info and check stop condition
+			for _, crate := range resp.Crates {
+				if collected >= c.take {
+					stop = true
+					break
+				}
+				url := strings.TrimSuffix(getBestCargoUrl(&crate), ".git")
+				c.writer.Write(crate.Name)
+				c.writer.Write(url)
+				c.writer.Write(crate.MaxVersion)
+				c.writer.Write(fmt.Sprintf("%d", crate.Downloads))
+				c.writer.Write(fmt.Sprintf("%d", crate.RecentDownloads))
+				c.writer.Write("\n")
+				collected++
+			}
+			if collected >= c.take || resp.Meta.NextPage == "" || len(resp.Crates) == 0 {
+				stop = true
+			} else {
+				u = api.CRATES_IO_ENUMERATE_API_URL + resp.Meta.NextPage
+			}
+		}(pageURL)
+
+		if len(sem) == maxConcurrency {
+			wg.Wait()
+		}
+		if stop {
+			break
+		}
 	}
 	wg.Wait()
+	// Log final result
+	logrus.Infof("Enumerator has collected and written %d repositories", collected)
+	return nil
 }
