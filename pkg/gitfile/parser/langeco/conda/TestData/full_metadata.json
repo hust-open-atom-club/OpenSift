@@ -1,0 +1,18 @@
+{
+  "name": "scipy",
+  "version": "1.7.3",
+  "license": "BSD-3-Clause",
+  "platform": "linux-64",
+  "subdir": "linux-64",
+  "build": "py37h5a09861_2",
+  "build_number": 2,
+  "depends": [
+    "libblas >=3.8.0,<4.0a0",
+    "libcblas >=3.8.0,<4.0a0",
+    "liblapack >=3.8.0,<4.0a0",
+    "numpy >=1.16.5,<2.0a0",
+    "python >=3.7,<3.8.0a0"
+  ],
+  "timestamp": 1632844800000,
+  "size": 21345678
+}

@@ -1,0 +1,18 @@
+[package]
+name = "example_project"
+version = "0.1.0"
+authors = ["Alice <alice@example.com>", "Bob <bob@example.com>"]
+edition = "2021"
+
+[dependencies]
+serde = "1.0"
+tokio = { version = "1.0", features = ["rt"] }
+reqwest = { version = "0.11", default-features = false }
+
+[dev-dependencies]
+mockito = "0.31"
+test-case = "2.0"
+
+[build-dependencies]
+cc = "1.0"
+protobuf-codegen = "3.0"
