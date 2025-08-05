@@ -13,7 +13,10 @@ import (
 	"github.com/HUSTSecLab/OpenSift/pkg/collector/gentoo"
 	"github.com/HUSTSecLab/OpenSift/pkg/collector/homebrew"
 	"github.com/HUSTSecLab/OpenSift/pkg/collector/nix"
+	"github.com/HUSTSecLab/OpenSift/pkg/collector/openanolis"
+	"github.com/HUSTSecLab/OpenSift/pkg/collector/opencloudos"
 	"github.com/HUSTSecLab/OpenSift/pkg/collector/openeuler"
+	"github.com/HUSTSecLab/OpenSift/pkg/collector/openharmony"
 	"github.com/HUSTSecLab/OpenSift/pkg/collector/openkylin"
 	"github.com/HUSTSecLab/OpenSift/pkg/collector/ubuntu"
 	"github.com/HUSTSecLab/OpenSift/pkg/config"
@@ -88,6 +91,18 @@ func main() {
 			defer wg.Done()
 			openkylin.NewOpenKylinCollector().Collect(*flagGenDot)
 		}()
+		go func() {
+			defer wg.Done()
+			openanolis.NewOpenAnolisCollector().Collect(*flagGenDot)
+		}()
+		go func() {
+			defer wg.Done()
+			opencloudos.NewOpenCloudOSCollector().Collect(*flagGenDot)
+		}()
+		go func() {
+			defer wg.Done()
+			openharmony.NewOpenHarmonyCollector().Collect(*flagGenDot, *downloadDir)
+		}()
 
 		wg.Wait()
 	} else {
@@ -118,6 +133,12 @@ func main() {
 			openeuler.NewOpenEulerCollector().Collect(*flagGenDot)
 		case "openkylin":
 			openkylin.NewOpenKylinCollector().Collect(*flagGenDot)
+		case "openanolis":
+			openanolis.NewOpenAnolisCollector().Collect(*flagGenDot)
+		case "opencloudos":
+			opencloudos.NewOpenCloudOSCollector().Collect(*flagGenDot)
+		case "openharmony":
+			openharmony.NewOpenHarmonyCollector().Collect(*flagGenDot, *downloadDir)
 		}
 	}
 }

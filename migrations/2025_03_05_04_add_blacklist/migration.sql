@@ -15,6 +15,11 @@ select git_link from (
                          union distinct select git_link from fedora_packages
                          union distinct select git_link from gentoo_packages
                          union distinct select git_link from ubuntu_packages
+                         union distinct select git_link from openeuler_packages
+                         union distinct select git_link from openkylin_packages
+                         union distinct select git_link from openanolis_packages
+                         union distinct select git_link from opencloudos_packages
+                         union distinct select git_link from openharmony_packages
                          union distinct select git_link from github_links
                          union distinct select git_link from gitlab_links
                          union distinct select git_link from bitbucket_links

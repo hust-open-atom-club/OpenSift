@@ -378,4 +378,115 @@ SELECT ar.frompackage,
 FROM nix_relationships ar
          JOIN nix_packages np1 ON ar.frompackage::text = np1.package
          JOIN nix_packages np2 ON ar.topackage::text = np2.package;
+         
+CREATE TABLE IF NOT EXISTS openkylin_packages
+(
+    package         TEXT NOT NULL
+        CONSTRAINT openkylin_packages_pkey PRIMARY KEY,
+    version         TEXT,
+    homepage        TEXT,
+    description     TEXT,
+    depends_count   BIGINT           DEFAULT 1,
+    git_link        TEXT,
+    page_rank       DOUBLE PRECISION DEFAULT 0,
+    link_confidence REAL
+);
+
+
+CREATE TABLE IF NOT EXISTS openkylin_relationships
+(
+    frompackage VARCHAR(255) NOT NULL REFERENCES openkylin_packages,
+    topackage   VARCHAR(255) NOT NULL,
+    CONSTRAINT openkylin_relationships_pkey PRIMARY KEY (frompackage, topackage)
+);
+
+
+CREATE TABLE IF NOT EXISTS openeuler_packages
+(
+    package         TEXT NOT NULL
+        CONSTRAINT openeuler_packages_pkey PRIMARY KEY,
+    version         TEXT,
+    homepage        TEXT,
+    description     TEXT,
+    depends_count   BIGINT           DEFAULT 1,
+    git_link        TEXT,
+    page_rank       DOUBLE PRECISION DEFAULT 0,
+    link_confidence REAL
+);
+
+
+CREATE TABLE IF NOT EXISTS openeuler_relationships
+(
+    frompackage VARCHAR(255) NOT NULL REFERENCES openeuler_packages,
+    topackage   VARCHAR(255) NOT NULL,
+    CONSTRAINT openeuler_relationships_pkey PRIMARY KEY (frompackage, topackage)
+);
+
+
+CREATE TABLE IF NOT EXISTS openanolis_packages
+(
+    package         TEXT NOT NULL
+        CONSTRAINT openanolis_packages_pkey PRIMARY KEY,
+    version         TEXT,
+    homepage        TEXT,
+    description     TEXT,
+    depends_count   BIGINT           DEFAULT 1,
+    git_link        TEXT,
+    page_rank       DOUBLE PRECISION DEFAULT 0,
+    link_confidence REAL
+);
+
+
+CREATE TABLE IF NOT EXISTS openanolis_relationships
+(
+    frompackage VARCHAR(255) NOT NULL REFERENCES openanolis_packages,
+    topackage   VARCHAR(255) NOT NULL,
+    CONSTRAINT openanolis_relationships_pkey PRIMARY KEY (frompackage, topackage)
+);
+
+
+CREATE TABLE IF NOT EXISTS opencloudos_packages
+(
+    package         TEXT NOT NULL
+        CONSTRAINT opencloudos_packages_pkey PRIMARY KEY,
+    version         TEXT,
+    homepage        TEXT,
+    description     TEXT,
+    depends_count   BIGINT           DEFAULT 1,
+    git_link        TEXT,
+    page_rank       DOUBLE PRECISION DEFAULT 0,
+    link_confidence REAL
+);
+
+
+CREATE TABLE IF NOT EXISTS opencloudos_relationships
+(
+    frompackage VARCHAR(255) NOT NULL REFERENCES opencloudos_packages,
+    topackage   VARCHAR(255) NOT NULL,
+    CONSTRAINT opencloudos_relationships_pkey PRIMARY KEY (frompackage, topackage)
+);
+
+
+CREATE TABLE IF NOT EXISTS openharmony_packages
+(
+    package         TEXT NOT NULL
+        CONSTRAINT openharmony_packages_pkey PRIMARY KEY,
+    version         TEXT,
+    homepage        TEXT,
+    description     TEXT,
+    depends_count   BIGINT           DEFAULT 1,
+    git_link        TEXT,
+    page_rank       DOUBLE PRECISION DEFAULT 0,
+    link_confidence REAL
+);
+
+
+CREATE TABLE IF NOT EXISTS openharmony_relationships
+(
+    frompackage VARCHAR(255) NOT NULL REFERENCES openharmony_packages,
+    topackage   VARCHAR(255) NOT NULL,
+    CONSTRAINT openharmony_relationships_pkey PRIMARY KEY (frompackage, topackage)
+);
+         
+         
 

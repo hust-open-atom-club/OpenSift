@@ -10,3 +10,8 @@ ALTER TABLE fedora_packages RENAME COLUMN dl_3m_vol TO downloads_3m;
 ALTER TABLE deepin_packages RENAME COLUMN dl_3m_vol TO downloads_3m;
 ALTER TABLE centos_packages RENAME COLUMN dl_3m_vol TO downloads_3m;
 ALTER TABLE aur_packages RENAME COLUMN dl_3m_vol TO downloads_3m;
+ALTER TABLE openeuler_packages RENAME COLUMN dl_3m_vol TO downloads_3m;
+ALTER TABLE openkylin_packages RENAME COLUMN dl_3m_vol TO downloads_3m;
+ALTER TABLE openanolis_packages RENAME COLUMN dl_3m_vol TO downloads_3m;
+ALTER TABLE opencloudos_packages RENAME COLUMN dl_3m_vol TO downloads_3m;
+ALTER TABLE openharmony_packages RENAME COLUMN dl_3m_vol TO downloads_3m;

@@ -86,6 +86,19 @@ var (
 	OpenKylinURL = PackageURL{
 		"https://mirrors.hust.edu.cn/openkylin/dists/huanghe/main/binary-amd64/Packages.gz",
 	}
+
+	OpenAnolisURL = PackageURL{
+		"https://mirrors.openanolis.cn/anolis/23/os/x86_64/os/repodata/b8deff7d46ad19c92ec958ea1113fccece011dcb718b29dbd238864e7e28760b-primary.xml.gz",
+	}
+
+	OpenHarmonyURL = PackageURL{
+		"https://gitee.com/openharmony/manifest/raw/OpenHarmony-5.1.0-Release/ohos/ohos.xml",
+	}
+
+	OpenCloudOSURL = PackageURL{
+		"https://mirrors.opencloudos.tech/opencloudos/8.6/BaseOS/x86_64/os/repodata/f2da23eddb3242a3f3e71dfba303726141e5c01662f6f86d0fedd6dffde830bd-primary.xml.gz",
+		"https://mirrors.opencloudos.tech/opencloudos/9.4/BaseOS/x86_64/os/repodata/d7efd4aec2a6bf15c7e7240dc1e1972f5764cc8610613d8329fe7ce0319fffb0-primary.xml.gz",
+	}
 )
 
 func NewPackageInfo() PackageInfoInterface {

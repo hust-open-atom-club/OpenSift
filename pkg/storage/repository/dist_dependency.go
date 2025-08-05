@@ -49,6 +49,9 @@ const (
 	Ubuntu
 	OpenEuler
 	OpenKylin
+	OpenAnolis
+	OpenCloudOS
+	OpenHarmony
 	Other
 )
 
@@ -102,6 +105,12 @@ func (r *distLinkRepository) QueryDistCountByType(distType DistType) (int, error
 		tableName = "openeuler_packages"
 	case OpenKylin:
 		tableName = "openkylin_packages"
+	case OpenAnolis:
+		tableName = "openanolis_packages"
+	case OpenCloudOS:
+		tableName = "opencloudos_packages"
+	case OpenHarmony:
+		tableName = "openharmony_packages"
 	default:
 		return 0, ErrInvalidInput
 	}
@@ -174,6 +183,12 @@ func (r *distLinkRepository) InsertRelationships(distType DistType, relationship
 		tableName = "openeuler_relationships"
 	case OpenKylin:
 		tableName = "openkylin_relationships"
+	case OpenAnolis:
+		tableName = "openanolis_packages"
+	case OpenCloudOS:
+		tableName = "opencloudos_packages"
+	case OpenHarmony:
+		tableName = "openharmony_packages"
 	default:
 		return ErrInvalidInput
 	}

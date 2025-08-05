@@ -30,3 +30,18 @@ ADD COLUMN dl_3m_vol BIGINT DEFAULT 0 NOT NULL;
 
 ALTER TABLE aur_packages 
 ADD COLUMN dl_3m_vol BIGINT DEFAULT 0 NOT NULL;
+
+ALTER TABLE openeuler_packages 
+ADD COLUMN dl_3m_vol BIGINT DEFAULT 0 NOT NULL;
+
+ALTER TABLE openkylin_packages 
+ADD COLUMN dl_3m_vol BIGINT DEFAULT 0 NOT NULL;
+
+ALTER TABLE openanolis_packages 
+ADD COLUMN dl_3m_vol BIGINT DEFAULT 0 NOT NULL;
+
+ALTER TABLE opencloudos_packages 
+ADD COLUMN dl_3m_vol BIGINT DEFAULT 0 NOT NULL;
+
+ALTER TABLE openharmony_packages 
+ADD COLUMN dl_3m_vol BIGINT DEFAULT 0 NOT NULL;

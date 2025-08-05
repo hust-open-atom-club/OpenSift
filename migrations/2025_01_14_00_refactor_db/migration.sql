@@ -24,6 +24,11 @@ create index on distribution_dependencies (git_link);
 -- Fedora 8
 -- Gentoo 9
 -- Ubuntu 10
+-- OpenEuler 11
+-- OpenKylin 12
+-- OpenAnolis 13
+-- OpenCloudOS 14
+-- OpenHarmony 15
 
 insert into distribution_dependencies (git_link, type, dep_count, page_rank, impact, update_time)
 select git_link, 0, depends_count, page_rank, 0, now()
@@ -79,6 +84,32 @@ insert into distribution_dependencies (git_link, type, dep_count, page_rank, imp
 select git_link, 10, depends_count, page_rank, 0, now()
 from ubuntu_packages
 where git_link is not null and git_link <> '' and git_link <> 'NA' and git_link <> 'NaN';
+
+insert into distribution_dependencies (git_link, type, dep_count, page_rank, impact, update_time)
+select git_link, 11, depends_count, page_rank, 0, now()
+from openeuler_packages
+where git_link is not null and git_link <> '' and git_link <> 'NA' and git_link <> 'NaN';
+
+insert into distribution_dependencies (git_link, type, dep_count, page_rank, impact, update_time)
+select git_link, 12, depends_count, page_rank, 0, now()
+from openkylin_packages
+where git_link is not null and git_link <> '' and git_link <> 'NA' and git_link <> 'NaN';
+
+insert into distribution_dependencies (git_link, type, dep_count, page_rank, impact, update_time)
+select git_link, 13, depends_count, page_rank, 0, now()
+from openanolis_packages
+where git_link is not null and git_link <> '' and git_link <> 'NA' and git_link <> 'NaN';
+
+insert into distribution_dependencies (git_link, type, dep_count, page_rank, impact, update_time)
+select git_link, 14, depends_count, page_rank, 0, now()
+from opencloudos_packages
+where git_link is not null and git_link <> '' and git_link <> 'NA' and git_link <> 'NaN';
+
+insert into distribution_dependencies (git_link, type, dep_count, page_rank, impact, update_time)
+select git_link, 15, depends_count, page_rank, 0, now()
+from openharmony_packages
+where git_link is not null and git_link <> '' and git_link <> 'NA' and git_link <> 'NaN';
+
 
 -- ****** END migrate distribution_dependencies
 
@@ -168,6 +199,11 @@ create index on deepin_packages (git_link);
 create index on fedora_packages (git_link);
 create index on gentoo_packages (git_link);
 create index on ubuntu_packages (git_link);
+create index on openeuler_packages (git_link);
+create index on openkylin_packages (git_link);
+create index on openanolis_packages (git_link);
+create index on opencloudos_packages (git_link);
+create index on openharmony_packages (git_link);
 
 create view all_gitlinks as
 select git_link from (
@@ -182,6 +218,11 @@ select git_link from (
                          union distinct select git_link from fedora_packages
                          union distinct select git_link from gentoo_packages
                          union distinct select git_link from ubuntu_packages
+                         union distinct select git_link from openeuler_packages
+                         union distinct select git_link from openkylin_packages
+                         union distinct select git_link from openanolis_packages
+                         union distinct select git_link from opencloudos_packages
+                         union distinct select git_link from openharmony_packages
                          union distinct select git_link from github_links
                          union distinct select git_link from gitlab_links
                          union distinct select git_link from bitbucket_links) t
