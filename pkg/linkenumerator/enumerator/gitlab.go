@@ -1,3 +1,4 @@
+// GitLab enumerator for popular repositories
 package enumerator
 
 import (
@@ -25,8 +26,9 @@ func NewGitlabEnumerator(take int, jobs int) Enumerator {
 	}
 }
 
-// Todo Use channel to receive and write data
+// Main enumerate logic with concurrency and pagination
 func (c *gitlabEnumerator) Enumerate() error {
+	// Open writer and initialize variables
 	if err := c.writer.Open(); err != nil {
 		return err
 	}
@@ -40,7 +42,9 @@ func (c *gitlabEnumerator) Enumerate() error {
 
 	pool := gopool.NewPool("gitlab_enumerator", int32(c.jobs), &gopool.Config{})
 
-	for page := 1; page <= c.take/api.PER_PAGE; page++ {
+	repoCount := 0
+	// Loop through pages and fetch repositories concurrently
+	for page := 1; repoCount < c.take; page++ {
 		time.Sleep(api.TIME_INTERVAL * time.Second)
 		wg.Add(1)
 		pool.Go(func() {
@@ -66,23 +70,30 @@ func (c *gitlabEnumerator) Enumerate() error {
 				return
 			}
 
+			// Write repository info
 			for _, v := range *resp {
-				// if ends with .git, remove it
+				if repoCount >= c.take {
+					break
+				}
 				if strings.HasSuffix(v.HTTPURLToRepo, ".git") {
 					v.HTTPURLToRepo = v.HTTPURLToRepo[:len(v.HTTPURLToRepo)-4]
 				}
+				c.writer.Write(v.Name)
 				c.writer.Write(v.HTTPURLToRepo)
+				c.writer.Write(fmt.Sprintf("%d", v.StarCount))
+				repoCount++
 			}
 
 			func() {
 				muCollected.Lock()
 				defer muCollected.Unlock()
 				collected += len(*resp)
-				logrus.Infof("Enumerator has collected and written %d repositories", collected)
 			}()
 
 		})
 	}
 	wg.Wait()
+	// Log final result
+	logrus.Infof("Enumerator has collected and written %d repositories", collected)
 	return nil
 }
