@@ -52,18 +52,21 @@ func (c *BitBucketEnumerator) Enumerate() error {
 		}
 
 		for _, v := range resp.Values {
+			if c.take > 0 && collected >= c.take {
+				break // 只收集到 take 个就停止
+			}
 			url := getBestBitBucketGitURL(&v)
 			if strings.HasSuffix(url, ".git") {
 				url = url[:len(url)-4]
 			}
 			c.writer.Write(url)
+			collected++
 		}
-
-		collected += len(resp.Values)
 
 		logrus.Infof("Enumerator has collected and written %d repositories", collected)
 
-		if collected >= c.take || resp.Next == "" || len(resp.Values) == 0 {
+		// 如果收集够了或者没有下一页就退出
+		if (c.take > 0 && collected >= c.take) || resp.Next == "" || len(resp.Values) == 0 {
 			break
 		}
 
@@ -71,35 +74,3 @@ func (c *BitBucketEnumerator) Enumerate() error {
 	}
 	return nil
 }
-
-// TODO: implement the following functions
-
-// // ToDo
-// func (c *Enumerator) enumeratePyPI() {
-
-// }
-
-// // ToDo
-// func (c *Enumerator) enumerateNPM() {
-
-// }
-
-// // ToDo
-// func (c *Enumerator) enumerateGo() {
-
-// }
-
-// // ToDo
-// func (c *Enumerator) enumeratePHP() {
-
-// }
-
-// // ToDo
-// func (c *Enumerator) enumerateHaskell() {
-
-// }
-
-// // ToDo
-// func (c *Enumerator) enumerateRubyGems() {
-
-// }
