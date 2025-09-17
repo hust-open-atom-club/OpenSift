@@ -46,6 +46,7 @@ require (
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/richardlehane/mscfb v1.0.4 // indirect
 	github.com/richardlehane/msoleps v1.0.4 // indirect
+	github.com/scagogogo/erlang-rebar-config-parser v0.0.0-20250717103855-5a6b9b3d6873 // indirect
 	github.com/tiendc/go-deepcopy v1.6.0 // indirect
 	github.com/xuri/efp v0.0.1 // indirect
 	github.com/xuri/excelize/v2 v2.9.1 // indirect

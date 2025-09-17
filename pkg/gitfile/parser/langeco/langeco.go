@@ -12,6 +12,7 @@ var (
 		parser.CARGO: true,
 		parser.PYPI:  true,
 		parser.NUGET: true,
+		parser.REBAR: true,
 	}
 
 /*
@@ -40,6 +41,8 @@ const (
 	PY_PROJECT          = "pyproject.toml"
 	PY_REQUIREMENTS     = "requirements.txt"
 	PY_SETUP            = "setup.py"
+	REBAR_CONFIG				= "rebar.config"
+	REBAR_LOCK					= "rebar.lock"
 )
 
 type Package struct {

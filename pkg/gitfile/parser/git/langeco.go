@@ -18,6 +18,7 @@ import (
 	"github.com/HUSTSecLab/OpenSift/pkg/gitfile/parser/langeco/python/pypi/setup"
 	"github.com/HUSTSecLab/OpenSift/pkg/gitfile/parser/langeco/rust/cargo"
 	"github.com/HUSTSecLab/OpenSift/pkg/gitfile/parser/langeco/rust/lock"
+	"github.com/HUSTSecLab/OpenSift/pkg/gitfile/parser/langeco/erlang/rebar"
 	"github.com/HUSTSecLab/OpenSift/pkg/logger"
 	"github.com/go-git/go-git/v5/plumbing/object"
 )
@@ -120,6 +121,10 @@ func (led *LangEcoDeps) getDependencies(file *object.File) {
 		pkg, deps, err = dotnet.Parse(content) //* .NET
 	case langeco.NUGET_CONFIG:
 		pkg, deps, err = nuget.Parse(content) //* NuGet
+	case langeco.REBAR_CONFIG:
+		pkg, deps, err = rebar.Parse(content) //* Rebar3
+	case langeco.REBAR_LOCK:
+		pkg, deps, err = rebar.Parse(content) //* Rebar3
 	default:
 		return
 	}
