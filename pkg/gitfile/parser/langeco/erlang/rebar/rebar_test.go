@@ -8,6 +8,7 @@ import (
     "github.com/HUSTSecLab/OpenSift/pkg/gitfile/parser"  
     "github.com/HUSTSecLab/OpenSift/pkg/gitfile/parser/langeco"  
     "github.com/stretchr/testify/require"  
+    rebarParser "github.com/scagogogo/erlang-rebar-config-parser/pkg/parser"  
 )  
   
 func TestParse(t *testing.T) {  
