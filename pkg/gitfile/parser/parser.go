@@ -1493,6 +1493,7 @@ const (
 	NUGET    = "nuget"
 	COMPOSER = "COMPOSER"
 	BUNDLER  = "bundler"
+	REBAR	 = "rebar"
 )
 
 var ECOSYSTEM_MAP = map[string]string{
@@ -1533,4 +1534,7 @@ var ECOSYSTEM_MAP = map[string]string{
 	"go.work.sum":              GO,
 	"go.mod":                   GO,
 	"go.work":                  GO,
+	"rebar.config":             REBAR,
+	"rebar.lock":               REBAR,
+	"rebar.config.lock":        REBAR,
 }
