@@ -20,12 +20,8 @@ func Parse(content string) (*langeco.Package, *langeco.Dependencies, error) {
     var rebarCfg rebarConfig  
       
     if appName, ok := config.GetAppName(); ok {  
-        rebarCfg.appName = appName  
+        rebarCfg.appName = appName
     }  
-      
-    //if deps, ok := config.GetDeps(); ok {  
-    //    rebarCfg.deps = deps  
-    //}  
       
     pkg := &langeco.Package{  
         Name:    rebarCfg.appName,  
@@ -64,6 +60,7 @@ func Parse(content string) (*langeco.Package, *langeco.Dependencies, error) {
                         deps = append(deps, langeco.Package{ // ✅ 确保 langeco.Dependency 已定义
                             Name:    name,
                             Version: version,
+                            Eco:     parser.REBAR,
                         })
                     }
                 }
