@@ -10,7 +10,7 @@ mkdir -p WHERE_YOU_WANT_TO_PUT_THE_PREFIX
 ## Prepare a docker container
 
 ```bash
-docker run -name build-gentoo -v WHERE_YOU_WANT_TO_PUT_THE_PREFIX:/root -it ubuntu:latest
+docker run --name build-gentoo -v WHERE_YOU_WANT_TO_PUT_THE_PREFIX:/root -it ubuntu:latest
 ```
 
 ## Install the necessary packages

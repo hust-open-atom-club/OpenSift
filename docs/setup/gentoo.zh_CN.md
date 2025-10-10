@@ -9,7 +9,7 @@ mkdir -p <你想要放置 Gentoo prefix 的位置>
 ## 准备一个 Docker 容器
 
 ```bash
-docker run -name build-gentoo -v <你想要放置 Gentoo prefix 的位置>:/root -it ubuntu:latest
+docker run --name build-gentoo -v <你想要放置 Gentoo prefix 的位置>:/root -it ubuntu:latest
 ```
 
 ## 安装必要的软件包
