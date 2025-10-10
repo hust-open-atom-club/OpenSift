@@ -29,6 +29,7 @@ func RegistDatabaseFlags(flag *pflag.FlagSet) {
 	flag.String("db-user", "", "database user,\ncan set by environment DB_USER")
 	flag.String("db-password", "", "database password,\ncan set by environment DB_PASSWORD")
 	flag.String("db-password-file", "", "database password file, if db-password is set, this will be ignored,\ncan set by environment DB_PASSWORD_FILE")
+	flag.String("db-name", "postgres", "database name,\ncan set by environment DB_DATABASE")
 	flag.Bool("db-use-ssl", false, "use ssl to connect database,\ncan set by environment DB_USE_SSL")
 
 	viper.BindPFlag("db.host", flag.Lookup("db-host"))
@@ -36,6 +37,7 @@ func RegistDatabaseFlags(flag *pflag.FlagSet) {
 	viper.BindPFlag("db.user", flag.Lookup("db-user"))
 	viper.BindPFlag("db.password", flag.Lookup("db-password"))
 	viper.BindPFlag("db.password-file", flag.Lookup("db-password-file"))
+	viper.BindPFlag("db.database", flag.Lookup("db-name"))
 	viper.BindPFlag("db.use-ssl", flag.Lookup("db-use-ssl"))
 
 	viper.BindEnv("db.host", "DB_HOST")
@@ -43,6 +45,7 @@ func RegistDatabaseFlags(flag *pflag.FlagSet) {
 	viper.BindEnv("db.user", "DB_USER")
 	viper.BindEnv("db.password", "DB_PASSWORD")
 	viper.BindEnv("db.password-file", "DB_PASSWORD_FILE")
+	viper.BindEnv("db.database", "DB_DATABASE")
 	viper.BindEnv("db.use-ssl", "DB_USE_SSL")
 }
 
