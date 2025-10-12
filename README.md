@@ -32,7 +32,7 @@ export GITHUB_TOKEN=<your GitHub token> # This is essential for github enumerati
 ./setup.sh
 ```
 
-1. After finishing the setup script, try to connect to the postgresql database (the password is stored in `data/DB_PASSWD`).
+1. After finishing the setup script, try to run `docker compose exec db psql -h localhost -U postgres -c "CREATE DATABASE criticality_score;` and connect to the postgresql database (the password is stored in `data/DB_PASSWD`).
 
 2. Populate git_link fields in arch_packages, debian_packages and other distribution package table manually and finally run following command. If git_link data is already there, you can use `scripts/copy-gitlink.py` tool to copy the data to the database.
 
@@ -88,3 +88,4 @@ We have established a model that includes three dimensions:
 ## Reference
 
 [1] <https://github.com/ossf/criticality_score>
+
