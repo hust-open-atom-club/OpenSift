@@ -20,6 +20,8 @@ services:
       - /app/workflow-runner
       - -c
       - /config/config.yaml
+      - --rpc-workflow
+      - "0.0.0.0:50051"
     volumes:
       - ${DATA_DIR}/config:/config:ro
       - ${DATA_DIR}/rec:/data/rec
