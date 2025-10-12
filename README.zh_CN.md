@@ -32,7 +32,7 @@ export GITHUB_TOKEN=<你的 GitHub Token>
 ./setup.sh
 ```
 
-1. 启动脚本完成后，尝试连接到数据库（密码存储在 data/DB_PASSWD 中）。
+1. 启动脚本完成后，运行`docker compose exec db psql -h localhost -U postgres -c "CREATE DATABASE criticality_score;`并尝试连接到数据库（密码存储在 data/DB_PASSWD 中）。
 
 2. 手动填充 arch_packages 和 debian_packages 中的 git_link 字段，最后运行以下命令。如果 git_link 数据已存在，可以使用 scripts/copy-gitlink.py 工具将数据复制到数据库中。
 
