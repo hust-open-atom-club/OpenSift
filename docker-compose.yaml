@@ -193,3 +193,19 @@ services:
       interval: 10s
       timeout: 10s
       retries: 120
+  logstash:
+    depends_on:
+      es:
+        condition: service_healthy
+    image: docker.elastic.co/logstash/logstash:8.17.1
+    volumes:
+      - ./data/logstash/config:/usr/share/logstash/config
+      - ./data/logstash/pipeline:/usr/share/logstash/pipeline
+      - ./data/es/certs:/usr/share/logstash/config/certs
+      - ${DATA_DIR}/log:/data/log:ro
+    ports:
+      - "${LOGSTASH_HOST_PORT}:5044"
+    environment:
+      - XPACK_MONITORING_ENABLED=false
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - LS_JAVA_OPTS=-Xmx256m -Xms256m
