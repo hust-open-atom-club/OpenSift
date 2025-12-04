@@ -51,6 +51,7 @@ const (
 	DistLinkTablePrefixUbuntu                           = "ubuntu"
 	DistLinkTablePrefixOpenEuler                        = "openeuler"
 	DistLinkTablePrefixOpenKylin                        = "openkylin"
+	DistLinkTablePrefixOpenCloud                        = "opencloud"
 )
 
 type DistPackage struct {

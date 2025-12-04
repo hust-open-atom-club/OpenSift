@@ -86,6 +86,9 @@ var (
 	OpenKylinURL = PackageURL{
 		"https://mirrors.hust.edu.cn/openkylin/dists/huanghe/main/binary-amd64/Packages.gz",
 	}
+	OpenCloudURL = PackageURL{
+		"https://mirrors.example.com/opencloud/repodata/primary.xml.gz", // 替换为实际URL
+	}
 )
 
 func NewPackageInfo() PackageInfoInterface {
