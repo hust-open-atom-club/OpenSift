@@ -89,6 +89,9 @@ var (
 	OpenCloudURL = PackageURL{
 		"https://mirrors.example.com/opencloud/repodata/primary.xml.gz", // 替换为实际URL
 	}
+	OpenAnolisURL = PackageURL{
+		"https://mirrors.openanolis.cn/anolis/8.8/AppStream/source/tree/repodata/primary.xml.gz",
+	}
 )
 
 func NewPackageInfo() PackageInfoInterface {

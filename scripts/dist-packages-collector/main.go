@@ -13,6 +13,7 @@ import (
 	"github.com/HUSTSecLab/OpenSift/pkg/collector/gentoo"
 	"github.com/HUSTSecLab/OpenSift/pkg/collector/homebrew"
 	"github.com/HUSTSecLab/OpenSift/pkg/collector/nix"
+	"github.com/HUSTSecLab/OpenSift/pkg/collector/openanolis"
 	"github.com/HUSTSecLab/OpenSift/pkg/collector/opencloud"
 	"github.com/HUSTSecLab/OpenSift/pkg/collector/openeuler"
 	"github.com/HUSTSecLab/OpenSift/pkg/collector/openkylin"
@@ -93,6 +94,10 @@ func main() {
 			defer wg.Done()
 			opencloud.NewOpenCloudCollector().Collect(*flagGenDot)
 		}()
+		go func() {
+			defer wg.Done()
+			openanolis.NewOpenAnolisCollector().Collect(*flagGenDot)
+		}()
 
 		wg.Wait()
 	} else {
@@ -125,6 +130,8 @@ func main() {
 			openkylin.NewOpenKylinCollector().Collect(*flagGenDot)
 		case "opencloud":
 			opencloud.NewOpenCloudCollector().Collect(*flagGenDot)
+		case "opemanolis":
+			openanolis.NewOpenAnolisCollector().Collect(*flagGenDot)
 		}
 	}
 }

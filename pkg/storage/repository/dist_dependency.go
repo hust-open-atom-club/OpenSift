@@ -50,6 +50,7 @@ const (
 	OpenEuler
 	OpenKylin
 	OpenCloud
+	OpenAnolis
 	Other
 )
 
@@ -105,6 +106,8 @@ func (r *distLinkRepository) QueryDistCountByType(distType DistType) (int, error
 		tableName = "openkylin_packages"
 	case OpenCloud:
 		tableName = "opencloud_packages"
+	case OpenAnolis:
+		tableName = "openanolis_packages"
 	default:
 		return 0, ErrInvalidInput
 	}
@@ -179,6 +182,8 @@ func (r *distLinkRepository) InsertRelationships(distType DistType, relationship
 		tableName = "openkylin_relationships"
 	case OpenCloud:
 		tableName = "opencloud_relationships"
+	case OpenAnolis:
+		tableName = "openanolis_relationships"
 	default:
 		return ErrInvalidInput
 	}
